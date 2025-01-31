@@ -1,0 +1,212 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             Int         @id @default(autoincrement())
+  first_name     String      @db.VarChar(255)
+  middle_name    String?     @db.VarChar(255)
+  last_name      String      @db.VarChar(255)
+  mobile_number  String      @db.VarChar(15)
+  user_id        Bytes       @unique(map: "user_id") @db.Binary(16)
+  email          String      @unique(map: "email") @db.VarChar(255)
+  password       String      @db.VarChar(255)
+  created_at     DateTime?   @default(now()) @db.Timestamp(0)
+  updated_at     DateTime?   @default(now()) @db.Timestamp(0)
+  created_by     Bytes?      @db.Binary(16)
+  updated_by     Bytes?      @db.Binary(16)
+  recordStatus   Boolean?    @default(true)
+  role_user      role_user[]
+  staff          staff[]
+  students       students[]
+
+  @@map("users")
+}
+
+model permission_role {
+  id            Int         @id @default(autoincrement())
+  role_id       Int
+  permission_id Int
+  created_at    DateTime?   @default(now()) @db.Timestamp(0)
+  roles         roles       @relation(fields: [role_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "permission_role_ibfk_1")
+  permissions   permissions @relation(fields: [permission_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "permission_role_ibfk_2")
+
+  @@unique([role_id, permission_id], map: "role_id")
+  @@index([permission_id], map: "permission_id")
+}
+
+model permissions {
+  id              Int               @id @default(autoincrement())
+  name            String            @unique(map: "name") @db.VarChar(100)
+  description     String?           @db.Text
+  created_at      DateTime?         @default(now()) @db.Timestamp(0)
+  updated_at      DateTime?         @default(now()) @db.Timestamp(0)
+  created_by      Bytes?            @db.Binary(16)
+  updated_by      Bytes?            @db.Binary(16)
+  recordStatus    Boolean?          @default(true)
+  permission_role permission_role[]
+}
+
+model role_user {
+  id         Int       @id @default(autoincrement())
+  user_id    Int
+  role_id    Int
+  created_at DateTime? @default(now()) @db.Timestamp(0)
+  users      User      @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "role_user_ibfk_1")
+  roles      roles     @relation(fields: [role_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "role_user_ibfk_2")
+
+  @@unique([user_id, role_id], map: "user_id")
+  @@index([role_id], map: "role_id")
+}
+
+model roles {
+  id              Int               @id @default(autoincrement())
+  name            String            @unique(map: "name") @db.VarChar(100)
+  description     String?           @db.Text
+  created_at      DateTime?         @default(now()) @db.Timestamp(0)
+  updated_at      DateTime?         @default(now()) @db.Timestamp(0)
+  created_by      Bytes?            @db.Binary(16)
+  updated_by      Bytes?            @db.Binary(16)
+  recordStatus    Boolean?          @default(true)
+  permission_role permission_role[]
+  role_user       role_user[]
+}
+
+model siblings {
+  id                  Int                     @id @default(autoincrement())
+  student_id          Int
+  sibling_name        String                  @db.VarChar(255)
+  sibling_bdate       DateTime                @db.Date
+  sibling_age         Int
+  sibling_status      siblings_sibling_status
+  living_with_parents Boolean
+  own_house           Boolean
+  created_at          DateTime?               @default(now()) @db.Timestamp(0)
+  updated_at          DateTime?               @default(now()) @db.Timestamp(0)
+  created_by          Bytes?                  @db.Binary(16)
+  updated_by          Bytes?                  @db.Binary(16)
+  recordStatus        Boolean?                @default(true)
+  students            students                @relation(fields: [student_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "siblings_ibfk_1")
+
+  @@index([student_id], map: "student_id")
+}
+
+model staff {
+  id             Int       @id @default(autoincrement())
+  user_id        Int
+  first_name     String    @db.VarChar(255)
+  middle_name    String?   @db.VarChar(255)
+  last_name      String    @db.VarChar(255)
+  extension_name String?   @db.VarChar(255)
+  sex            String    @db.VarChar(10)
+  position       String    @db.VarChar(255)
+  department     String?   @db.VarChar(255)
+  email          String    @unique(map: "email") @db.VarChar(255)
+  mobile_number  String    @db.VarChar(15)
+  created_at     DateTime? @default(now()) @db.Timestamp(0)
+  updated_at     DateTime? @default(now()) @db.Timestamp(0)
+  created_by     Bytes?    @db.Binary(16)
+  updated_by     Bytes?    @db.Binary(16)
+  recordStatus   Boolean?  @default(true)
+  users          User      @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "staff_ibfk_1")
+
+  @@index([user_id], map: "user_id")
+}
+
+model students {
+  id                        Int                          @id @default(autoincrement())
+  student_id                Bytes                        @unique(map: "student_id") @db.Binary(16)
+  user_id                   Int
+  first_name                String                       @db.VarChar(255)
+  middle_name               String?                      @db.VarChar(255)
+  last_name                 String                       @db.VarChar(255)
+  extension_name            String?                      @db.VarChar(255)
+  sex                       String                       @db.VarChar(10)
+  place_of_birth            String                       @db.VarChar(255)
+  birthdate                 DateTime                     @db.Date
+  height                    Float?                       @db.Float
+  weight                    Float?                       @db.Float
+  permanent_address         String                       @db.Text
+  current_address           String                       @db.Text
+  email                     String                       @unique(map: "email") @db.VarChar(255)
+  mobile_number             String                       @db.VarChar(15)
+  is_solo_parent            Boolean
+  is_child_of_solo_parent   Boolean
+  is_indigenous_people      Boolean
+  indigenous_group          String?                      @db.VarChar(255)
+  is_sped                   Boolean
+  is_pwd                    Boolean
+  emergency_contact_name    String                       @db.VarChar(255)
+  emergency_contact_number  String                       @db.VarChar(15)
+  academic_strand           String                       @db.VarChar(255)
+  program_name              String                       @db.VarChar(255)
+  award_honor               String?                      @db.VarChar(255)
+  organization              String?                      @db.VarChar(255)
+  school_name               String                       @db.VarChar(255)
+  school_address            String                       @db.VarChar(255)
+  school_type               students_school_type
+  year_of_graduation        Int
+  current_program_name      String                       @db.VarChar(255)
+  current_year_level        Int
+  current_award_honor       String?                      @db.VarChar(255)
+  current_organization      String?                      @db.VarChar(255)
+  current_school_name       String                       @db.VarChar(255)
+  current_school_address    String                       @db.VarChar(255)
+  current_school_type       students_current_school_type
+  father_last_name          String                       @db.VarChar(255)
+  father_first_name         String                       @db.VarChar(255)
+  father_middle_name        String?                      @db.VarChar(255)
+  father_extension          String?                      @db.VarChar(255)
+  father_occupation         String                       @db.VarChar(255)
+  father_income             Float?                       @db.Float
+  father_mobile_number      String                       @db.VarChar(15)
+  mother_maiden_last_name   String                       @db.VarChar(255)
+  mother_maiden_first_name  String                       @db.VarChar(255)
+  mother_maiden_middle_name String?                      @db.VarChar(255)
+  mother_maiden_extension   String?                      @db.VarChar(255)
+  mother_occupation         String                       @db.VarChar(255)
+  mother_income             Float?                       @db.Float
+  mother_mobile_number      String                       @db.VarChar(15)
+  guardian_last_name        String                       @db.VarChar(255)
+  guardian_first_name       String                       @db.VarChar(255)
+  guardian_middle_name      String?                      @db.VarChar(255)
+  guardian_extension        String?                      @db.VarChar(255)
+  guardian_occupation       String                       @db.VarChar(255)
+  guardian_income           Float?                       @db.Float
+  guardian_mobile_number    String                       @db.VarChar(15)
+  number_of_siblings        Int
+  emergency_contact_name2   String                       @db.VarChar(255)
+  emergency_contact_number2 String                       @db.VarChar(15)
+  applicationForm           String                       @db.VarChar(255)
+  created_at                DateTime?                    @default(now()) @db.Timestamp(0)
+  updated_at                DateTime?                    @default(now()) @db.Timestamp(0)
+  created_by                Bytes?                       @db.Binary(16)
+  updated_by                Bytes?                       @db.Binary(16)
+  recordStatus              Boolean?                     @default(true)
+  siblings                  siblings[]
+  users                     User                         @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "students_ibfk_1")
+
+  @@index([user_id], map: "user_id")
+}
+
+enum siblings_sibling_status {
+  Single
+  Married
+  Widowed
+  Divorced
+}
+
+enum students_school_type {
+  Private
+  Public
+}
+
+enum students_current_school_type {
+  Private
+  Public
+}
