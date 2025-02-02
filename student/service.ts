@@ -3,6 +3,9 @@ import { v4 as uuidv4 } from 'uuid';
 import { convertStudentRequestToStudent, convertToSiblingData, convertToStudentResponse } from "../utils/converter";
 import { registerSiblingsRepo, registerStudentRepo } from "./repository";
 import { Sibling } from "./model";
+import multer from "multer";
+import path from "path";
+
 
 export const registerStudentService = async ( data: StudentRequest, authHeader: any ) => {
 

@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { ResponseHandler } from "../response";
-import { StudentRequest } from "../utils";
+import { StudentRequest, VALIDATION_MESSAGES } from "../utils";
 import { registerStudentService } from "./service";
 
 
@@ -20,6 +20,7 @@ export default () => {
             ResponseHandler.invalidRequest(req, res , err.message);
         }
     });
+
     return studentAPI;
 }
 

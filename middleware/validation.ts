@@ -1,9 +1,11 @@
-import { error, LoginRequest, RegisterRequest } from "../utils";
+import { error, LoginRequest, RegisterRequest, VALIDATION_MESSAGES } from "../utils";
 import { NextFunction, Request, Response } from "express";
 import ResponseHandler from "../response/response";
 import { checkEmailExists } from "../authentication/repository";
 import { query, validationResult, body, param } from "express-validator";
 import { checkStudentEmailExists } from "../student/repository";
+import multer from "multer";
+import path from "path";
 
 const validRoles = [
   'Student',
@@ -17,67 +19,63 @@ const validRoles = [
   'Accounting'
 ];
 
+export const validateLoginInput = async (req: Request, res: Response, next: NextFunction) => {
+  const data: LoginRequest = req.body;
+  const errors: error[] = [];
 
-export const validateLoginInput = async (req: Request, res: Response, next:NextFunction ) => {
+  // Validate email
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!data.username || !emailRegex.test(data.username)) {
+    errors.push({ field: "username", message: VALIDATION_MESSAGES.INVALID_EMAIL });
+  }
 
-    const data: LoginRequest = req.body;
-    const errors: error[] = [];
-  
-    // Validate email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!data.username || !emailRegex.test(data.username)) {
-      errors.push({ field: "username", message: "Invalid email format." });
-    }
-  
-    // Validate password
-    if (!data.password || data.password.trim().length === 0) {
-      errors.push({ field: "password", message: "Password cannot be empty." });
-    }
+  // Validate password
+  if (!data.password || data.password.trim().length === 0) {
+    errors.push({ field: "password", message: VALIDATION_MESSAGES.EMPTY_PASSWORD });
+  }
 
-    if(errors.length > 0) {
-        ResponseHandler.invalidRequest(req, res, errors)
-    } else {
-      console.log('Login validation passed, proceeding to next middleware');
-      return next();
-    }
-}
-
+  if (errors.length > 0) {
+    ResponseHandler.invalidRequest(req, res, errors);
+  } else {
+    console.log('Login validation passed, proceeding to next middleware');
+    return next();
+  }
+};
 
 export const validateRegisterInput = [
   body("username")
-    .notEmpty().withMessage("Username is empty or invalid email.")
-    .isEmail().withMessage("Invalid email address")
+    .notEmpty().withMessage(VALIDATION_MESSAGES.INVALID_EMAIL)
+    .isEmail().withMessage(VALIDATION_MESSAGES.INVALID_EMAIL)
     .custom(async value => {
       const exists = await checkEmailExists(value);
-        if (exists) {
-          return Promise.reject('E-mail already in use');
+      if (exists) {
+        return Promise.reject(VALIDATION_MESSAGES.EMAIL_IN_USE);
       }
     }),
   body('password')
-    .notEmpty().withMessage('Password is required')
-    .isLength({ min: 6 }).withMessage('Password must be at least 6 characters long'),
+    .notEmpty().withMessage(VALIDATION_MESSAGES.PASSWORD_REQUIRED)
+    .isLength({ min: 6 }).withMessage(VALIDATION_MESSAGES.PASSWORD_LENGTH),
   body('repassword')
-    .notEmpty().withMessage('Repassword is required')
+    .notEmpty().withMessage(VALIDATION_MESSAGES.PASSWORD_REQUIRED)
     .custom((value, { req }) => {
       if (value !== req.body.password) {
-        throw new Error('Password and repassword must match');
+        throw new Error(VALIDATION_MESSAGES.PASSWORD_MISMATCH);
       }
       return true;
     }),
   body('role')
-    .notEmpty().withMessage('User role is required')
+    .notEmpty().withMessage(VALIDATION_MESSAGES.INVALID_ROLE)
     .custom(value => {
       if (!validRoles.includes(value)) {
-        throw new Error('Invalid user role');
+        throw new Error(VALIDATION_MESSAGES.INVALID_ROLE);
       }
       return true;
     }),
-  body("name.firstName").notEmpty().withMessage("First name is required"),
-  body("name.lastName").notEmpty().withMessage("Last name is required"),
-  body("mobileNumber").notEmpty().withMessage("Invalid mobile number"),
+  body("name.firstName").notEmpty().withMessage(VALIDATION_MESSAGES.FIRST_NAME_REQUIRED),
+  body("name.lastName").notEmpty().withMessage(VALIDATION_MESSAGES.LAST_NAME_REQUIRED),
+  body("mobileNumber").notEmpty().withMessage(VALIDATION_MESSAGES.INVALID_MOBILE_NUMBER),
   // Validation result handler
   async (req: Request, res: Response, next: NextFunction) => {
-    
     const errors: any = validationResult(req);
     if (!errors.isEmpty()) {
       ResponseHandler.invalidRequest(req, res, errors);
@@ -85,56 +83,53 @@ export const validateRegisterInput = [
       next();
     }
   },
-
-]
+];
 
 export const validateStudentRegistration = [
-  
   // Personal Information
-  body("name.firstName").notEmpty().withMessage("First name is required"),
-  body("name.lastName").notEmpty().withMessage("Last name is required"),
-  body("sex").isIn(["Male", "Female"]).withMessage("Invalid sex"),
-  body("placeOfBirth").notEmpty().withMessage("Place of birth is required"),
-  body("birthdate").isISO8601().withMessage("Invalid birthdate format"),
-  body("height").isNumeric().withMessage("Height must be a number"),
-  body("weight").isNumeric().withMessage("Weight must be a number"),
-  body("address.permanent").notEmpty().withMessage("Permanent address is required"),
-  body("address.current").notEmpty().withMessage("Current address is required"),
-  body("email").isEmail().withMessage("Invalid email address").custom(async value => {
+  body("name.firstName").notEmpty().withMessage(VALIDATION_MESSAGES.FIRST_NAME_REQUIRED),
+  body("name.lastName").notEmpty().withMessage(VALIDATION_MESSAGES.LAST_NAME_REQUIRED),
+  body("sex").isIn(["Male", "Female"]).withMessage(VALIDATION_MESSAGES.INVALID_SEX),
+  body("placeOfBirth").notEmpty().withMessage(VALIDATION_MESSAGES.PLACE_OF_BIRTH_REQUIRED),
+  body("birthdate").isISO8601().withMessage(VALIDATION_MESSAGES.INVALID_BIRTHDATE),
+  body("height").isNumeric().withMessage(VALIDATION_MESSAGES.HEIGHT_REQUIRED),
+  body("weight").isNumeric().withMessage(VALIDATION_MESSAGES.WEIGHT_REQUIRED),
+  body("address.permanent").notEmpty().withMessage(VALIDATION_MESSAGES.PERMANENT_ADDRESS_REQUIRED),
+  body("address.current").notEmpty().withMessage(VALIDATION_MESSAGES.CURRENT_ADDRESS_REQUIRED),
+  body("email").isEmail().withMessage(VALIDATION_MESSAGES.INVALID_EMAIL).custom(async value => {
     const exists = await checkStudentEmailExists(value);
-      if (exists) {
-        return Promise.reject('E-mail already in use');
+    if (exists) {
+      return Promise.reject(VALIDATION_MESSAGES.EMAIL_IN_USE);
     }
   }),
-  body("mobileNumber").notEmpty().withMessage("Invalid mobile number"),
-  body("soloParent").isBoolean().withMessage("Solo parent must be true or false"),
-  body("childOfSoloParent").isBoolean().withMessage("Child of solo parent must be true or false"),
-  body("indigenous.isMember").isBoolean().withMessage("Is member of IP must be true or false"),
-  body("indigenous.group").if(body("indigenous.isMember").equals("true")).notEmpty().withMessage("Indigenous group is required"),
-  body("spEd").isBoolean().withMessage("SPED must be true or false"),
-  body("pwd").isBoolean().withMessage("PWD must be true or false"),
-  body("emergencyContact.fullName").notEmpty().withMessage("Emergency contact name is required"),
-  body("emergencyContact.mobileNumber").notEmpty().withMessage("Invalid emergency contact number"),
+  body("mobileNumber").notEmpty().withMessage(VALIDATION_MESSAGES.INVALID_MOBILE_NUMBER),
+  body("soloParent").isBoolean().withMessage(VALIDATION_MESSAGES.SOLO_PARENT_REQUIRED),
+  body("childOfSoloParent").isBoolean().withMessage(VALIDATION_MESSAGES.CHILD_OF_SOLO_PARENT_REQUIRED),
+  body("indigenous.isMember").isBoolean().withMessage(VALIDATION_MESSAGES.IP_MEMBERSHIP_REQUIRED),
+  body("indigenous.group").if(body("indigenous.isMember").equals("true")).notEmpty().withMessage(VALIDATION_MESSAGES.INDIGENOUS_GROUP_REQUIRED),
+  body("spEd").isBoolean().withMessage(VALIDATION_MESSAGES.SPED_REQUIRED),
+  body("pwd").isBoolean().withMessage(VALIDATION_MESSAGES.PWD_REQUIRED),
+  body("emergencyContact.fullName").notEmpty().withMessage(VALIDATION_MESSAGES.EMERGENCY_CONTACT_REQUIRED),
+  body("emergencyContact.mobileNumber").notEmpty().withMessage(VALIDATION_MESSAGES.EMERGENCY_CONTACT_MOBILE_REQUIRED),
 
   // Educational Background
-  body("education.grade12.strand").notEmpty().withMessage("Academic strand is required"),
-  body("education.grade12.schoolName").notEmpty().withMessage("School name is required"),
-  body("education.grade12.schoolAddress").notEmpty().withMessage("School address is required"),
-  body("education.grade12.yearOfGraduation").isInt().withMessage("Year of graduation must be a number"),
+  body("education.grade12.strand").notEmpty().withMessage(VALIDATION_MESSAGES.ACADEMIC_STRAND_REQUIRED),
+  body("education.grade12.schoolName").notEmpty().withMessage(VALIDATION_MESSAGES.SCHOOL_NAME_REQUIRED),
+  body("education.grade12.schoolAddress").notEmpty().withMessage(VALIDATION_MESSAGES.SCHOOL_ADDRESS_REQUIRED),
+  body("education.grade12.yearOfGraduation").isInt().withMessage(VALIDATION_MESSAGES.GRADUATION_YEAR_REQUIRED),
 
   // Family Background
-  body("family.father.firstName").notEmpty().withMessage("Father's first name is required"),
-  body("family.mother.firstName").notEmpty().withMessage("Mother's first name is required"),
-  body("family.emergencyContact.fullName").notEmpty().withMessage("Emergency contact name is required"),
+  body("family.father.firstName").notEmpty().withMessage(VALIDATION_MESSAGES.FATHER_FIRST_NAME_REQUIRED),
+  body("family.mother.firstName").notEmpty().withMessage(VALIDATION_MESSAGES.MOTHER_FIRST_NAME_REQUIRED),
+  body("family.emergencyContact.fullName").notEmpty().withMessage(VALIDATION_MESSAGES.EMERGENCY_CONTACT_REQUIRED),
 
   // Custom validation logic for siblings array
-  body("family.siblings").optional().isArray().withMessage("Siblings must be an array"),
-  body("family.siblings.*.name").optional().notEmpty().withMessage("Sibling name is required"),
-  body("family.siblings.*.age").optional().isInt().withMessage("Sibling age must be a number"),
+  body("family.siblings").optional().isArray().withMessage(VALIDATION_MESSAGES.SIBLINGS_ARRAY_REQUIRED),
+  body("family.siblings.*.name").optional().notEmpty().withMessage(VALIDATION_MESSAGES.SIBLING_NAME_REQUIRED),
+  body("family.siblings.*.age").optional().isInt().withMessage(VALIDATION_MESSAGES.SIBLING_AGE_REQUIRED),
 
   // Validation result handler
   async (req: Request, res: Response, next: NextFunction) => {
-    
     const errors: any = validationResult(req);
     if (!errors.isEmpty()) {
       ResponseHandler.invalidRequest(req, res, errors);
