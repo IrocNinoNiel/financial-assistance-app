@@ -37,8 +37,6 @@ const upload = multer({
 
 
 export const fileUploadService = async ( req, res ) => { 
-
-
     upload(req, res, async (err: any) => {
         if (err) {
             console.error("File upload error:", err);
@@ -52,7 +50,7 @@ export const fileUploadService = async ( req, res ) => {
         const date = new Date();
         const formattedDate = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
         const uploadedFileName = `${formattedDate}-${req.file.originalname}`;
-        
+
         const authHeader = req.headers.authorization;
         const userDetails = extractUserFromToken(authHeader);
         const studentId = await findStudent(userDetails.userId);

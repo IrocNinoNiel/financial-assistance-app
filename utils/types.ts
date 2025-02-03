@@ -131,3 +131,20 @@ export interface SiblingRequest {
     livingWithParents: boolean;
     ownHouse: boolean;
 }
+
+export interface UserListResponse {
+  first_name: string;
+  middle_name?: string | null;
+  last_name: string;
+  mobile_number: string;
+  user_id: string; 
+  email: string;
+  user_type: string;
+}
+
+export interface GetAllUsersParams {
+  search?: string;
+  sort?: string;
+  offset?: number;
+  limit?: number;
+}

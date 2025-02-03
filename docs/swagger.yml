@@ -14,6 +14,10 @@ tags:
     description: Endpoints for user authentication.
   - name: Student
     description: Endpoints for student information management
+  - name: File Upload
+    description: Endpoints for file upload
+  - name: User
+    description: Endpoints for User management
 paths:
   /register:
     post:
@@ -93,6 +97,73 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ForbiddenErrorResponse'
+  /file-upload:
+    post:
+      tags:
+      - File Upload
+      summary: Upload a file
+      description: Endpoint to upload a file.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: The file to upload.
+      responses:
+        '201':
+          description: File Succesfully saved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileSuccessResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileErrorResponse'
+        '500':
+          description: Internal server error
+  /users:
+    get:
+      tags:
+        - User
+      summary: Get all users
+      parameters:
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: Search term for filtering users
+        - in: query
+          name: sort
+          schema:
+            type: string
+          description: Field to sort by
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            minimum: 0
+          description: Number of records to skip
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+          description: Maximum number of records to return
+      responses:
+        '200':
+          description: A list of users
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
 components:
   schemas:
     RegisterPayload:
@@ -176,6 +247,24 @@ components:
                   location:
                     type: string
                     example: body
+    FileErrorResponse:
+      type: object
+      properties:
+        errorMessage:
+          type: string
+          example: INVALID-REQUEST
+        generatedAt:
+          type: integer
+          example: 1738335047588
+        description:
+          type: string
+          example: Request is not well-formed, syntactically incorrect, or violates schema.
+        errorDetails:
+          type: object
+          properties:
+            message:
+              type: string
+              example: Application type must be pdf or docs
     ForbiddenErrorResponse:
       type: object
       properties:
@@ -191,6 +280,21 @@ components:
         errorDetails:
           type: string
           example: Invalid API Token
+    FileSuccessResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          example: 201
+        message:
+          type: string
+          example: Resource Successfully Created!
+        data:
+          type: string
+          example: File successfully saved
+        generatedAt:
+          type: integer
+          example: 1738335123028
     RegisterSuccessResponse:
       type: object
       properties:
@@ -679,3 +783,43 @@ components:
         generatedAt:
           type: integer
           example: 1738335634108
+    UserResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: Resource Successfully Retrieved!
+        count:
+          type: number
+          example: 30
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              first_name:
+                type: string
+                example: John
+              middle_name:
+                type: string
+                example: D.
+                nullable: true
+              last_name:
+                type: string
+                example: Doe
+              mobile_number:
+                type: string
+                example: 09384716212
+              user_id:
+                type: string
+                format: uuid
+              email:
+                type: string
+                format: email
+                example: johndoe@gmail.com
+              user_type:
+                type: string
+                example: student
