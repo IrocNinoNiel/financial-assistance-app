@@ -1,10 +1,15 @@
 import { GetAllUsersParams } from "../utils";
 import { toUserListResponse } from "../utils/converter";
-import { getAllUsersRepo, isAdminRepo } from "./repository"
+import { getAllUsersRepo, getPermissionRepo, isAdminRepo } from "./repository"
 
 export const isAdmin = async (userId: number) : Promise<boolean> => { 
     return isAdminRepo(userId);
 }
+
+export const getPermission = async (userId: number) : Promise<boolean> => { 
+    return getPermissionRepo(userId);
+}
+
 
 export const getAllUsers = async (  ) => { 
 

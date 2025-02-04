@@ -26,6 +26,29 @@ export const isAdminRepo = async (userId: number) : Promise<boolean> => {
     }
 }
 
+export const getPermissionRepo = async (userId: number) : Promise<boolean> => {
+  try {
+      const userRole = await prisma.role_user.findFirst({
+          where: {
+            user_id: userId,
+          },
+          include: {
+            roles: {
+              select: {
+                name: true,
+              },
+            },
+          },
+      });
+        
+  
+      return userRole?.roles?.name.toLowerCase() !== "student";
+  } catch (error) {
+      console.error('Error registration: ', error);
+      throw new Error('Database error');
+  }
+}
+
 
   
 export const getAllUsersRepo = async () => {

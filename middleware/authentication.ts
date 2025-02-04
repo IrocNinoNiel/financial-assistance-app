@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import ResponseHandler from "../response/response";
 import { ERROR_MESSAGES, extractUserFromToken } from "../utils";
 import jwt from 'jsonwebtoken';
-import { isAdmin } from "../user/service";
+import { getPermission, isAdmin } from "../user/service";
 
 export async function authentication(req: Request, res: Response, next:NextFunction ) {
 
@@ -36,7 +36,7 @@ export async function authAdmin(req: Request, res: Response, next: NextFunction)
         console.error('Error in authAdmin middleware:', error);
         ResponseHandler.forbidden(req, res, ERROR_MESSAGES.SERVER_ERROR);
     }
-  }
+}
 
 async function auth(req: Request, res: Response ) {
 
@@ -54,5 +54,17 @@ async function auth(req: Request, res: Response ) {
         return token;
     } catch (err) {
         return null;
+    }
+}
+
+export async function permission(req: Request, res: Response, next: NextFunction) {
+    const authHeader = req.headers.authorization;
+    const userDetails = extractUserFromToken(authHeader);
+    const admin = await getPermission(userDetails.userId);
+
+    if (admin) {
+        next();
+    } else {
+        ResponseHandler.forbidden(req, res, ERROR_MESSAGES.UNAUTHORIZED);
     }
 }

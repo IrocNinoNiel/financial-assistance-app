@@ -73,6 +73,16 @@ export class ForbiddenResponseEntity {
   }
 }
 
+// InternalServerErrorEntity
+export class InternalServerErrorEntity {
+  public errorMessage = "INTERNAL-SERVER-ERROR"
+  public description = "Internal Server Error"
+  public generatedAt = Date.now();
+  public errorDetails: any// TODO: FIX This
+  constructor(errorDetails: any) {
+    this.errorDetails = errorDetails;
+  }
+}
 
 export class InvalidResponseEntity{
   public errorMessage = "INVALID-REQUEST"

@@ -43,6 +43,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
   /login:
     post:
       tags:
@@ -67,6 +73,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
   /student:
     post:
       tags:
@@ -97,6 +109,58 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ForbiddenErrorResponse'
+        '500':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
+    get:
+      tags:
+        - Student
+      summary: Get all students
+      parameters:
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: Search term for filtering users
+        - in: query
+          name: sort
+          schema:
+            type: string
+          description: Field to sort by
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            minimum: 0
+          description: Number of records to skip
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+          description: Maximum number of records to return
+      responses:
+        '200':
+          description: A list of students
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetStudentSuccessResponse'
+        '403':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenErrorResponse'
+        '500':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
   /file-upload:
     post:
       tags:
@@ -127,8 +191,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/FileErrorResponse'
+        '403':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenErrorResponse'
         '500':
-          description: Internal server error
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
   /users:
     get:
       tags:
@@ -164,6 +238,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserResponse'
+        '403':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenErrorResponse'
+        '500':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
 components:
   schemas:
     RegisterPayload:
@@ -265,6 +351,21 @@ components:
             message:
               type: string
               example: Application type must be pdf or docs
+    InternalErrorResponse:
+      type: object
+      properties:
+        errorMessage:
+          type: string
+          example: INTERNAL-SERVER-ERror
+        generatedAt:
+          type: integer
+          example: 1738335047588
+        description:
+          type: string
+          example: Server Errror Occured
+        errorDetails:
+          type: string
+          example: Server Errror Occured
     ForbiddenErrorResponse:
       type: object
       properties:
@@ -783,6 +884,236 @@ components:
         generatedAt:
           type: integer
           example: 1738335634108
+    GetStudentSuccessResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: Resource Successfully Retrieved!
+        data:
+          type: object
+          properties:
+            count:
+              type: number
+              example: 1
+            students:
+              type: array
+              items:
+                $ref: '#/components/schemas/StudentResponse'
+        generatedAt:
+          type: integer
+          example: 1738335634108
+    StudentResponse:
+      type: object
+      properties:
+        student_id:
+          type: string
+          example: 146554a6-0407-4058-9dd4-0624ad6d9441
+        first_name:
+          type: string
+          example: John
+        middle_name:
+          type: string
+          example: Michael
+        last_name:
+          type: string
+          example: Doe
+        extension_name:
+          type: string
+          example: Jr
+        sex:
+          type: string
+          example: Male
+        place_of_birth:
+          type: string
+          example: New York, USA
+        birthdate:
+          type: string
+          format: date
+          example: 2000-01-01
+        height:
+          type: integer
+          example: 170
+        weight:
+          type: integer
+          example: 70
+        permanent_address:
+          type: string
+          example: 123 Main Street, New York, NY, USA
+        current_address:
+          type: string
+          example: 456 Elm Street, Los Angeles, CA, USA
+        email:
+          type: string
+          example: john.doe123@example.com
+        mobile_number:
+          type: string
+          example: +1234567890
+        is_solo_parent:
+          type: boolean
+          example: false
+        is_child_of_solo_parent:
+          type: boolean
+          example: false
+        is_indigenous_people:
+          type: boolean
+          example: true
+        indigenous_group:
+          type: string
+          example: Cherokee
+        is_sped:
+          type: boolean
+          example: false
+        is_pwd:
+          type: boolean
+          example: false
+        emergency_contact_name:
+          type: string
+          example: Jane Doe
+        emergency_contact_number:
+          type: string
+          example: +639938172631
+        academic_strand:
+          type: string
+          example: STEM
+        program_name:
+          type: string
+          example: Bachelor of Science in Computer Science
+        award_honor:
+          type: string
+          example: Dean's Lister
+        organization:
+          type: string
+          example: Computer Society
+        school_name:
+          type: string
+          example: New York High School
+        school_address:
+          type: string
+          example: 789 Maple Avenue, New York, NY, USA
+        school_type:
+          type: string
+          example: Public
+        year_of_graduation:
+          type: integer
+          example: 2018
+        current_program_name:
+          type: string
+          example: Bachelor of Science in Computer Science
+        current_year_level:
+          type: integer
+          example: 2
+        current_award_honor:
+          type: string
+          example: Dean's Lister
+        current_organization:
+          type: string
+          example: Computer Society
+        current_school_name:
+          type: string
+          example: University of California
+        current_school_address:
+          type: string
+          example: 123 University Blvd, Los Angeles, CA, USA
+        current_school_type:
+          type: string
+          example: Private
+        father_last_name:
+          type: string
+          example: Doe
+        father_first_name:
+          type: string
+          example: Michael
+        father_middle_name:
+          type: string
+          example: Alan
+        father_extension:
+          type: string
+          example: Sr
+        father_occupation:
+          type: string
+          example: Engineer
+        father_income:
+          type: number
+          example: 80000
+        father_mobile_number:
+          type: string
+          example: +639938172631
+        mother_maiden_last_name:
+          type: string
+          example: Smith
+        mother_maiden_first_name:
+          type: string
+          example: Maria
+        mother_maiden_middle_name:
+          type: string
+          example: Therese
+        mother_maiden_extension:
+          type: string
+          example: ''
+        mother_occupation:
+          type: string
+          example: Teacher
+        mother_income:
+          type: number
+          example: 60000
+        mother_mobile_number:
+          type: string
+          example: +639938172631
+        guardian_last_name:
+          type: string
+          example: Johnson
+        guardian_first_name:
+          type: string
+          example: Anna
+        guardian_middle_name:
+          type: string
+          example: Grace
+        guardian_extension:
+          type: string
+          example: ''
+        guardian_occupation:
+          type: string
+          example: Nurse
+        guardian_income:
+          type: number
+          example: 50000
+        guardian_mobile_number:
+          type: string
+          example: +639938172631
+        number_of_siblings:
+          type: integer
+          example: 1
+        application_form:
+          type: string
+          example: application-form.pdf
+        siblings:
+          type: array
+          items:
+            type: object
+            properties:
+              sibling_name:
+                type: string
+                example: Emile
+              sibling_bdate:
+                type: string
+                format: date
+                example: 2005-02-15
+              sibling_age:
+                type: integer
+                example: 19
+              living_with_parents:
+                type: boolean
+                example: true
+              sibling_status:
+                type: string
+                example: Single
+              own_house:
+                type: boolean
+                example: false
     UserResponse:
       type: object
       properties:

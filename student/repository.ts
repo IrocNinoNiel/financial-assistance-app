@@ -5,6 +5,7 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 export const registerStudentRepo = async ( student: Student ) : Promise<any> => {
+
     try {
         const newStudent = await prisma.students.create({
             data: student,
@@ -18,7 +19,6 @@ export const registerStudentRepo = async ( student: Student ) : Promise<any> => 
     }
 }
 
-
 export const registerSiblingsRepo = async (siblings: Sibling[]): Promise<void> => {
     try {
         await prisma.siblings.createMany({
@@ -29,7 +29,6 @@ export const registerSiblingsRepo = async (siblings: Sibling[]): Promise<void> =
         throw new Error('Database error: ' + error.message);
     }
 }
-
 
 export const checkStudentEmailExists = async (email: string) : Promise<boolean>  => {
   try {
@@ -43,6 +42,24 @@ export const checkStudentEmailExists = async (email: string) : Promise<boolean> 
     return user !== null;
   } catch (error) {
     console.error('Error checking email existence:', error);
+    throw new Error('Database error');
+  }
+}
+
+export const getAllStudentRepo = async () : Promise<any> => {
+  try {
+    const users = await prisma.students.findMany({
+      where: {
+        recordStatus: RecordStatus.ACTIVE
+      },
+      include: {
+        siblings:true
+      }
+    });
+
+    return users;
+  } catch (error) {
+    console.error('Error fetching users:', error);
     throw new Error('Database error');
   }
 }

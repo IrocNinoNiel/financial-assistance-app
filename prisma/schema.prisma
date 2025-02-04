@@ -182,7 +182,7 @@ model students {
   number_of_siblings        Int
   emergency_contact_name2   String                       @db.VarChar(255)
   emergency_contact_number2 String                       @db.VarChar(15)
-  applicationForm           String                       @db.VarChar(255)
+  application_form          String                       @db.VarChar(255)
   created_at                DateTime?                    @default(now()) @db.Timestamp(0)
   updated_at                DateTime?                    @default(now()) @db.Timestamp(0)
   created_by                Bytes?                       @db.Binary(16)

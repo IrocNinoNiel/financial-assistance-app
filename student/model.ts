@@ -61,7 +61,7 @@ export interface Student {
     number_of_siblings: number;
     emergency_contact_name2: string;
     emergency_contact_number2: string;
-    applicationForm: string;
+    application_form: string;
     created_at?: string;
     updated_at?: string;
     created_by?: Buffer;

@@ -5,6 +5,7 @@ import {
   CreatedResponseEntity,
   DeletedResponseEntity,
   ForbiddenResponseEntity,
+  InternalServerErrorEntity,
   InvalidResponseEntity,
   LoginResponseEntity,
   SuccessResponseEntity,
@@ -56,6 +57,14 @@ const forbidden = (req: Request, res: Response, errorDetails: any) => {
     .send(new ForbiddenResponseEntity(errorDetails));
 };
 
+const internalServerError = (req: Request, res: Response, errorDetails: any) => {
+  return res
+    .status(StatusCodes.INTERNAL_SERVER_ERROR)
+    .send(new InternalServerErrorEntity(errorDetails));
+};
+
+
+
 const ResponseHandler = {
   ok,
   created,
@@ -65,6 +74,7 @@ const ResponseHandler = {
   accepted,
   unauthorised,
   invalidRequest,
-  forbidden
+  forbidden,
+  internalServerError
 };
 export default ResponseHandler;

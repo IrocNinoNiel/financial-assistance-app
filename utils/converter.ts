@@ -1,6 +1,6 @@
 import { User } from "../authentication/model";
 import { Sibling, Student } from "../student/model";
-import { RegisterRequest, SiblingRequest, StudentRequest, UserListResponse, UserResponse } from "./types";
+import { RegisterRequest, SiblingRequest, StudentListResponse, StudentRequest, UserListResponse, UserResponse } from "./types";
 import { binaryToUuid, uuidToBinary } from "./utils";
 
 export function toUserResponse(user: any,): UserResponse { 
@@ -85,7 +85,7 @@ export function convertStudentRequestToStudent(
     number_of_siblings: request.family.siblings.length,
     emergency_contact_name2: request.family.emergencyContact.fullName,
     emergency_contact_number2: request.family.emergencyContact.mobileNumber,
-    applicationForm: applicationFormData,
+    application_form: applicationFormData,
     created_by: studentId,
     updated_by: studentId
   };
@@ -135,5 +135,81 @@ export function toUserListResponse(data: any): UserListResponse[] {
     user_id: binaryToUuid(user.user_id),
     email: user.email,
     user_type: user.role_user[0]?.roles?.name || 'Unknown' // Handle cases with missing role_user
+  }));
+}
+
+export function toStudentResponse(data: any): StudentListResponse[] {
+  return data.map((item: any) => ({
+    student_id: binaryToUuid(item.student_id),
+    first_name: item.first_name,
+    middle_name: item.middle_name || undefined,
+    last_name: item.last_name,
+    extension_name: item.extension_name || undefined,
+    sex: item.sex,
+    place_of_birth: item.place_of_birth,
+    birthdate: new Date(item.birthdate),
+    height: item.height || undefined,
+    weight: item.weight || undefined,
+    permanent_address: item.permanent_address,
+    current_address: item.current_address,
+    email: item.email,
+    mobile_number: item.mobile_number,
+    is_solo_parent: item.is_solo_parent,
+    is_child_of_solo_parent: item.is_child_of_solo_parent,
+    is_indigenous_people: item.is_indigenous_people,
+    indigenous_group: item.indigenous_group || undefined,
+    is_sped: item.is_sped,
+    is_pwd: item.is_pwd,
+    emergency_contact_name: item.emergency_contact_name,
+    emergency_contact_number: item.emergency_contact_number,
+    academic_strand: item.academic_strand,
+    program_name: item.program_name,
+    award_honor: item.award_honor || undefined,
+    organization: item.organization || undefined,
+    school_name: item.school_name,
+    school_address: item.school_address,
+    school_type: item.school_type,
+    year_of_graduation: item.year_of_graduation,
+    current_program_name: item.current_program_name,
+    current_year_level: item.current_year_level,
+    current_award_honor: item.current_award_honor || undefined,
+    current_organization: item.current_organization || undefined,
+    current_school_name: item.current_school_name,
+    current_school_address: item.current_school_address,
+    current_school_type: item.current_school_type,
+    father_last_name: item.father_last_name,
+    father_first_name: item.father_first_name,
+    father_middle_name: item.father_middle_name || undefined,
+    father_extension: item.father_extension || undefined,
+    father_occupation: item.father_occupation,
+    father_income: item.father_income || undefined,
+    father_mobile_number: item.father_mobile_number,
+    mother_maiden_last_name: item.mother_maiden_last_name,
+    mother_maiden_first_name: item.mother_maiden_first_name,
+    mother_maiden_middle_name: item.mother_maiden_middle_name || undefined,
+    mother_maiden_extension: item.mother_maiden_extension || undefined,
+    mother_occupation: item.mother_occupation,
+    mother_income: item.mother_income || undefined,
+    mother_mobile_number: item.mother_mobile_number,
+    guardian_last_name: item.guardian_last_name,
+    guardian_first_name: item.guardian_first_name,
+    guardian_middle_name: item.guardian_middle_name || undefined,
+    guardian_extension: item.guardian_extension || undefined,
+    guardian_occupation: item.guardian_occupation,
+    guardian_income: item.guardian_income || undefined,
+    guardian_mobile_number: item.guardian_mobile_number,
+    number_of_siblings: item.number_of_siblings,
+    emergency_contact_name2: item.emergency_contact_name2,
+    emergency_contact_number2: item.emergency_contact_number2,
+    application_form: item.application_form,
+    siblings: item.siblings?.map((sibling: any) => ({
+      student_id: sibling.student_id,
+      sibling_name: sibling.sibling_name,
+      sibling_bdate: new Date(sibling.sibling_bdate),
+      sibling_age: sibling.sibling_age,
+      sibling_status: sibling.sibling_status,
+      living_with_parents: sibling.living_with_parents,
+      own_house: sibling.own_house,
+    })) || [],
   }));
 }
