@@ -792,34 +792,38 @@ components:
         message:
           type: string
           example: Resource Successfully Retrieved!
-        count:
-          type: number
-          example: 30
+
         data:
-          type: array
-          items:
-            type: object
-            properties:
-              first_name:
-                type: string
-                example: John
-              middle_name:
-                type: string
-                example: D.
-                nullable: true
-              last_name:
-                type: string
-                example: Doe
-              mobile_number:
-                type: string
-                example: 09384716212
-              user_id:
-                type: string
-                format: uuid
-              email:
-                type: string
-                format: email
-                example: johndoe@gmail.com
-              user_type:
-                type: string
-                example: student
+          type: object
+          properties:
+            count:
+              type: number
+              example: 30
+            users:
+              type: array
+              items:
+                type: object
+                properties:
+                  first_name:
+                    type: string
+                    example: John
+                  middle_name:
+                    type: string
+                    example: D.
+                    nullable: true
+                  last_name:
+                    type: string
+                    example: Doe
+                  mobile_number:
+                    type: string
+                    example: 09384716212
+                  user_id:
+                    type: string
+                    format: uuid
+                  email:
+                    type: string
+                    format: email
+                    example: johndoe@gmail.com
+                  user_type:
+                    type: string
+                    example: student

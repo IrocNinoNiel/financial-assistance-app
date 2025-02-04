@@ -1,6 +1,6 @@
 import { User } from "../authentication/model";
 import { Sibling, Student } from "../student/model";
-import { RegisterRequest, SiblingRequest, StudentRequest, UserResponse } from "./types";
+import { RegisterRequest, SiblingRequest, StudentRequest, UserListResponse, UserResponse } from "./types";
 import { binaryToUuid, uuidToBinary } from "./utils";
 
 export function toUserResponse(user: any,): UserResponse { 
@@ -124,4 +124,16 @@ export function convertToUser(data: RegisterRequest, hashedPassword: any, userId
       middle_name: data.name.middleName,
       mobile_number: data.mobileNumber
   }
+}
+
+export function toUserListResponse(data: any): UserListResponse[] {
+  return data.map((user) => ({
+    first_name: user.first_name,
+    middle_name: user.middle_name ?? null,
+    last_name: user.last_name,
+    mobile_number: user.mobile_number,
+    user_id: binaryToUuid(user.user_id),
+    email: user.email,
+    user_type: user.role_user[0]?.roles?.name || 'Unknown' // Handle cases with missing role_user
+  }));
 }

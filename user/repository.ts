@@ -31,6 +31,15 @@ export const isAdminRepo = async (userId: number) : Promise<boolean> => {
 export const getAllUsersRepo = async () => {
     try {
       const users = await prisma.user.findMany({
+        where: {
+          role_user: {
+            some: {
+              roles: {
+                id: { not: 2 }
+              }
+            }
+          }
+        },
         select: {
             first_name: true,
             middle_name: true,
@@ -55,4 +64,4 @@ export const getAllUsersRepo = async () => {
       console.error('Error fetching users:', error);
       throw new Error('Database error');
     }
-  };
+};
