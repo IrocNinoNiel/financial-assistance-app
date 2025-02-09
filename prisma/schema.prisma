@@ -131,8 +131,20 @@ model students {
   birthdate                 DateTime                     @db.Date
   height                    Float?                       @db.Float
   weight                    Float?                       @db.Float
-  permanent_address         String                       @db.Text
-  current_address           String                       @db.Text
+  permanent_street          String                       @db.VarChar(255)
+  permanent_barangay        String                       @db.VarChar(255)
+  permanent_city            String                       @db.VarChar(255)
+  permanent_province        String                       @db.VarChar(255)
+  permanent_zip_code        String                       @db.VarChar(10)
+  permanent_country         String                       @db.VarChar(255)
+
+  current_street            String                       @db.VarChar(255)
+  current_barangay          String                       @db.VarChar(255)
+  current_city              String                       @db.VarChar(255)
+  current_province          String                       @db.VarChar(255)
+  current_zip_code          String                       @db.VarChar(10)
+  current_country           String                       @db.VarChar(255)
+  
   email                     String                       @unique(map: "email") @db.VarChar(255)
   mobile_number             String                       @db.VarChar(15)
   is_solo_parent            Boolean
@@ -141,23 +153,37 @@ model students {
   indigenous_group          String?                      @db.VarChar(255)
   is_sped                   Boolean
   is_pwd                    Boolean
+  
   emergency_contact_name    String                       @db.VarChar(255)
   emergency_contact_number  String                       @db.VarChar(15)
-  academic_strand           String                       @db.VarChar(255)
-  program_name              String                       @db.VarChar(255)
-  award_honor               String?                      @db.VarChar(255)
-  organization              String?                      @db.VarChar(255)
-  school_name               String                       @db.VarChar(255)
-  school_address            String                       @db.VarChar(255)
-  school_type               students_school_type
-  year_of_graduation        Int
-  current_program_name      String                       @db.VarChar(255)
-  current_year_level        Int
-  current_award_honor       String?                      @db.VarChar(255)
-  current_organization      String?                      @db.VarChar(255)
-  current_school_name       String                       @db.VarChar(255)
-  current_school_address    String                       @db.VarChar(255)
-  current_school_type       students_current_school_type
+  emergency_contact_name2   String                       @db.VarChar(255)
+  emergency_contact_number2 String                       @db.VarChar(15)
+  
+  g12_academic_strand           String                       @db.VarChar(255)
+  g12_program_name              String                       @db.VarChar(255)
+  g12_award_honor               String?                      @db.VarChar(255)
+  g12_organization              String?                      @db.VarChar(255)
+  g12_school_name               String                       @db.VarChar(255)
+  g12_school_street             String                       @db.VarChar(255)
+  g12_school_barangay           String                       @db.VarChar(255)
+  g12_school_city               String                       @db.VarChar(255)
+  g12_school_province           String                       @db.VarChar(255)
+  g12_school_zip_code           String                       @db.VarChar(10)
+  g12_school_type               students_g12_school_type
+  g12_year_of_graduation        Int
+  
+  college_school_name       String                       @db.VarChar(255)
+  college_school_street     String                       @db.VarChar(255)
+  college_school_barangay   String                       @db.VarChar(255)
+  college_school_city       String                       @db.VarChar(255)
+  college_school_province   String                       @db.VarChar(255)
+  college_school_zip_code   String                       @db.VarChar(10)
+  college_school_type       students_college_school_type
+  college_program_name      String                       @db.VarChar(255)
+  college_year_level        Int
+  college_award_honor       String?                      @db.VarChar(255)
+  college_organization      String?                      @db.VarChar(255)
+  
   father_last_name          String                       @db.VarChar(255)
   father_first_name         String                       @db.VarChar(255)
   father_middle_name        String?                      @db.VarChar(255)
@@ -165,6 +191,7 @@ model students {
   father_occupation         String                       @db.VarChar(255)
   father_income             Float?                       @db.Float
   father_mobile_number      String                       @db.VarChar(15)
+  
   mother_maiden_last_name   String                       @db.VarChar(255)
   mother_maiden_first_name  String                       @db.VarChar(255)
   mother_maiden_middle_name String?                      @db.VarChar(255)
@@ -172,6 +199,7 @@ model students {
   mother_occupation         String                       @db.VarChar(255)
   mother_income             Float?                       @db.Float
   mother_mobile_number      String                       @db.VarChar(15)
+  
   guardian_last_name        String                       @db.VarChar(255)
   guardian_first_name       String                       @db.VarChar(255)
   guardian_middle_name      String?                      @db.VarChar(255)
@@ -179,19 +207,41 @@ model students {
   guardian_occupation       String                       @db.VarChar(255)
   guardian_income           Float?                       @db.Float
   guardian_mobile_number    String                       @db.VarChar(15)
+  
   number_of_siblings        Int
-  emergency_contact_name2   String                       @db.VarChar(255)
-  emergency_contact_number2 String                       @db.VarChar(15)
   application_form          String                       @db.VarChar(255)
   created_at                DateTime?                    @default(now()) @db.Timestamp(0)
   updated_at                DateTime?                    @default(now()) @db.Timestamp(0)
   created_by                Bytes?                       @db.Binary(16)
   updated_by                Bytes?                       @db.Binary(16)
   recordStatus              Boolean?                     @default(true)
+  
   siblings                  siblings[]
   users                     User                         @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "students_ibfk_1")
-
+  
   @@index([user_id], map: "user_id")
+}
+
+model Announcement {
+  id                  Int      @id @default(autoincrement())
+  title               String      @db.VarChar(255)
+  content             String      @db.Text
+  target_municipality String?     @db.VarChar(255)
+  created_at          DateTime?   @default(now()) @db.Timestamp(0)
+  updated_at          DateTime?   @default(now()) @db.Timestamp(0)
+  created_by          Bytes?      @db.Binary(16)
+  updated_by          Bytes?      @db.Binary(16)
+  recordStatus        Boolean?    @default(true)
+  locations         AnnouncementLocation[]
+}
+
+model AnnouncementLocation {
+  id                Int    @id @default(autoincrement())
+  announcement_id   Int
+  municipality      String    @db.VarChar(255)
+  announcement      Announcement @relation(fields: [announcement_id], references: [id], onDelete: Cascade)
+
+  @@index([announcement_id], map: "announcement_id")
 }
 
 enum siblings_sibling_status {
@@ -201,12 +251,12 @@ enum siblings_sibling_status {
   Divorced
 }
 
-enum students_school_type {
+enum students_g12_school_type {
   Private
   Public
 }
 
-enum students_current_school_type {
+enum students_college_school_type {
   Private
   Public
 }

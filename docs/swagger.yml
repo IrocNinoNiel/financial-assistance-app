@@ -18,6 +18,8 @@ tags:
     description: Endpoints for file upload
   - name: User
     description: Endpoints for User management
+  - name: Announcement
+    description: Endpoints for User announcement
 paths:
   /register:
     post:
@@ -79,7 +81,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/InternalErrorResponse'
-  /student:
+  /students:
     post:
       tags:
         - Student
@@ -96,7 +98,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StudentSuccessResponse'
+                $ref: '#/components/schemas/StudentCreateSuccessResponse'
         '400':
           description: Invalid request
           content:
@@ -148,6 +150,37 @@ paths:
           content:
             application/json:
               schema:
+                $ref: '#/components/schemas/GetAllStudentSuccessResponse'
+        '403':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenErrorResponse'
+        '500':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
+  /students/{id}:
+    get:
+      tags:
+        - Student
+      summary: Get a student
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the student to be updated
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A list of students
+          content:
+            application/json:
+              schema:
                 $ref: '#/components/schemas/GetStudentSuccessResponse'
         '403':
           description: Invalid request
@@ -155,6 +188,92 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ForbiddenErrorResponse'
+        '500':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
+    put:
+      tags:
+        - Student
+      summary: Edit student information
+      description: Updates the details of an existing student.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the student to be updated
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StudentPayload'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentUpdateSuccessResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        '500':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
+    delete:
+      tags:
+        - Student
+      summary: Delete a student record
+      description: Delete the details of an existing student.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the student to be deleted
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: delete details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessDeleteResponse'
+        '403':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
         '500':
           description: Invalid request
           content:
@@ -250,6 +369,322 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/InternalErrorResponse'
+  /users/{id}:
+    get:
+      tags:
+        - User
+      summary: Get a user
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the user to be retrieved
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A user details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetOneUserResponse'
+        '403':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenErrorResponse'
+        '500':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
+    put:
+      tags:
+        - User
+      summary: Edit user information
+      description: Updates the details of an existing user.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the user to be updated
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserPayload'
+      responses:
+        '200':
+          description: Update successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserUpdateSuccessResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        '500':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
+    delete:
+      tags:
+        - User
+      summary: Delete a user record
+      description: Delete the details of an existing user.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the user to be deleted
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: delete details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessDeleteResponse'
+        '403':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        '500':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
+  /announcements:
+    post:
+      tags:
+        - Announcement
+      summary: Adding new Announcement
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnnouncementPayload'
+      responses:
+        '201':
+          description: Resource successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnnouncementSuccessCreateResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
+    get:
+      tags:
+        - Announcement
+      summary: Get all Announcement
+      parameters:
+        - in: query
+          name: municipality
+          schema:
+            type: string
+          description: Search municipality where that announcement belongs
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: Search term for filtering users
+        - in: query
+          name: sort
+          schema:
+            type: string
+          description: Field to sort by
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            minimum: 0
+          description: Number of records to skip
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+          description: Maximum number of records to return
+      responses:
+        '200':
+          description: A list of users
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnnouncementSuccessGetAllResponse'
+        '403':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenErrorResponse'
+        '500':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
+  /announcements/{id}:
+    put:
+      summary: Update a announcement record
+      description: Updates the details of an existing announcement.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the announcement to be updated
+          schema:
+            type: integer
+      tags:
+        - Announcement
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnnouncementPayload'
+      responses:
+        '201':
+          description: Resource successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnnouncementSuccessUpdateResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        '500':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
+    get:
+      tags:
+        - Announcement
+      summary: Get a announcement record
+      description: Get the details of an existing announcement.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the announcement to be retreived
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A list of users
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnnouncementSuccessGetResponse'
+        '403':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        '500':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
+    delete:
+      tags:
+        - Announcement
+      summary: Delete a announcement record
+      description: Delete the details of an existing announcement.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the announcement to be deleted
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Succesful delete
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessDeleteResponse'
+        '403':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        '500':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
 components:
   schemas:
     RegisterPayload:
@@ -267,15 +702,12 @@ components:
         role:
           type: string
           example: Mayor’s Office
-        name:
-          type: object
-          properties:
-            firstName:
-              type: string
-              example: John
-            lastName:
-              type: string
-              example: Doe
+        firstName:
+          type: string
+          example: John
+        lastName:
+          type: string
+          example: Doe
         mobileNumber:
           type: string
           example: '09837162132'
@@ -371,7 +803,7 @@ components:
       properties:
         errorMessage:
           type: string
-          example: INVALID-REQUEST
+          example: FORBIDDEN
         generatedAt:
           type: integer
           example: 1738335047588
@@ -381,6 +813,21 @@ components:
         errorDetails:
           type: string
           example: Invalid API Token
+    NotFoundErrorResponse:
+      type: object
+      properties:
+        errorMessage:
+          type: string
+          example: NOT-FOUND
+        generatedAt:
+          type: integer
+          example: 1738335047588
+        description:
+          type: string
+          example: The resource requested is not found.
+        errorDetails:
+          type: string
+          example: 404 not found
     FileSuccessResponse:
       type: object
       properties:
@@ -441,21 +888,18 @@ components:
     StudentPayload:
       type: object
       properties:
-        name:
-          type: object
-          properties:
-            firstName:
-              type: string
-              example: John
-            middleName:
-              type: string
-              example: Michael
-            lastName:
-              type: string
-              example: Doe
-            extension:
-              type: string
-              example: Jr
+        firstName:
+          type: string
+          example: John
+        middleName:
+          type: string
+          example: Michael
+        lastName:
+          type: string
+          example: Doe
+        extension:
+          type: string
+          example: Jr
         sex:
           type: string
           example: Male
@@ -472,15 +916,42 @@ components:
         weight:
           type: integer
           example: 70
-        address:
-          type: object
-          properties:
-            permanent:
-              type: string
-              example: 123 Main Street, New York, NY, USA
-            current:
-              type: string
-              example: 456 Elm Street, Los Angeles, CA, USA
+        permanentAddressStreet: 
+          type: string
+          example: 123 Main Street
+        permanentAddressBarangay: 
+          type: string
+          example: Carmen
+        permanentAddressCity: 
+          type: string
+          example: Cagayan de Oro
+        permanentAddressProvince:
+          type: string
+          example: Carmen
+        permanentAddressCountry:
+          type: string
+          example: Philippines
+        permanentAddressZipCode:
+          type: string
+          example: 9000
+        currentAddressStreet: 
+          type: string
+          example: 123 Main Street
+        currentAddressBarangay: 
+          type: string
+          example: Carmen
+        currentAddressCity: 
+          type: string
+          example: Cagayan de Oro
+        currentAddressProvince:
+          type: string
+          example: Carmen
+        currentAddressCountry:
+          type: string
+          example: Philippines
+        currentAddressZipCode:
+          type: string
+          example: 9000
         email:
           type: string
           example: john.doe123@example.com
@@ -493,398 +964,200 @@ components:
         childOfSoloParent:
           type: boolean
           example: false
-        indigenous:
-          type: object
-          properties:
-            isMember:
-              type: boolean
-              example: true
-            group:
-              type: string
-              example: Cherokee
+        indigenousMember:
+          type: boolean
+          example: true
+        indigenousGroup:
+          type: string
+          example: Cherokee
         spEd:
           type: boolean
           example: false
         pwd:
           type: boolean
           example: false
-        education:
-          type: object
-          properties:
-            grade12:
-              type: object
-              properties:
-                strand:
-                  type: string
-                  example: STEM
-                schoolName:
-                  type: string
-                  example: New York High School
-                schoolAddress:
-                  type: string
-                  example: 789 Maple Avenue, New York, NY, USA
-                privateOrPublic:
-                  type: string
-                  example: Public
-                yearOfGraduation:
-                  type: integer
-                  example: 2018
-            college:
-              type: object
-              properties:
-                programName:
-                  type: string
-                  example: Bachelor of Science in Computer Science
-                yearLevel:
-                  type: integer
-                  example: 2
-                awardHonor:
-                  type: string
-                  example: Dean's Lister
-                organization:
-                  type: string
-                  example: Computer Society
-                schoolName:
-                  type: string
-                  example: University of California
-                schoolAddress:
-                  type: string
-                  example: 123 University Blvd, Los Angeles, CA, USA
-                privateOrPublic:
-                  type: string
-                  example: Private
-        emergencyContact:
-          type: object
-          properties:
-            fullName:
-              type: string
-              example: Jane Doe
-            mobileNumber:
-              type: string
-              example: '+639938172631'
-            relationship:
-              type: string
-              example: Sister
-        family:
-          type: object
-          properties:
-            father:
-              type: object
-              properties:
-                firstName:
-                  type: string
-                  example: Michael
-                middleName:
-                  type: string
-                  example: Alan
-                lastName:
-                  type: string
-                  example: Doe
-                extension:
-                  type: string
-                  example: Sr
-                occupation:
-                  type: string
-                  example: Engineer
-                income:
-                  type: integer
-                  example: 80000
-                mobileNumber:
-                  type: string
-                  example: '+639938172631'
-            mother:
-              type: object
-              properties:
-                firstName:
-                  type: string
-                  example: Maria
-                middleName:
-                  type: string
-                  example: Therese
-                lastName:
-                  type: string
-                  example: Smith
-                extension:
-                  type: string
-                  example: ''
-                occupation:
-                  type: string
-                  example: Teacher
-                income:
-                  type: integer
-                  example: 60000
-                mobileNumber:
-                  type: string
-                  example: '+639938172631'
-            guardian:
-              type: object
-              properties:
-                firstName:
-                  type: string
-                  example: Anna
-                middleName:
-                  type: string
-                  example: Grace
-                lastName:
-                  type: string
-                  example: Johnson
-                extension:
-                  type: string
-                  example: ''
-                occupation:
-                  type: string
-                  example: Nurse
-                income:
-                  type: integer
-                  example: 50000
-                mobileNumber:
-                  type: string
-                  example: '+639938172631'
-            siblings:
-              type: array
-              items:
-                type: object
-                properties:
-                  name:
-                    type: string
-                    example: Emile
-                  birthdate:
-                    type: string
-                    format: date
-                    example: '2005-02-15'
-                  age:
-                    type: integer
-                    example: 19
-                  status:
-                    type: string
-                    example: Single
-                  remarks:
-                    type: string
-                    example: Studying
-                  livingWithParents:
-                    type: boolean
-                    example: true
-                  ownHouse:
-                    type: boolean
-                    example: false
-    StudentSuccessResponse:
+        grade12Strand:
+          type: string
+          example: STEM
+        grade12SchoolName:
+          type: string
+          example: New York High School
+        grade12SchoolAddressStreet:
+          type: string
+          example: 789 Maple Avenue
+        grade12SchoolAddressBarangay:
+          type: string
+          example: Barangay 1
+        grade12SchoolAddressCity:
+          type: string
+          example: New York
+        grade12SchoolAddressProvince:
+          type: string
+          example: NY
+        grade12SchoolAddressCountry:
+          type: string
+          example: USA
+        grade12SchoolAddressZipCode:
+          type: string
+          example: 10001
+        grade12PrivateOrPublic:
+          type: string
+          example: Public
+        grade12YearOfGraduation:
+          type: integer
+          example: 2018
+        collegeProgramName:
+          type: string
+          example: Bachelor of Science in Computer Science
+        collegeYearLevel:
+          type: integer
+          example: 2
+        collegeAwardHonor:
+          type: string
+          example: Dean's Lister
+        collegeOrganization:
+          type: string
+          example: Computer Society
+        collegeSchoolName:
+          type: string
+          example: University of California
+        collegeSchoolAddressStreet:
+          type: string
+          example: 123 University Blvd
+        collegeSchoolAddressBarangay:
+          type: string
+          example: Barangay 2
+        collegeSchoolAddressCity:
+          type: string
+          example: Los Angeles
+        collegeSchoolAddressProvince:
+          type: string
+          example: CA
+        collegeSchoolAddressCountry:
+          type: string
+          example: USA
+        collegeSchoolAddressZipCode:
+          type: string
+          example: 90001
+        collegePrivateOrPublic:
+          type: string
+          example: Private
+        emergencyFullName:
+          type: string
+          example: Jane Doe
+        emergencyMobileNumber:
+          type: string
+          example: '+639938172631'
+        emergencyRelationship:
+          type: string
+          example: Sister
+        fatherFirstName:
+          type: string
+          example: Michael
+        fatherMiddleName:
+          type: string
+          example: Alan
+        fatherLastName:
+          type: string
+          example: Doe
+        fatherExtension:
+          type: string
+          example: Sr
+        fatherOccupation:
+          type: string
+          example: Engineer
+        fatherIncome:
+          type: integer
+          example: 80000
+        fatherMobileNumber:
+          type: string
+          example: '+639938172631'
+        motherFirstName:
+          type: string
+          example: Maria
+        motherMiddleName:
+          type: string
+          example: Therese
+        motherLastName:
+          type: string
+          example: Smith
+        motherExtension:
+          type: string
+          example: ''
+        motherOccupation:
+          type: string
+          example: Teacher
+        motherIncome:
+          type: integer
+          example: 60000
+        motherMobileNumber:
+          type: string
+          example: '+639938172631'
+        guardianFirstName:
+          type: string
+          example: Anna
+        guardianMiddleName:
+          type: string
+          example: Grace
+        guardianLastName:
+          type: string
+          example: Johnson
+        guardianExtension:
+          type: string
+          example: ''
+        guardianOccupation:
+          type: string
+          example: Nurse
+        guardianIncome:
+          type: integer
+          example: 50000
+        guardianMobileNumber:
+          type: string
+          example: '+639938172631'
+        siblings:
+          type: array
+          items:
+            type: object
+            properties:
+              siblingName:
+                type: string
+                example: Emile
+              siblingBirthdate:
+                type: string
+                format: date
+                example: '2005-02-15'
+              siblingAge:
+                type: integer
+                example: 19
+              siblingStatus:
+                type: string
+                example: Single
+              siblingRemarks:
+                type: string
+                example: Studying
+              livingWithParents:
+                type: boolean
+                example: true
+              ownHouse:
+                type: boolean
+                example: false
+    StudentCreateSuccessResponse:
+      $ref: '#/components/schemas/StudentResponse'
+    StudentUpdateSuccessResponse:
       type: object
       properties:
         statusCode:
           type: integer
-          example: 201
+          example: 200
         message:
           type: string
-          example: Resource Successfully Created!
+          example: Resource Successfully Updated!
         data:
-          type: object
-          properties:
-            student_id:
-              type: string
-              example: 146554a6-0407-4058-9dd4-0624ad6d9441
-            first_name:
-              type: string
-              example: John
-            middle_name:
-              type: string
-              example: Michael
-            last_name:
-              type: string
-              example: Doe
-            extension_name:
-              type: string
-              example: Jr
-            sex:
-              type: string
-              example: Male
-            place_of_birth:
-              type: string
-              example: New York, USA
-            birthdate:
-              type: string
-              format: date
-              example: 2000-01-01
-            height:
-              type: integer
-              example: 170
-            weight:
-              type: integer
-              example: 70
-            permanent_address:
-              type: string
-              example: 123 Main Street, New York, NY, USA
-            current_address:
-              type: string
-              example: 456 Elm Street, Los Angeles, CA, USA
-            email:
-              type: string
-              example: john.doe123@example.com
-            mobile_number:
-              type: string
-              example: +1234567890
-            is_solo_parent:
-              type: boolean
-              example: false
-            is_child_of_solo_parent:
-              type: boolean
-              example: false
-            is_indigenous_people:
-              type: boolean
-              example: true
-            indigenous_group:
-              type: string
-              example: Cherokee
-            is_sped:
-              type: boolean
-              example: false
-            is_pwd:
-              type: boolean
-              example: false
-            emergency_contact_name:
-              type: string
-              example: Jane Doe
-            emergency_contact_number:
-              type: string
-              example: +639938172631
-            academic_strand:
-              type: string
-              example: STEM
-            program_name:
-              type: string
-              example: Bachelor of Science in Computer Science
-            award_honor:
-              type: string
-              example: Dean's Lister
-            organization:
-              type: string
-              example: Computer Society
-            school_name:
-              type: string
-              example: New York High School
-            school_address:
-              type: string
-              example: 789 Maple Avenue, New York, NY, USA
-            school_type:
-              type: string
-              example: Public
-            year_of_graduation:
-              type: integer
-              example: 2018
-            current_program_name:
-              type: string
-              example: Bachelor of Science in Computer Science
-            current_year_level:
-              type: integer
-              example: 2
-            current_award_honor:
-              type: string
-              example: Dean's Lister
-            current_organization:
-              type: string
-              example: Computer Society
-            current_school_name:
-              type: string
-              example: University of California
-            current_school_address:
-              type: string
-              example: 123 University Blvd, Los Angeles, CA, USA
-            current_school_type:
-              type: string
-              example: Private
-            father_last_name:
-              type: string
-              example: Doe
-            father_first_name:
-              type: string
-              example: Michael
-            father_middle_name:
-              type: string
-              example: Alan
-            father_extension:
-              type: string
-              example: Sr
-            father_occupation:
-              type: string
-              example: Engineer
-            father_income:
-              type: number
-              example: 80000
-            father_mobile_number:
-              type: string
-              example: +639938172631
-            mother_maiden_last_name:
-              type: string
-              example: Smith
-            mother_maiden_first_name:
-              type: string
-              example: Maria
-            mother_maiden_middle_name:
-              type: string
-              example: Therese
-            mother_maiden_extension:
-              type: string
-              example: ''
-            mother_occupation:
-              type: string
-              example: Teacher
-            mother_income:
-              type: number
-              example: 60000
-            mother_mobile_number:
-              type: string
-              example: +639938172631
-            guardian_last_name:
-              type: string
-              example: Johnson
-            guardian_first_name:
-              type: string
-              example: Anna
-            guardian_middle_name:
-              type: string
-              example: Grace
-            guardian_extension:
-              type: string
-              example: ''
-            guardian_occupation:
-              type: string
-              example: Nurse
-            guardian_income:
-              type: number
-              example: 50000
-            guardian_mobile_number:
-              type: string
-              example: +639938172631
-            number_of_siblings:
-              type: integer
-              example: 1
-            siblings:
-              type: array
-              items:
-                type: object
-                properties:
-                  sibling_name:
-                    type: string
-                    example: Emile
-                  sibling_bdate:
-                    type: string
-                    format: date
-                    example: 2005-02-15
-                  sibling_age:
-                    type: integer
-                    example: 19
-                  living_with_parents:
-                    type: boolean
-                    example: true
-                  sibling_status:
-                    type: string
-                    example: Single
-                  own_house:
-                    type: boolean
-                    example: false
+          $ref: '#/components/schemas/StudentResponse'
         generatedAt:
           type: integer
           example: 1738335634108
-    GetStudentSuccessResponse:
+    GetAllStudentSuccessResponse:
       type: object
       properties:
         statusCode:
@@ -906,28 +1179,42 @@ components:
         generatedAt:
           type: integer
           example: 1738335634108
+    GetStudentSuccessResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: Resource Successfully Retrieved!
+        data:
+          $ref: '#/components/schemas/StudentResponse'
+        generatedAt:
+          type: integer
+          example: 1738335634108
     StudentResponse:
       type: object
       properties:
-        student_id:
+        studentId:
           type: string
           example: 146554a6-0407-4058-9dd4-0624ad6d9441
-        first_name:
+        firstName:
           type: string
           example: John
-        middle_name:
+        middleName:
           type: string
           example: Michael
-        last_name:
+        lastName:
           type: string
           example: Doe
-        extension_name:
+        extensionName:
           type: string
           example: Jr
         sex:
           type: string
           example: Male
-        place_of_birth:
+        placeOfBirth:
           type: string
           example: New York, USA
         birthdate:
@@ -940,154 +1227,214 @@ components:
         weight:
           type: integer
           example: 70
-        permanent_address:
+        permanentStreet:
           type: string
-          example: 123 Main Street, New York, NY, USA
-        current_address:
+          example: 123 Main Street
+        permanentBarangay:
           type: string
-          example: 456 Elm Street, Los Angeles, CA, USA
+          example: 123 Carmen
+        permanentCity:
+          type: string
+          example: 123  New York
+        permanentProvince:
+          type: string
+          example: Misamis Oriental
+        permanentZipCode:
+          type: string
+          example: 9000
+        permanentCountry:
+          type: string
+          example: Philippines
+        currentStreet:
+          type: string
+          example: 456 Elm Street
+        currentBarangay:
+          type: string
+          example: Carmen
+        currentCity:
+          type: string
+          example: Los Angeles
+        currentProvince:
+          type: string
+          example: Misamis Oriental
+        currentZipCode:
+          type: string
+          example: 9000
+        currentCountry:
+          type: string
+          example: USA
         email:
           type: string
           example: john.doe123@example.com
-        mobile_number:
+        mobileNumber:
           type: string
           example: +1234567890
-        is_solo_parent:
+        isSoloParent:
           type: boolean
           example: false
-        is_child_of_solo_parent:
+        isChildOfSoloParent:
           type: boolean
           example: false
-        is_indigenous_people:
+        isIndigenousPeople:
           type: boolean
           example: true
-        indigenous_group:
+        indigenousGroup:
           type: string
           example: Cherokee
-        is_sped:
+        isSped:
           type: boolean
           example: false
-        is_pwd:
+        isPwd:
           type: boolean
           example: false
-        emergency_contact_name:
+        emergencyContactName:
           type: string
           example: Jane Doe
-        emergency_contact_number:
+        emergencyContactNumber:
           type: string
           example: +639938172631
-        academic_strand:
+        academicStrand:
           type: string
           example: STEM
-        program_name:
+        programName:
           type: string
           example: Bachelor of Science in Computer Science
-        award_honor:
+        awardHonor:
           type: string
           example: Dean's Lister
         organization:
           type: string
           example: Computer Society
-        school_name:
+        schoolName:
           type: string
           example: New York High School
-        school_address:
+        schoolStreet:
           type: string
-          example: 789 Maple Avenue, New York, NY, USA
-        school_type:
+          example: 789 Maple Avenue
+        schoolBarangay:
+          type: string
+          example: Carmen
+        schoolCity:
+          type: string
+          example: New York
+        schoolZipCode:
+          type: string
+          example: 9000
+        schoolProvince:
+          type: string
+          example: Misamis Oriental
+        schoolCountry:
+          type: string
+          example: philippines
+        schoolType:
           type: string
           example: Public
-        year_of_graduation:
+        yearOfGraduation:
           type: integer
           example: 2018
-        current_program_name:
+        currentProgramName:
           type: string
           example: Bachelor of Science in Computer Science
-        current_year_level:
+        currentYearLevel:
           type: integer
           example: 2
-        current_award_honor:
+        currentAwardHonor:
           type: string
           example: Dean's Lister
-        current_organization:
+        currentOrganization:
           type: string
           example: Computer Society
-        current_school_name:
+        currentSchoolName:
           type: string
           example: University of California
-        current_school_address:
+        currentSchoolStreet:
+          type: string
+          example: 123 University Blvd
+        currentSchoolBarangay:
+          type: string
+          example: Carmen
+        currentSchoolCity:
+          type: string
+          example: CDO
+        currentSchoolProvince:
+          type: string
+          example: Misamis Oriental
+        currentSchoolCountry:
           type: string
           example: 123 University Blvd, Los Angeles, CA, USA
-        current_school_type:
+        currentSchoolZipCode:
+          type: string
+          example: 9000
+        currentSchoolType:
           type: string
           example: Private
-        father_last_name:
+        fatherLastName:
           type: string
           example: Doe
-        father_first_name:
+        fatherFirstName:
           type: string
           example: Michael
-        father_middle_name:
+        fatherMiddleName:
           type: string
           example: Alan
-        father_extension:
+        fatherExtension:
           type: string
           example: Sr
-        father_occupation:
+        fatherOccupation:
           type: string
           example: Engineer
-        father_income:
+        fatherIncome:
           type: number
           example: 80000
-        father_mobile_number:
+        fatherMobileNumber:
           type: string
           example: +639938172631
-        mother_maiden_last_name:
+        motherMaidenLastName:
           type: string
           example: Smith
-        mother_maiden_first_name:
+        motherMaidenFirstName:
           type: string
           example: Maria
-        mother_maiden_middle_name:
+        motherMaidenMiddleName:
           type: string
           example: Therese
-        mother_maiden_extension:
+        motherMaidenExtension:
           type: string
           example: ''
-        mother_occupation:
+        motherOccupation:
           type: string
           example: Teacher
-        mother_income:
+        motherIncome:
           type: number
           example: 60000
-        mother_mobile_number:
+        motherMobileNumber:
           type: string
           example: +639938172631
-        guardian_last_name:
+        guardianLastName:
           type: string
           example: Johnson
-        guardian_first_name:
+        guardianFirstName:
           type: string
           example: Anna
-        guardian_middle_name:
+        guardianMiddleName:
           type: string
           example: Grace
-        guardian_extension:
+        guardianExtension:
           type: string
           example: ''
-        guardian_occupation:
+        guardianOccupation:
           type: string
           example: Nurse
-        guardian_income:
+        guardianIncome:
           type: number
           example: 50000
-        guardian_mobile_number:
+        guardianMobileNumber:
           type: string
           example: +639938172631
-        number_of_siblings:
+        numberOfSiblings:
           type: integer
           example: 1
-        application_form:
+        applicationForm:
           type: string
           example: application-form.pdf
         siblings:
@@ -1095,23 +1442,23 @@ components:
           items:
             type: object
             properties:
-              sibling_name:
+              siblingName:
                 type: string
                 example: Emile
-              sibling_bdate:
+              siblingBdate:
                 type: string
                 format: date
                 example: 2005-02-15
-              sibling_age:
+              siblingAge:
                 type: integer
                 example: 19
-              living_with_parents:
+              livingWithParents:
                 type: boolean
                 example: true
-              sibling_status:
+              siblingStatus:
                 type: string
                 example: Single
-              own_house:
+              ownHouse:
                 type: boolean
                 example: false
     UserResponse:
@@ -1158,3 +1505,203 @@ components:
                   user_type:
                     type: string
                     example: student
+    AnnouncementPayload:
+      type: object
+      properties:
+        title:
+          type: string
+          example: Sample Announcement
+        content:
+          type: string
+          example: Sample content
+        targetMunicipality:
+          type: string
+          example: Jasaan
+    AnnouncementSuccessCreateResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          example: 201
+        message:
+          type: string
+          example: Resource Successfully Created!
+        data:
+          type: object
+          properties:
+            title:
+              type: string
+              example: Sample Announcement
+            content:
+              type: string
+              example: Sample content
+            targetMunicipality:
+              type: string
+              example: Jasaan
+    AnnouncementSuccessUpdateResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: Resource Successfully Updated!
+        data:
+          type: object
+          properties:
+            title:
+              type: string
+              example: Sample Announcement
+            content:
+              type: string
+              example: Sample content
+            targetMunicipality:
+              type: string
+              example: Jasaan
+    AnnouncementSuccessGetAllResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: Resource Successfully Retreived!
+        data:
+          type: object
+          properties:
+            count:
+              type: number
+              example: 10
+            announcement:
+              type: array
+              items:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: Sample Announcement
+                  content:
+                    type: string
+                    example: Sample content
+                  targetMunicipality:
+                    type: string
+                    example: Jasaan
+    AnnouncementSuccessGetResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: Resource Successfully Retreived!
+        data:
+          type: object
+          properties:
+            title:
+              type: string
+              example: Sample Announcement
+            content:
+              type: string
+              example: Sample content
+            targetMunicipality:
+              type: string
+              example: Jasaan
+    SuccessDeleteResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: Resource Successfully Deleted!
+    GetOneUserResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: Resource Successfully Retrieved!
+        data:
+          type: object
+          properties:
+            first_name:
+              type: string
+              example: John
+            middle_name:
+              type: string
+              example: D.
+              nullable: true
+            last_name:
+              type: string
+              example: Doe
+            mobile_number:
+              type: string
+              example: 09384716212
+            user_id:
+              type: string
+              format: uuid
+            email:
+              type: string
+              format: email
+              example: johndoe@gmail.com
+            user_type:
+              type: string
+              example: student
+    UserPayload:
+      type: object
+      properties:
+        username:
+          type: string
+          example: qwer2@gmail.com
+        role:
+          type: string
+          example: Mayor’s Office
+        firstName:
+          type: string
+          example: John
+        lastName:
+          type: string
+          example: Doe
+        mobileNumber:
+          type: string
+          example: '09837162132'
+      required:
+        - username
+        - password
+        - repassword
+        - role
+        - name
+        - mobileNumber
+    UserUpdateSuccessResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: Resource Successfully Updated!
+        data:
+          type: object
+          properties:
+            username:
+              type: string
+              example: qwer2@gmail.com
+            role:
+              type: string
+              example: Mayor’s Office
+            firstName:
+              type: string
+              example: John
+            lastName:
+              type: string
+              example: Doe
+            mobileNumber:
+              type: string
+              example: '09837162132'
