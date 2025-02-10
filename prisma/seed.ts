@@ -5,20 +5,21 @@ import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
-const roles = [
-  { name: 'Student', description: 'A student role with limited permissions.' },
-  { name: 'System Admin', description: 'An admin role with full system access.' },
-  { name: 'Financial Assistance Coordinator', description: 'Handles financial assistance tasks.' },
-  { name: 'Sponsor', description: 'External sponsor providing funds.' },
-  { name: 'Budget Office', description: 'Manages the budget and expenses.' },
-  { name: 'Mayor’s Office', description: 'Involved in local government decisions.' },
-  { name: 'Treasurer’s Office', description: 'Manages financial accounts and transactions.' },
-  { name: 'Cashier', description: 'Handles cash transactions for the organization.' },
-  { name: 'Accounting', description: 'Oversees financial records and reporting.' }
-];
-
 async function roleSeed() {
   try {
+
+    const roles = [
+      { name: 'Student', description: 'A student role with limited permissions.' },
+      { name: 'System Admin', description: 'An admin role with full system access.' },
+      { name: 'Financial Assistance Coordinator', description: 'Handles financial assistance tasks.' },
+      { name: 'Sponsor', description: 'External sponsor providing funds.' },
+      { name: 'Budget Office', description: 'Manages the budget and expenses.' },
+      { name: 'Mayor’s Office', description: 'Involved in local government decisions.' },
+      { name: 'Treasurer’s Office', description: 'Manages financial accounts and transactions.' },
+      { name: 'Cashier', description: 'Handles cash transactions for the organization.' },
+      { name: 'Accounting', description: 'Oversees financial records and reporting.' }
+    ];
+    
     await prisma.roles.createMany({
       data: roles,
       skipDuplicates: true,
@@ -62,5 +63,27 @@ async function adminUser() {
   }
 }
 
+async function initialModuleAndPermission() {
+  await prisma.module.createMany({
+    data: [
+      { name: "Dashboard", sorter: 1, recordStatus: true },
+      { name: "Profile", sorter: 2, recordStatus: true }
+    ],
+    skipDuplicates: true, // Avoid inserting duplicates
+  });
+  console.log("✅ Module table seeded successfully!");
+
+  await prisma.modulePermission.createMany({
+    data: [
+      { role_id: 2, module_id: 1, show: true, edit: true, save: true, delete: true },
+      { role_id: 2, module_id: 2, show: true, edit: true, save: true, delete: true }
+    ],
+    skipDuplicates: true,
+  });
+  console.log("✅ ModulePermission table seeded successfully!");
+}
+
+
 roleSeed();
 adminUser();
+initialModuleAndPermission();
