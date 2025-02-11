@@ -699,9 +699,9 @@ components:
         repassword:
           type: string
           example: '123456'
-        role:
-          type: string
-          example: Mayor’s Office
+        roleId:
+          type: number
+          example: 1
         firstName:
           type: string
           example: John
@@ -858,9 +858,16 @@ components:
             user:
               type: string
               example: qwer21@gmail.com
+            userId:
+              type: string
+              example: 7ec6d79b-ad78-4d19-996b-9e24996e13f7
             token:
               type: string
               example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjYsImVtYWlsIjoicXdlcjIxQGdtYWlsLmNvbSIsImlhdCI6MTczODMzNTEyMywiZXhwIjoxNzM4MzM4NzIzfQ.qkYL0BCp9-44xoCawM3jrh_AFpXTsdZjPAmBTjAgZzc
+            permissions:
+              type: array
+              items:
+                $ref: '#/components/schemas/permission'
         generatedAt:
           type: integer
           example: 1738335123028
@@ -879,9 +886,16 @@ components:
             user:
               type: string
               example: qwer21@gmail.com
+            userId:
+              type: string
+              example: 7ec6d79b-ad78-4d19-996b-9e24996e13f7
             token:
               type: string
               example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjYsImVtYWlsIjoicXdlcjIxQGdtYWlsLmNvbSIsImlhdCI6MTczODMzNTEyMywiZXhwIjoxNzM4MzM4NzIzfQ.qkYL0BCp9-44xoCawM3jrh_AFpXTsdZjPAmBTjAgZzc
+            permissions:
+              type: array
+              items:
+                $ref: '#/components/schemas/permission'
         generatedAt:
           type: integer
           example: 1738335123028
@@ -1141,6 +1155,33 @@ components:
               ownHouse:
                 type: boolean
                 example: false
+    permission:
+      type: object
+      properties:
+        moduleId:
+          type: number
+          example: 1
+        moduleName:
+          type: string
+          example: Default
+        roleId:
+          type: number
+          example: 1
+        roleName:
+          type: string
+          example: Default
+        show:
+          type: boolean
+          example: true
+        edit:
+          type: boolean
+          example: true
+        save:
+          type: boolean
+          example: true
+        delete:
+          type: boolean
+          example: true
     StudentCreateSuccessResponse:
       $ref: '#/components/schemas/StudentResponse'
     StudentUpdateSuccessResponse:
@@ -1660,8 +1701,8 @@ components:
           type: string
           example: qwer2@gmail.com
         role:
-          type: string
-          example: Mayor’s Office
+          type: number
+          example: 1
         firstName:
           type: string
           example: John
@@ -1694,8 +1735,8 @@ components:
               type: string
               example: qwer2@gmail.com
             role:
-              type: string
-              example: Mayor’s Office
+              type: number
+              example: 1
             firstName:
               type: string
               example: John

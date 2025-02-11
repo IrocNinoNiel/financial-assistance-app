@@ -2,8 +2,8 @@ import { binaryToUuid, LoginRequest, RegisterRequest, UserResponse, uuidToBinary
 import bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 import { User, UserRole } from "./model";
-import { checkUserExists, getRoleRepo, registerRepo, saveUserRoleRepo } from "./repository";
-import { convertToUser, toUserResponse } from "../utils/converter";
+import { checkRoleRepo, checkUserExists, getPermission, getRoleRepo, registerRepo } from "./repository";
+import { convertToUser, toUserPermissionResponse } from "../utils/converter";
 import jwt from 'jsonwebtoken';
 
 export const registerService = async ( data: RegisterRequest ) => {
@@ -16,21 +16,20 @@ export const registerService = async ( data: RegisterRequest ) => {
     console.log("User data to be save", user);
     const result: any = await registerRepo(user);
 
-    const role = await getRoleRepo(data.role);
-
-    const userRole: UserRole = { user_id: result.id, role_id: role.id };
-    console.log("Role to be saved",userRole);
-    await saveUserRoleRepo(userRole);
-    
     const token = jwt.sign(
         { userId: result.id, email: result.email },
         process.env.SECRET_KEY, 
         { expiresIn: '1h' }
     );
 
+    const permission: any[] = await getPermission(user.role_id);
+    const converted: any = toUserPermissionResponse(permission);
+
     const userData =  {
         "user": result.email,
+        "userId": binaryToUuid(result.user_id),
         "token": token,
+        "permissions": converted
     };
 
     console.log("User data is created", userData)
@@ -56,8 +55,19 @@ export const loginService = async ( data: LoginRequest ) => {
         { expiresIn: '1h' }
     );
 
+    const permission: any[] = await getPermission(user.role_id);
+    const converted: any = toUserPermissionResponse(permission);
+
+    console.log(user);
+
     return {
         "user": user.email,
+        "userId": binaryToUuid(user.user_id),
         "token": token,
+        "permissions": converted
     };
+}
+
+export const checkRole = async ( roleId: number) => {
+    return checkRoleRepo(roleId);
 }

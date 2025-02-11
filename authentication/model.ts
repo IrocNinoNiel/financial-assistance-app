@@ -2,6 +2,7 @@ export interface User {
     user_id: Buffer;                   
     email: string;  
     first_name: string;
+    role_id: number;
     middle_name?: string;
     last_name: string;
     mobile_number: string;          

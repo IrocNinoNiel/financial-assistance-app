@@ -37,22 +37,16 @@ async function adminUser() {
   try {
 
     const hashedPassword = await bcrypt.hash("12345678", 10);
-    const user = await prisma.user.create({
+    await prisma.user.create({
       data: {
-        user_id: uuidToBinary(uuidv4()),                
+        user_id: uuidToBinary(uuidv4()),
+        role_id: 2,                
         email: "admin@gmail.com",
         first_name: "John",
         last_name: "Doe",
         mobile_number: "09382716281",     
         password: hashedPassword     
       }
-    });
-
-    await prisma.role_user.create({
-      data: {
-        user_id: user.id,
-        role_id: 2
-      },
     });
 
     console.log('User admin seeded successfully!');
@@ -75,8 +69,24 @@ async function initialModuleAndPermission() {
 
   await prisma.modulePermission.createMany({
     data: [
+      { role_id: 1, module_id: 1, show: true, edit: true, save: true, delete: true },
+      { role_id: 1, module_id: 2, show: true, edit: true, save: true, delete: true },
       { role_id: 2, module_id: 1, show: true, edit: true, save: true, delete: true },
-      { role_id: 2, module_id: 2, show: true, edit: true, save: true, delete: true }
+      { role_id: 2, module_id: 2, show: true, edit: true, save: true, delete: true },
+      { role_id: 3, module_id: 1, show: true, edit: true, save: true, delete: true },
+      { role_id: 3, module_id: 2, show: true, edit: true, save: true, delete: true },
+      { role_id: 4, module_id: 1, show: true, edit: true, save: true, delete: true },
+      { role_id: 4, module_id: 2, show: true, edit: true, save: true, delete: true },
+      { role_id: 5, module_id: 1, show: true, edit: true, save: true, delete: true },
+      { role_id: 5, module_id: 2, show: true, edit: true, save: true, delete: true },
+      { role_id: 6, module_id: 1, show: true, edit: true, save: true, delete: true },
+      { role_id: 6, module_id: 2, show: true, edit: true, save: true, delete: true },
+      { role_id: 7, module_id: 1, show: true, edit: true, save: true, delete: true },
+      { role_id: 7, module_id: 2, show: true, edit: true, save: true, delete: true },
+      { role_id: 8, module_id: 1, show: true, edit: true, save: true, delete: true },
+      { role_id: 8, module_id: 2, show: true, edit: true, save: true, delete: true },
+      { role_id: 9, module_id: 1, show: true, edit: true, save: true, delete: true },
+      { role_id: 9, module_id: 2, show: true, edit: true, save: true, delete: true }
     ],
     skipDuplicates: true,
   });

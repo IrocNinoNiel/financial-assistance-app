@@ -16,13 +16,11 @@ export interface RegisterRequest {
     username: string;
     password: string;
     repassword: string;
-    role: string;
+    roleId: number;
     mobileNumber: string;
-    name: {
-        firstName: string;
-        lastName: string;
-        middleName: string;
-    }
+    firstName: string;
+    lastName: string;
+    middleName: string;
 }
 
 export const RecordStatus = {

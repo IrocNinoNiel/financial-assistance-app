@@ -7,11 +7,11 @@ const prisma = new PrismaClient();
 export const registerStudentRepo = async ( student: Student ) : Promise<any> => {
 
     try {
-        const newStudent = await prisma.students.create({
-            data: student,
-        });
+        // const newStudent = await prisma.students.create({
+        //     data: student,
+        // });
         
-        return newStudent;
+        return "";
 
     } catch (error) {
         console.error('Error registration: ', error);

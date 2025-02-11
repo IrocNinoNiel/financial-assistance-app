@@ -3,65 +3,11 @@ import { GetAllUsersParams } from '../utils';
 
 const prisma = new PrismaClient();
 
-export const isAdminRepo = async (userId: number) : Promise<boolean> => {
-    try {
-        const userRole = await prisma.role_user.findFirst({
-            where: {
-              user_id: userId,
-            },
-            include: {
-              roles: {
-                select: {
-                  name: true,
-                },
-              },
-            },
-        });
-          
-    
-        return userRole?.roles?.name.toLowerCase() === "system admin";
-    } catch (error) {
-        console.error('Error registration: ', error);
-        throw new Error('Database error');
-    }
-}
-
-export const getPermissionRepo = async (userId: number) : Promise<boolean> => {
-  try {
-      const userRole = await prisma.role_user.findFirst({
-          where: {
-            user_id: userId,
-          },
-          include: {
-            roles: {
-              select: {
-                name: true,
-              },
-            },
-          },
-      });
-        
-  
-      return userRole?.roles?.name.toLowerCase() !== "student";
-  } catch (error) {
-      console.error('Error registration: ', error);
-      throw new Error('Database error');
-  }
-}
-
-
-  
 export const getAllUsersRepo = async () => {
     try {
       const users = await prisma.user.findMany({
         where: {
-          role_user: {
-            some: {
-              roles: {
-                id: { not: 2 }
-              }
-            }
-          }
+          role_id: { not: 2 }
         },
         select: {
             first_name: true,
@@ -70,15 +16,11 @@ export const getAllUsersRepo = async () => {
             mobile_number: true,
             user_id: true,
             email: true,
-            role_user: {
-                select: {
-                roles: {
-                    select: {
-                        name: true
-                    },
-                },
+            role: {
+              select: {
+                name: true
+              },
             },
-          }, 
         },
       });
   

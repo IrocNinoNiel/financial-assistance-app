@@ -119,10 +119,11 @@ export function convertToUser(data: RegisterRequest, hashedPassword: any, userId
       email: data.username,
       password: hashedPassword,
       user_id: uuidToBinary(userId),
-      last_name:  data.name.lastName,
-      first_name: data.name.firstName,
-      middle_name: data.name.middleName,
-      mobile_number: data.mobileNumber
+      last_name:  data.lastName,
+      first_name: data.firstName,
+      middle_name: data.middleName,
+      mobile_number: data.mobileNumber,
+      role_id: data.roleId
   }
 }
 
@@ -211,5 +212,18 @@ export function toStudentResponse(data: any): StudentListResponse[] {
       living_with_parents: sibling.living_with_parents,
       own_house: sibling.own_house,
     })) || [],
+  }));
+}
+
+export function toUserPermissionResponse(permissions: any[]): any[] {
+  return permissions.map(permission => ({
+    moduleId: permission.module_id,
+    moduleName: permission.module.name,
+    roleId: permission.role_id,
+    roleName: permission.role.name,
+    show: permission.show,
+    edit: permission.edit,
+    save: permission.save,
+    delete: permission.delete,
   }));
 }

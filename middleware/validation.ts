@@ -4,20 +4,9 @@ import ResponseHandler from "../response/response";
 import { checkEmailExists } from "../authentication/repository";
 import { query, validationResult, body, param } from "express-validator";
 import { checkStudentEmailExists } from "../student/repository";
-import multer from "multer";
-import path from "path";
+import { checkRole } from "../authentication/service";
 
-const validRoles = [
-  'Student',
-  'System Admin',
-  'Financial Assistance Coordinator',
-  'Sponsor',
-  'Budget Office',
-  'Mayor’s Office',
-  'Treasurer’s office',
-  'Cashier',
-  'Accounting'
-];
+
 
 export const validateLoginInput = async (req: Request, res: Response, next: NextFunction) => {
   const data: LoginRequest = req.body;
@@ -63,16 +52,19 @@ export const validateRegisterInput = [
       }
       return true;
     }),
-  body('role')
+  body('roleId')
     .notEmpty().withMessage(VALIDATION_MESSAGES.INVALID_ROLE)
-    .custom(value => {
-      if (!validRoles.includes(value)) {
+    .custom(async value => {
+
+      const validRoles = await checkRole(value);
+     
+      if (!validRoles) {
         throw new Error(VALIDATION_MESSAGES.INVALID_ROLE);
       }
       return true;
     }),
-  body("name.firstName").notEmpty().withMessage(VALIDATION_MESSAGES.FIRST_NAME_REQUIRED),
-  body("name.lastName").notEmpty().withMessage(VALIDATION_MESSAGES.LAST_NAME_REQUIRED),
+  body("firstName").notEmpty().withMessage(VALIDATION_MESSAGES.FIRST_NAME_REQUIRED),
+  body("lastName").notEmpty().withMessage(VALIDATION_MESSAGES.LAST_NAME_REQUIRED),
   body("mobileNumber").notEmpty().withMessage(VALIDATION_MESSAGES.INVALID_MOBILE_NUMBER),
   // Validation result handler
   async (req: Request, res: Response, next: NextFunction) => {

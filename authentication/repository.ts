@@ -52,7 +52,6 @@ export const getRoleRepo = async (name: string) : Promise<any>  => {
   }
 }
 
-
 export const registerRepo = async (user: User) : Promise<any> => {
     try {
         const newUser = await prisma.user.create({
@@ -66,14 +65,52 @@ export const registerRepo = async (user: User) : Promise<any> => {
     }
 }
 
-export const saveUserRoleRepo = async (data: UserRole) : Promise<void> => {
+export const getPermission = async (roleId: number) : Promise<any> => {
   try {
-    await prisma.role_user.create({
-        data: data,
+    const permission = await prisma.modulePermission.findMany({
+      where: {
+        role_id: roleId,
+      },
+      select: {
+        module_id: true,
+        module: {
+          select: {
+            name: true
+          }
+        },
+        role_id: true,
+        role: {
+          select: {
+            name: true
+          }
+        },
+        show: true,
+        edit: true,
+        save: true,
+        delete: true
+      },
     });
 
-} catch (error) {
-    console.error('Error adding user role: ', error);
+    return permission;
+  } catch (error) {
+    console.error('Error checking role existence:', error);
     throw new Error('Database error');
+  }
 }
-}
+
+
+
+export const checkRoleRepo = async (roleId: number): Promise<boolean> => {
+  try {
+    const role = await prisma.roles.findFirst({
+      where: {
+        id: roleId,
+        recordStatus: RecordStatus.ACTIVE
+      },
+    });
+    return role !== null;
+  } catch (error) {
+    console.error('Error checking role existence:', error);
+    throw new Error('Database error');
+  }
+};

@@ -7,8 +7,9 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
+model user {
   id             Int         @id @default(autoincrement())
+  role_id        Int
   first_name     String      @db.VarChar(255)
   middle_name    String?     @db.VarChar(255)
   last_name      String      @db.VarChar(255)
@@ -21,24 +22,12 @@ model User {
   created_by     Bytes?      @db.Binary(16)
   updated_by     Bytes?      @db.Binary(16)
   recordStatus   Boolean?    @default(true)
-  role_user      role_user[]
-  staff          staff[]
   students       students[]
+  role           roles   @relation(fields: [role_id], references: [id])
 
   @@map("users")
 }
 
-model role_user {
-  id         Int       @id @default(autoincrement())
-  user_id    Int
-  role_id    Int
-  created_at DateTime? @default(now()) @db.Timestamp(0)
-  users      User      @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "role_user_ibfk_1")
-  roles      roles     @relation(fields: [role_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "role_user_ibfk_2")
-
-  @@unique([user_id, role_id], map: "user_id")
-  @@index([role_id], map: "role_id")
-}
 
 model roles {
   id              Int               @id @default(autoincrement())
@@ -49,8 +38,8 @@ model roles {
   created_by      Bytes?            @db.Binary(16)
   updated_by      Bytes?            @db.Binary(16)
   recordStatus    Boolean?          @default(true)
-  role_user       role_user[]
   permissions     modulePermission[]
+  user            user[]
 }
 
 model module {
@@ -94,27 +83,6 @@ model siblings {
   @@index([student_id], map: "student_id")
 }
 
-model staff {
-  id             Int       @id @default(autoincrement())
-  user_id        Int
-  first_name     String    @db.VarChar(255)
-  middle_name    String?   @db.VarChar(255)
-  last_name      String    @db.VarChar(255)
-  extension_name String?   @db.VarChar(255)
-  sex            String    @db.VarChar(10)
-  position       String    @db.VarChar(255)
-  department     String?   @db.VarChar(255)
-  email          String    @unique(map: "email") @db.VarChar(255)
-  mobile_number  String    @db.VarChar(15)
-  created_at     DateTime? @default(now()) @db.Timestamp(0)
-  updated_at     DateTime? @default(now()) @db.Timestamp(0)
-  created_by     Bytes?    @db.Binary(16)
-  updated_by     Bytes?    @db.Binary(16)
-  recordStatus   Boolean?  @default(true)
-  users          User      @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "staff_ibfk_1")
-
-  @@index([user_id], map: "user_id")
-}
 
 model students {
   id                        Int                          @id @default(autoincrement())
@@ -215,7 +183,7 @@ model students {
   recordStatus              Boolean?                     @default(true)
   
   siblings                  siblings[]
-  users                     User                         @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "students_ibfk_1")
+  users                     user                         @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "students_ibfk_1")
   
   @@index([user_id], map: "user_id")
 }
