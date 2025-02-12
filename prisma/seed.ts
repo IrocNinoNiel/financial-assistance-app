@@ -60,8 +60,8 @@ async function adminUser() {
 async function initialModuleAndPermission() {
   await prisma.module.createMany({
     data: [
-      { name: "Dashboard", sorter: 1, recordStatus: true },
-      { name: "Profile", sorter: 2, recordStatus: true }
+      { name: "Dashboard", sorter: 1, record_status: true },
+      { name: "Profile", sorter: 2, record_status: true }
     ],
     skipDuplicates: true, // Avoid inserting duplicates
   });

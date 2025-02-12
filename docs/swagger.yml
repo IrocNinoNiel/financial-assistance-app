@@ -91,7 +91,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/StudentPayload'
+              $ref: '#/components/schemas/Student'
       responses:
         '200':
           description: Login successful
@@ -211,7 +211,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/StudentPayload'
+              $ref: '#/components/schemas/Student'
       responses:
         '200':
           description: Login successful
@@ -899,7 +899,7 @@ components:
         generatedAt:
           type: integer
           example: 1738335123028
-    StudentPayload:
+    Student:
       type: object
       properties:
         firstName:
@@ -930,40 +930,40 @@ components:
         weight:
           type: integer
           example: 70
-        permanentAddressStreet: 
+        permanentStreet: 
           type: string
           example: 123 Main Street
-        permanentAddressBarangay: 
-          type: string
-          example: Carmen
-        permanentAddressCity: 
-          type: string
-          example: Cagayan de Oro
-        permanentAddressProvince:
-          type: string
-          example: Carmen
-        permanentAddressCountry:
+        permanentBarangayId: 
+          type: integer
+          example: 170
+        permanentCityMunId: 
+          type: integer
+          example: 170
+        permanentProvinceId:
+          type: integer
+          example: 170
+        permanentCountry:
           type: string
           example: Philippines
-        permanentAddressZipCode:
+        permanentZipCode:
           type: string
           example: 9000
-        currentAddressStreet: 
+        currentStreet: 
           type: string
           example: 123 Main Street
-        currentAddressBarangay: 
-          type: string
-          example: Carmen
-        currentAddressCity: 
-          type: string
-          example: Cagayan de Oro
-        currentAddressProvince:
-          type: string
-          example: Carmen
-        currentAddressCountry:
+        currentBarangayId: 
+          type: integer
+          example: 170
+        currentCityId: 
+          type: integer
+          example: 170
+        currentProvinceId:
+          type: integer
+          example: 170
+        currentCountry:
           type: string
           example: Philippines
-        currentAddressZipCode:
+        currentZipCode:
           type: string
           example: 9000
         email:
@@ -990,33 +990,21 @@ components:
         pwd:
           type: boolean
           example: false
+        grade12SchoolId:
+          type: integer
+          example: 1
         grade12Strand:
           type: string
           example: STEM
-        grade12SchoolName:
+        grade12ProgramName:
           type: string
-          example: New York High School
-        grade12SchoolAddressStreet:
+          example: Default
+        grade12Award:
           type: string
-          example: 789 Maple Avenue
-        grade12SchoolAddressBarangay:
+          example: Valivecturian
+        grade12Organization:
           type: string
-          example: Barangay 1
-        grade12SchoolAddressCity:
-          type: string
-          example: New York
-        grade12SchoolAddressProvince:
-          type: string
-          example: NY
-        grade12SchoolAddressCountry:
-          type: string
-          example: USA
-        grade12SchoolAddressZipCode:
-          type: string
-          example: 10001
-        grade12PrivateOrPublic:
-          type: string
-          example: Public
+          example: APS
         grade12YearOfGraduation:
           type: integer
           example: 2018
@@ -1032,30 +1020,9 @@ components:
         collegeOrganization:
           type: string
           example: Computer Society
-        collegeSchoolName:
-          type: string
-          example: University of California
-        collegeSchoolAddressStreet:
-          type: string
-          example: 123 University Blvd
-        collegeSchoolAddressBarangay:
-          type: string
-          example: Barangay 2
-        collegeSchoolAddressCity:
-          type: string
-          example: Los Angeles
-        collegeSchoolAddressProvince:
-          type: string
-          example: CA
-        collegeSchoolAddressCountry:
-          type: string
-          example: USA
-        collegeSchoolAddressZipCode:
-          type: string
-          example: 90001
-        collegePrivateOrPublic:
-          type: string
-          example: Private
+        collegeSchoolId:
+          type: integer
+          example: 10
         emergencyFullName:
           type: string
           example: Jane Doe
@@ -1183,7 +1150,16 @@ components:
           type: boolean
           example: true
     StudentCreateSuccessResponse:
-      $ref: '#/components/schemas/StudentResponse'
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: Resource Successfully Updated!
+        data:
+          $ref: '#/components/schemas/Student'
     StudentUpdateSuccessResponse:
       type: object
       properties:
@@ -1194,7 +1170,7 @@ components:
           type: string
           example: Resource Successfully Updated!
         data:
-          $ref: '#/components/schemas/StudentResponse'
+          $ref: '#/components/schemas/Student'
         generatedAt:
           type: integer
           example: 1738335634108
@@ -1216,7 +1192,7 @@ components:
             students:
               type: array
               items:
-                $ref: '#/components/schemas/StudentResponse'
+                $ref: '#/components/schemas/Student'
         generatedAt:
           type: integer
           example: 1738335634108
@@ -1230,278 +1206,10 @@ components:
           type: string
           example: Resource Successfully Retrieved!
         data:
-          $ref: '#/components/schemas/StudentResponse'
+          $ref: '#/components/schemas/Student'
         generatedAt:
           type: integer
           example: 1738335634108
-    StudentResponse:
-      type: object
-      properties:
-        studentId:
-          type: string
-          example: 146554a6-0407-4058-9dd4-0624ad6d9441
-        firstName:
-          type: string
-          example: John
-        middleName:
-          type: string
-          example: Michael
-        lastName:
-          type: string
-          example: Doe
-        extensionName:
-          type: string
-          example: Jr
-        sex:
-          type: string
-          example: Male
-        placeOfBirth:
-          type: string
-          example: New York, USA
-        birthdate:
-          type: string
-          format: date
-          example: 2000-01-01
-        height:
-          type: integer
-          example: 170
-        weight:
-          type: integer
-          example: 70
-        permanentStreet:
-          type: string
-          example: 123 Main Street
-        permanentBarangay:
-          type: string
-          example: 123 Carmen
-        permanentCity:
-          type: string
-          example: 123  New York
-        permanentProvince:
-          type: string
-          example: Misamis Oriental
-        permanentZipCode:
-          type: string
-          example: 9000
-        permanentCountry:
-          type: string
-          example: Philippines
-        currentStreet:
-          type: string
-          example: 456 Elm Street
-        currentBarangay:
-          type: string
-          example: Carmen
-        currentCity:
-          type: string
-          example: Los Angeles
-        currentProvince:
-          type: string
-          example: Misamis Oriental
-        currentZipCode:
-          type: string
-          example: 9000
-        currentCountry:
-          type: string
-          example: USA
-        email:
-          type: string
-          example: john.doe123@example.com
-        mobileNumber:
-          type: string
-          example: +1234567890
-        isSoloParent:
-          type: boolean
-          example: false
-        isChildOfSoloParent:
-          type: boolean
-          example: false
-        isIndigenousPeople:
-          type: boolean
-          example: true
-        indigenousGroup:
-          type: string
-          example: Cherokee
-        isSped:
-          type: boolean
-          example: false
-        isPwd:
-          type: boolean
-          example: false
-        emergencyContactName:
-          type: string
-          example: Jane Doe
-        emergencyContactNumber:
-          type: string
-          example: +639938172631
-        academicStrand:
-          type: string
-          example: STEM
-        programName:
-          type: string
-          example: Bachelor of Science in Computer Science
-        awardHonor:
-          type: string
-          example: Dean's Lister
-        organization:
-          type: string
-          example: Computer Society
-        schoolName:
-          type: string
-          example: New York High School
-        schoolStreet:
-          type: string
-          example: 789 Maple Avenue
-        schoolBarangay:
-          type: string
-          example: Carmen
-        schoolCity:
-          type: string
-          example: New York
-        schoolZipCode:
-          type: string
-          example: 9000
-        schoolProvince:
-          type: string
-          example: Misamis Oriental
-        schoolCountry:
-          type: string
-          example: philippines
-        schoolType:
-          type: string
-          example: Public
-        yearOfGraduation:
-          type: integer
-          example: 2018
-        currentProgramName:
-          type: string
-          example: Bachelor of Science in Computer Science
-        currentYearLevel:
-          type: integer
-          example: 2
-        currentAwardHonor:
-          type: string
-          example: Dean's Lister
-        currentOrganization:
-          type: string
-          example: Computer Society
-        currentSchoolName:
-          type: string
-          example: University of California
-        currentSchoolStreet:
-          type: string
-          example: 123 University Blvd
-        currentSchoolBarangay:
-          type: string
-          example: Carmen
-        currentSchoolCity:
-          type: string
-          example: CDO
-        currentSchoolProvince:
-          type: string
-          example: Misamis Oriental
-        currentSchoolCountry:
-          type: string
-          example: 123 University Blvd, Los Angeles, CA, USA
-        currentSchoolZipCode:
-          type: string
-          example: 9000
-        currentSchoolType:
-          type: string
-          example: Private
-        fatherLastName:
-          type: string
-          example: Doe
-        fatherFirstName:
-          type: string
-          example: Michael
-        fatherMiddleName:
-          type: string
-          example: Alan
-        fatherExtension:
-          type: string
-          example: Sr
-        fatherOccupation:
-          type: string
-          example: Engineer
-        fatherIncome:
-          type: number
-          example: 80000
-        fatherMobileNumber:
-          type: string
-          example: +639938172631
-        motherMaidenLastName:
-          type: string
-          example: Smith
-        motherMaidenFirstName:
-          type: string
-          example: Maria
-        motherMaidenMiddleName:
-          type: string
-          example: Therese
-        motherMaidenExtension:
-          type: string
-          example: ''
-        motherOccupation:
-          type: string
-          example: Teacher
-        motherIncome:
-          type: number
-          example: 60000
-        motherMobileNumber:
-          type: string
-          example: +639938172631
-        guardianLastName:
-          type: string
-          example: Johnson
-        guardianFirstName:
-          type: string
-          example: Anna
-        guardianMiddleName:
-          type: string
-          example: Grace
-        guardianExtension:
-          type: string
-          example: ''
-        guardianOccupation:
-          type: string
-          example: Nurse
-        guardianIncome:
-          type: number
-          example: 50000
-        guardianMobileNumber:
-          type: string
-          example: +639938172631
-        numberOfSiblings:
-          type: integer
-          example: 1
-        applicationForm:
-          type: string
-          example: application-form.pdf
-        siblings:
-          type: array
-          items:
-            type: object
-            properties:
-              siblingName:
-                type: string
-                example: Emile
-              siblingBdate:
-                type: string
-                format: date
-                example: 2005-02-15
-              siblingAge:
-                type: integer
-                example: 19
-              livingWithParents:
-                type: boolean
-                example: true
-              siblingStatus:
-                type: string
-                example: Single
-              ownHouse:
-                type: boolean
-                example: false
     UserResponse:
       type: object
       properties:

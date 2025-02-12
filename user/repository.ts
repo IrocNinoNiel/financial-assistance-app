@@ -3,6 +3,24 @@ import { GetAllUsersParams } from '../utils';
 
 const prisma = new PrismaClient();
 
+export const isAdminRepo = async (userId: number) : Promise<boolean> => {
+  try {
+    const isSystemAdmin = await prisma.user.findFirst({
+      where: {
+        id: userId,
+        role: {
+          name: 'System Admin',
+        },
+      },
+    });
+
+    return isSystemAdmin !== null;
+  } catch (error) {
+      console.error('Error fetching users:', error);
+      throw new Error('Database error');
+  }
+}
+
 export const getAllUsersRepo = async () => {
     try {
       const users = await prisma.user.findMany({
