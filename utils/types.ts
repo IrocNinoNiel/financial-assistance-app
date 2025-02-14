@@ -35,90 +35,77 @@ export interface UserResponse {
 }
 
 export interface StudentRequest {
-    name: {
-      firstName: string;
-      middleName: string;
-      lastName: string;
-      extension?: string;
-    };
-    sex: string;
-    placeOfBirth: string;
-    birthdate: string;
-    height: number;
-    weight: number;
-    address: {
-      permanent: string;
-      current: string;
-    };
-    email: string;
-    mobileNumber: string;
-    soloParent: boolean;
-    childOfSoloParent: boolean;
-    indigenous: {
-      isMember: boolean;
-      group?: string;
-    };
-    spEd: boolean;
-    pwd: boolean;
-    education: {
-      grade12: {
-        strand: string;
-        schoolName: string;
-        schoolAddress: string;
-        privateOrPublic: "Private" | "Public";
-        yearOfGraduation: number;
-      };
-      college?: {
-        programName: string;
-        yearLevel: number;
-        awardHonor?: string;
-        organization?: string;
-        schoolName: string;
-        schoolAddress: string;
-        privateOrPublic: "Private" | "Public";
-      };
-    };
-    emergencyContact: {
-      fullName: string;
-      mobileNumber: string;
-      relationship: string;
-    };
-    family: {
-      father: {
-        firstName: string;
-        middleName: string;
-        lastName: string;
-        extension?: string;
-        occupation: string;
-        income: number;
-        mobileNumber: string;
-      };
-      mother: {
-        firstName: string;
-        middleName: string;
-        lastName: string;
-        extension?: string;
-        occupation: string;
-        income: number;
-        mobileNumber: string;
-      };
-      guardian: {
-        firstName: string;
-        middleName: string;
-        lastName: string;
-        extension?: string;
-        occupation: string;
-        income: number;
-        mobileNumber: string;
-      };
-      emergencyContact: {
-        fullName: string;
-        mobileNumber: string;
-        relationship: string;
-      };
-      siblings: SiblingRequest[];
-    };
-};
+  firstName: string;
+  middleName?: string;
+  lastName: string;
+  extensionName?: string;
+  sex: string;
+  placeOfBirth: string;
+  birthdate: string;
+  height?: number;
+  weight?: number;
+  permanentStreet: string;
+  permanentBrgId: number;
+  permanentCitymunId: number;
+  permanentProvinceId: number;
+  permanentRegionId: number;
+  permanentZipCode?: number;
+  permanentCountry?: string;
+  currentStreet: string;
+  currentBrgId: number;
+  currentCitymunId: number;
+  currentProvinceId: number;
+  currentRegionId: number;
+  currentZipCode?: number;
+  currentCountry?: string;
+  email: string;
+  mobileNumber: string;
+  isSoloParent: boolean;
+  isChildOfSoloParent: boolean;
+  isIndigenousPeople: boolean;
+  indigenousGroup?: string;
+  isSped: boolean;
+  isPwd: boolean;
+  emergencyContactName: string;
+  emergencyContactNumber: string;
+  emergencyContactName2?: string;
+  emergencyContactNumber2?: string;
+  g12AcademicStrand: string;
+  g12ProgramName: string;
+  g12AwardHonor?: string;
+  g12Organization?: string;
+  g12YearOfGraduation: number;
+  g12SchoolId: number;
+  collegeProgramName: string;
+  collegeYearLevel: number;
+  collegeAwardHonor?: string;
+  collegeOrganization?: string;
+  collegeSchoolId: number;
+  fatherFirstName: string;
+  fatherMiddleName?: string;
+  fatherLastName: string;
+  fatherExtension?: string;
+  fatherOccupation: string;
+  fatherIncome?: number;
+  fatherMobileNumber: string;
+  motherFirstName: string;
+  motherMiddleName?: string;
+  motherLastName: string;
+  motherExtension?: string;
+  motherOccupation: string;
+  motherIncome?: number;
+  motherMobileNumber: string;
+  guardianFirstName: string;
+  guardianMiddleName?: string;
+  guardianLastName: string;
+  guardianExtension?: string;
+  guardianOccupation: string;
+  guardianIncome?: number;
+  guardianMobileNumber: string;
+  numberOfSiblings: number;
+  siblings: SiblingRequest[];
+}
+
 
 export interface SiblingRequest {
     name: string;

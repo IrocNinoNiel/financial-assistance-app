@@ -1,17 +1,16 @@
-import { RecordStatus, StudentRequest } from "../utils";
-import { Sibling, Student } from "./model";
-import { PrismaClient } from '@prisma/client';
+import { RecordStatus } from "../utils";
+import { Prisma, PrismaClient, students } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export const registerStudentRepo = async ( student: Student ) : Promise<any> => {
+export const registerStudentRepo = async ( student: Prisma.studentsUncheckedCreateInput ) : Promise<students> => {
 
     try {
-        // const newStudent = await prisma.students.create({
-        //     data: student,
-        // });
+        const newStudent = await prisma.students.create({
+            data: student
+        });
         
-        return "";
+        return newStudent;
 
     } catch (error) {
         console.error('Error registration: ', error);
@@ -19,7 +18,7 @@ export const registerStudentRepo = async ( student: Student ) : Promise<any> => 
     }
 }
 
-export const registerSiblingsRepo = async (siblings: Sibling[]): Promise<void> => {
+export const registerSiblingsRepo = async (siblings: Prisma.siblingsUncheckedCreateInput[]): Promise<void> => {
     try {
         await prisma.siblings.createMany({
             data: siblings
@@ -35,7 +34,7 @@ export const checkStudentEmailExists = async (email: string) : Promise<boolean> 
     const user = await prisma.students.findFirst({
       where: {
         email: email,
-        recordStatus: RecordStatus.ACTIVE
+        record_status: RecordStatus.ACTIVE
       },
     });
 
@@ -50,7 +49,7 @@ export const getAllStudentRepo = async () : Promise<any> => {
   try {
     const users = await prisma.students.findMany({
       where: {
-        recordStatus: RecordStatus.ACTIVE
+        record_status: RecordStatus.ACTIVE
       },
       include: {
         siblings:true

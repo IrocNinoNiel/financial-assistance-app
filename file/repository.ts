@@ -4,10 +4,10 @@ const prisma = new PrismaClient();
 
 export const fileUploadRepo = async ( studentId: number, fileName: string ) => {
     try {
-        await prisma.students.update({
-            where: { id: studentId },
-            data: { application_form: fileName },
-        });
+        // await prisma.students.update({
+        //     where: { id: studentId },
+        //     data: { application_form: fileName },
+        // });
     } catch (error) {
         console.error('Error updating application form:', error);
         throw error;

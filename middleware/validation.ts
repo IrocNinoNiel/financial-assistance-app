@@ -15,12 +15,12 @@ export const validateLoginInput = async (req: Request, res: Response, next: Next
   // Validate email
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!data.username || !emailRegex.test(data.username)) {
-    errors.push({ field: "username", message: VALIDATION_MESSAGES.INVALID_EMAIL });
+    errors.push({ field: "username", message: VALIDATION_MESSAGES.EMAIL_INVALID });
   }
 
   // Validate password
   if (!data.password || data.password.trim().length === 0) {
-    errors.push({ field: "password", message: VALIDATION_MESSAGES.EMPTY_PASSWORD });
+    errors.push({ field: "password", message: VALIDATION_MESSAGES.PASSWORD_EMPTY });
   }
 
   if (errors.length > 0) {
@@ -33,8 +33,8 @@ export const validateLoginInput = async (req: Request, res: Response, next: Next
 
 export const validateRegisterInput = [
   body("username")
-    .notEmpty().withMessage(VALIDATION_MESSAGES.INVALID_EMAIL)
-    .isEmail().withMessage(VALIDATION_MESSAGES.INVALID_EMAIL)
+    .notEmpty().withMessage(VALIDATION_MESSAGES.EMAIL_INVALID)
+    .isEmail().withMessage(VALIDATION_MESSAGES.EMAIL_INVALID)
     .custom(async value => {
       const exists = await checkEmailExists(value);
       if (exists) {
@@ -78,47 +78,69 @@ export const validateRegisterInput = [
 ];
 
 export const validateStudentRegistration = [
-  // Personal Information
-  body("name.firstName").notEmpty().withMessage(VALIDATION_MESSAGES.FIRST_NAME_REQUIRED),
-  body("name.lastName").notEmpty().withMessage(VALIDATION_MESSAGES.LAST_NAME_REQUIRED),
-  body("sex").isIn(["Male", "Female"]).withMessage(VALIDATION_MESSAGES.INVALID_SEX),
-  body("placeOfBirth").notEmpty().withMessage(VALIDATION_MESSAGES.PLACE_OF_BIRTH_REQUIRED),
-  body("birthdate").isISO8601().withMessage(VALIDATION_MESSAGES.INVALID_BIRTHDATE),
-  body("height").isNumeric().withMessage(VALIDATION_MESSAGES.HEIGHT_REQUIRED),
-  body("weight").isNumeric().withMessage(VALIDATION_MESSAGES.WEIGHT_REQUIRED),
-  body("address.permanent").notEmpty().withMessage(VALIDATION_MESSAGES.PERMANENT_ADDRESS_REQUIRED),
-  body("address.current").notEmpty().withMessage(VALIDATION_MESSAGES.CURRENT_ADDRESS_REQUIRED),
-  body("email").isEmail().withMessage(VALIDATION_MESSAGES.INVALID_EMAIL).custom(async value => {
-    const exists = await checkStudentEmailExists(value);
-    if (exists) {
-      return Promise.reject(VALIDATION_MESSAGES.EMAIL_IN_USE);
-    }
-  }),
-  body("mobileNumber").notEmpty().withMessage(VALIDATION_MESSAGES.INVALID_MOBILE_NUMBER),
-  body("soloParent").isBoolean().withMessage(VALIDATION_MESSAGES.SOLO_PARENT_REQUIRED),
-  body("childOfSoloParent").isBoolean().withMessage(VALIDATION_MESSAGES.CHILD_OF_SOLO_PARENT_REQUIRED),
-  body("indigenous.isMember").isBoolean().withMessage(VALIDATION_MESSAGES.IP_MEMBERSHIP_REQUIRED),
-  body("indigenous.group").if(body("indigenous.isMember").equals("true")).notEmpty().withMessage(VALIDATION_MESSAGES.INDIGENOUS_GROUP_REQUIRED),
-  body("spEd").isBoolean().withMessage(VALIDATION_MESSAGES.SPED_REQUIRED),
-  body("pwd").isBoolean().withMessage(VALIDATION_MESSAGES.PWD_REQUIRED),
-  body("emergencyContact.fullName").notEmpty().withMessage(VALIDATION_MESSAGES.EMERGENCY_CONTACT_REQUIRED),
-  body("emergencyContact.mobileNumber").notEmpty().withMessage(VALIDATION_MESSAGES.EMERGENCY_CONTACT_MOBILE_REQUIRED),
 
-  // Educational Background
-  body("education.grade12.strand").notEmpty().withMessage(VALIDATION_MESSAGES.ACADEMIC_STRAND_REQUIRED),
-  body("education.grade12.schoolName").notEmpty().withMessage(VALIDATION_MESSAGES.SCHOOL_NAME_REQUIRED),
-  body("education.grade12.schoolAddress").notEmpty().withMessage(VALIDATION_MESSAGES.SCHOOL_ADDRESS_REQUIRED),
-  body("education.grade12.yearOfGraduation").isInt().withMessage(VALIDATION_MESSAGES.GRADUATION_YEAR_REQUIRED),
+  body('firstName').isString().withMessage(VALIDATION_MESSAGES.FIRST_NAME_REQUIRED),
+  body('lastName').isString().withMessage(VALIDATION_MESSAGES.LAST_NAME_REQUIRED),
+  body('email').isEmail().withMessage(VALIDATION_MESSAGES.EMAIL_INVALID),
+  body('mobileNumber').notEmpty().withMessage(VALIDATION_MESSAGES.MOBILE_NUMBER_INVALID),
+  body('sex').isIn(['Male', 'Female', 'Other']).withMessage(VALIDATION_MESSAGES.SEX_INVALID),
+  body('birthdate').isDate().withMessage(VALIDATION_MESSAGES.BIRTHDATE_INVALID),
+  body('height').optional().isFloat({ min: 0 }).withMessage(VALIDATION_MESSAGES.HEIGHT_INVALID),
+  body('weight').optional().isFloat({ min: 0 }).withMessage(VALIDATION_MESSAGES.WEIGHT_INVALID),
+  body('permanentStreet').isString().withMessage(VALIDATION_MESSAGES.PERMANENT_ADDRESS_REQUIRED),
+  body('permanentBrgId').isInt().withMessage(VALIDATION_MESSAGES.PERMANENT_BRG_ID_INVALID),
+  body('permanentCitymunId').isInt().withMessage(VALIDATION_MESSAGES.PERMANENT_CITYMUN_ID_INVALID),
+  body('permanentProvinceId').isInt().withMessage(VALIDATION_MESSAGES.PERMANENT_PROVINCE_ID_INVALID),
+  body('permanentRegionId').isInt().withMessage(VALIDATION_MESSAGES.PERMANENT_REGION_ID_INVALID),
 
-  // Family Background
-  body("family.father.firstName").notEmpty().withMessage(VALIDATION_MESSAGES.FATHER_FIRST_NAME_REQUIRED),
-  body("family.mother.firstName").notEmpty().withMessage(VALIDATION_MESSAGES.MOTHER_FIRST_NAME_REQUIRED),
-  body("family.emergencyContact.fullName").notEmpty().withMessage(VALIDATION_MESSAGES.EMERGENCY_CONTACT_REQUIRED),
+  // Current address fields
+  body('currentStreet').isString().withMessage(VALIDATION_MESSAGES.CURRENT_ADDRESS_REQUIRED),
+  body('currentBrgId').isInt().withMessage(VALIDATION_MESSAGES.CURRENT_BRG_ID_INVALID),
+  body('currentCitymunId').isInt().withMessage(VALIDATION_MESSAGES.CURRENT_CITYMUN_ID_INVALID),
+  body('currentProvinceId').isInt().withMessage(VALIDATION_MESSAGES.CURRENT_PROVINCE_ID_INVALID),
+  body('currentRegionId').isInt().withMessage(VALIDATION_MESSAGES.CURRENT_REGION_ID_INVALID),
 
-  // Custom validation logic for siblings array
-  body("family.siblings").optional().isArray().withMessage(VALIDATION_MESSAGES.SIBLINGS_ARRAY_REQUIRED),
-  body("family.siblings.*.name").optional().notEmpty().withMessage(VALIDATION_MESSAGES.SIBLING_NAME_REQUIRED),
-  body("family.siblings.*.age").optional().isInt().withMessage(VALIDATION_MESSAGES.SIBLING_AGE_REQUIRED),
+  // Emergency contact fields
+  body('emergencyContactName').isString().withMessage(VALIDATION_MESSAGES.EMERGENCY_CONTACT_NAME_REQUIRED),
+  body('emergencyContactNumber').notEmpty().withMessage(VALIDATION_MESSAGES.EMERGENCY_CONTACT_NUMBER_INVALID),
+
+  // G12 Information
+  body('g12AcademicStrand').isString().withMessage(VALIDATION_MESSAGES.G12_ACADEMIC_STRAND_REQUIRED),
+  body('g12ProgramName').isString().withMessage(VALIDATION_MESSAGES.G12_PROGRAM_NAME_REQUIRED),
+  body('g12YearOfGraduation').isInt().withMessage(VALIDATION_MESSAGES.G12_YEAR_OF_GRADUATION_INVALID),
+  body('g12SchoolId').isInt().withMessage(VALIDATION_MESSAGES.G12_SCHOOL_ID_INVALID),
+
+  // College Information
+  body('collegeProgramName').isString().withMessage(VALIDATION_MESSAGES.COLLEGE_PROGRAM_NAME_REQUIRED),
+  body('collegeYearLevel').isInt().withMessage(VALIDATION_MESSAGES.COLLEGE_YEAR_LEVEL_INVALID),
+  body('collegeSchoolId').isInt().withMessage(VALIDATION_MESSAGES.COLLEGE_SCHOOL_ID_INVALID),
+
+  // Father details
+  body('fatherFirstName').isString().withMessage(VALIDATION_MESSAGES.FATHER_FIRST_NAME_REQUIRED),
+  body('fatherLastName').isString().withMessage(VALIDATION_MESSAGES.FATHER_LAST_NAME_REQUIRED),
+  body('fatherOccupation').isString().withMessage(VALIDATION_MESSAGES.FATHER_OCCUPATION_REQUIRED),
+  body('fatherMobileNumber').notEmpty().withMessage(VALIDATION_MESSAGES.FATHER_MOBILE_NUMBER_INVALID),
+
+  // Mother details
+  body('motherFirstName').isString().withMessage(VALIDATION_MESSAGES.MOTHER_FIRST_NAME_REQUIRED),
+  body('motherLastName').isString().withMessage(VALIDATION_MESSAGES.MOTHER_LAST_NAME_REQUIRED),
+  body('motherOccupation').isString().withMessage(VALIDATION_MESSAGES.MOTHER_OCCUPATION_REQUIRED),
+  body('motherMobileNumber').notEmpty().withMessage(VALIDATION_MESSAGES.MOTHER_MOBILE_NUMBER_INVALID),
+
+  // Guardian details
+  body('guardianFirstName').isString().withMessage(VALIDATION_MESSAGES.GUARDIAN_FIRST_NAME_REQUIRED),
+  body('guardianLastName').isString().withMessage(VALIDATION_MESSAGES.GUARDIAN_LAST_NAME_REQUIRED),
+  body('guardianOccupation').isString().withMessage(VALIDATION_MESSAGES.GUARDIAN_OCCUPATION_REQUIRED),
+  body('guardianMobileNumber').notEmpty().withMessage(VALIDATION_MESSAGES.GUARDIAN_MOBILE_NUMBER_INVALID),
+
+  // Siblings
+  body('siblings').isArray().withMessage(VALIDATION_MESSAGES.SIBLINGS_REQUIRED),
+  body('siblings.*.name').isString().withMessage(VALIDATION_MESSAGES.SIBLING_NAME_REQUIRED),
+  body('siblings.*.birthdate').isDate().withMessage(VALIDATION_MESSAGES.SIBLING_BIRTHDATE_INVALID),
+  body('siblings.*.age').isInt({ min: 0 }).withMessage(VALIDATION_MESSAGES.SIBLING_AGE_INVALID),
+  body('siblings.*.status').isString().withMessage(VALIDATION_MESSAGES.SIBLING_STATUS_REQUIRED),
+  body('siblings.*.livingWithParents').isBoolean().withMessage(VALIDATION_MESSAGES.SIBLING_LIVING_WITH_PARENTS_INVALID),
+  body('siblings.*.ownHouse').isBoolean().withMessage(VALIDATION_MESSAGES.SIBLING_OWN_HOUSE_INVALID),
 
   // Validation result handler
   async (req: Request, res: Response, next: NextFunction) => {

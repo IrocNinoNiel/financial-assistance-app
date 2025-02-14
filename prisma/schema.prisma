@@ -85,7 +85,7 @@ model siblings {
 model students {
   id                    Int      @id @default(autoincrement())
   student_id            Bytes    @unique(map: "student_id") @db.Binary(16)
-  user_id               Int
+  user_id               Int      @db.Int
   first_name            String   @db.VarChar(255)
   middle_name           String?  @db.VarChar(255)
   last_name             String   @db.VarChar(255)
@@ -100,7 +100,7 @@ model students {
   permanent_citymun_id  Int      @db.Int
   permanent_province_id Int      @db.Int
   permanent_region_id   Int      @db.Int
-  permanent_zip_code    String?  @db.VarChar(10)
+  permanent_zip_code    Int?     @db.Int
   permanent_country     String?  @default("Philippines") @db.VarChar(255)
 
   current_street      String  @db.VarChar(255)
@@ -108,7 +108,7 @@ model students {
   current_citymun_id  Int     @db.Int
   current_province_id Int     @db.Int
   current_region_id   Int     @db.Int
-  current_zip_code    String? @db.VarChar(10)
+  current_zip_code    Int?     @db.Int
   current_country     String? @default("Philippines") @db.VarChar(255)
 
   email                   String  @unique(map: "email") @db.VarChar(255)
@@ -170,7 +170,7 @@ model students {
   record_status      Boolean?  @default(true)
 
   siblings siblings[]
-  users    user       @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "students_ibfk_1")
+  users    user       @relation(fields: [user_id], references: [id])
 
   permanent_barangay barangays @relation("PermanentStudentAddress", fields: [permanent_brg_id], references: [id])
   permanent_citynum  citymuns  @relation("PermanentStudentAddress", fields: [permanent_citymun_id], references: [id])

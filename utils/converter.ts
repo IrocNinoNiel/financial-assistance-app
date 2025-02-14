@@ -1,5 +1,6 @@
+
+import { Prisma } from "@prisma/client";
 import { User } from "../authentication/model";
-import { Sibling, Student } from "../student/model";
 import { RegisterRequest, SiblingRequest, StudentListResponse, StudentRequest, UserListResponse, UserResponse } from "./types";
 import { binaryToUuid, uuidToBinary } from "./utils";
 
@@ -11,87 +12,88 @@ export function toUserResponse(user: any,): UserResponse {
     }
 }
 
-export function convertStudentRequestToStudent(
-  request: StudentRequest,
-  userId: number,
-  studentId: Buffer,
-  applicationFormData: string
-): Student {
-  
-  // Handle school type case conversion
-  const schoolType =  request.education.grade12.privateOrPublic.charAt(0).toUpperCase() + request.education.grade12.privateOrPublic.slice(1).toLowerCase() as "Private" | "Public";
-  const currentSchoolType = request.education.college.privateOrPublic.charAt(0).toUpperCase() + request.education.college.privateOrPublic.slice(1).toLowerCase() as "Private" | "Public";
-
+export function convertStudentResponseToStudent(response: StudentRequest, userId: number, studentId: Buffer): Prisma.studentsUncheckedCreateInput  {
   return {
     student_id: studentId,
-    user_id: userId, 
-    first_name: request.name.firstName,
-    middle_name: request.name.middleName,
-    last_name: request.name.lastName,
-    extension_name: request.name.extension,
-    sex: request.sex,
-    place_of_birth: request.placeOfBirth,
-    birthdate: new Date(request.birthdate),
-    height: request.height,
-    weight: request.weight,
-    permanent_address: request.address.permanent,
-    current_address: request.address.current,
-    email: request.email,
-    mobile_number: request.mobileNumber,
-    is_solo_parent: request.soloParent,
-    is_child_of_solo_parent: request.childOfSoloParent,
-    is_indigenous_people: request.indigenous.isMember,
-    indigenous_group: request.indigenous.group,
-    is_sped: request.spEd,
-    is_pwd: request.pwd,
-    emergency_contact_name: request.emergencyContact.fullName,
-    emergency_contact_number: request.emergencyContact.mobileNumber,
-    academic_strand: request.education.grade12.strand,
-    program_name: request.education.college?.programName || '',
-    award_honor: request.education.college?.awardHonor,
-    organization: request.education.college?.organization,
-    school_name: request.education.grade12.schoolName,
-    school_address: request.education.grade12.schoolAddress,
-    school_type: schoolType,
-    year_of_graduation: request.education.grade12.yearOfGraduation,
-    current_program_name: request.education.college?.programName || '',
-    current_year_level: request.education.college?.yearLevel || 0,
-    current_award_honor: request.education.college?.awardHonor,
-    current_organization: request.education.college?.organization,
-    current_school_name: request.education.college?.schoolName || '',
-    current_school_address: request.education.college?.schoolAddress || '',
-    current_school_type: currentSchoolType,
-    father_last_name: request.family.father.lastName,
-    father_first_name: request.family.father.firstName,
-    father_middle_name: request.family.father.middleName,
-    father_extension: request.family.father.extension,
-    father_occupation: request.family.father.occupation,
-    father_income: request.family.father.income,
-    father_mobile_number: request.family.father.mobileNumber,
-    mother_maiden_last_name: request.family.mother.lastName,
-    mother_maiden_first_name: request.family.mother.firstName,
-    mother_maiden_middle_name: request.family.mother.middleName,
-    mother_maiden_extension: request.family.mother.extension,
-    mother_occupation: request.family.mother.occupation,
-    mother_income: request.family.mother.income,
-    mother_mobile_number: request.family.mother.mobileNumber,
-    guardian_last_name: request.family.guardian.lastName,
-    guardian_first_name: request.family.guardian.firstName,
-    guardian_middle_name: request.family.guardian.middleName,
-    guardian_extension: request.family.guardian.extension,
-    guardian_occupation: request.family.guardian.occupation,
-    guardian_income: request.family.guardian.income,
-    guardian_mobile_number: request.family.guardian.mobileNumber,
-    number_of_siblings: request.family.siblings.length,
-    emergency_contact_name2: request.family.emergencyContact.fullName,
-    emergency_contact_number2: request.family.emergencyContact.mobileNumber,
-    application_form: applicationFormData,
+    user_id: userId,
+    first_name: response.firstName,
+    middle_name: response.middleName,
+    last_name: response.lastName,
+    extension_name: response.extensionName,
+    sex: response.sex,
+    place_of_birth: response.placeOfBirth,
+    birthdate: new Date(response.birthdate),
+    height: response.height,
+    weight: response.weight,
+    permanent_street: response.permanentStreet,
+    permanent_brg_id: response.permanentBrgId,
+    permanent_citymun_id: response.permanentCitymunId,
+    permanent_province_id: response.permanentProvinceId,
+    permanent_region_id: response.permanentRegionId,
+    permanent_zip_code: response.permanentZipCode,
+    permanent_country: response.permanentCountry,
+    current_street: response.currentStreet,
+    current_brg_id: response.currentBrgId,
+    current_citymun_id: response.currentCitymunId,
+    current_province_id: response.currentProvinceId,
+    current_region_id: response.currentRegionId,
+    current_zip_code: response.currentZipCode,
+    current_country: response.currentCountry,
+    g12_academic_strand: response.g12AcademicStrand,
+    g12_program_name: response.g12ProgramName,
+    g12_award_honor: response.g12AwardHonor,
+    g12_organization: response.g12Organization,
+    g12_year_of_graduation: response.g12YearOfGraduation,
+    g12_school_id: response.g12SchoolId,
+    college_program_name: response.collegeProgramName,
+    college_year_level: response.collegeYearLevel,
+    college_award_honor: response.collegeAwardHonor,
+    college_organization: response.collegeOrganization,
+    college_school_id: response.collegeSchoolId,
+    email: response.email,
+    mobile_number: response.mobileNumber,
+    is_solo_parent: response.isSoloParent,
+    is_child_of_solo_parent: response.isChildOfSoloParent,
+    is_indigenous_people: response.isIndigenousPeople,
+    indigenous_group: response.indigenousGroup,
+    is_sped: response.isSped,
+    is_pwd: response.isPwd,
+    emergency_contact_name: response.emergencyContactName,
+    emergency_contact_number: response.emergencyContactNumber,
+    emergency_contact_name2: response.emergencyContactName2,
+    emergency_contact_number2: response.emergencyContactNumber2,
+    father_first_name: response.fatherFirstName,
+    father_middle_name: response.fatherMiddleName,
+    father_last_name: response.fatherLastName,
+    father_extension: response.fatherExtension,
+    father_occupation: response.fatherOccupation,
+    father_income: response.fatherIncome,
+    father_mobile_number: response.fatherMobileNumber,
+    mother_maiden_first_name: response.motherFirstName,
+    mother_maiden_middle_name: response.motherMiddleName,
+    mother_maiden_last_name: response.motherLastName,
+    mother_maiden_extension: response.motherExtension,
+    mother_occupation: response.motherOccupation,
+    mother_income: response.motherIncome,
+    mother_mobile_number: response.motherMobileNumber,
+    guardian_first_name: response.guardianFirstName,
+    guardian_middle_name: response.guardianMiddleName,
+    guardian_last_name: response.guardianLastName,
+    guardian_extension: response.guardianExtension,
+    guardian_occupation: response.guardianOccupation,
+    guardian_income: response.guardianIncome,
+    guardian_mobile_number: response.guardianMobileNumber,
+    number_of_siblings: response.numberOfSiblings,
     created_by: studentId,
-    updated_by: studentId
+    updated_by: studentId,
+    created_at: new Date(),
+    updated_at: new Date(),
+    record_status: true
+    
   };
 }
 
-export function convertToStudentResponse(student: any, siblings: Sibling[]) {
+export function convertToStudentResponse(student: any, siblings: Prisma.siblingsUncheckedCreateInput[]) {
   const { id, user_id, created_at, created_by, updated_at, updated_by, ...result } = student;
 
   result.student_id = binaryToUuid(result.student_id);
@@ -100,7 +102,7 @@ export function convertToStudentResponse(student: any, siblings: Sibling[]) {
   return result;
 }
 
-export function convertToSiblingData(studentBufferId: Buffer, studentInternalId: number,  siblingRequests: SiblingRequest[]): Sibling[] {
+export function convertToSiblingData(studentBufferId: Buffer, studentInternalId: number,  siblingRequests: SiblingRequest[]): Prisma.siblingsUncheckedCreateInput[] {
   return siblingRequests.map(sibling => ({
       student_id: studentInternalId,
       sibling_name: sibling.name,

@@ -9,7 +9,7 @@ export const checkEmailExists = async (email: string) : Promise<boolean>  => {
     const user = await prisma.user.findFirst({
       where: {
         email: email,
-        recordStatus: RecordStatus.ACTIVE
+        record_status: RecordStatus.ACTIVE
       },
     });
 
@@ -25,7 +25,7 @@ export const checkUserExists = async (email: string) : Promise<any>  => {
       const user = await prisma.user.findFirst({
         where: {
           email: email,
-          recordStatus: RecordStatus.ACTIVE
+          record_status: RecordStatus.ACTIVE
         },
       });
   
@@ -41,7 +41,7 @@ export const getRoleRepo = async (name: string) : Promise<any>  => {
     const user = await prisma.roles.findFirst({
       where: {
         name: name,
-        recordStatus: RecordStatus.ACTIVE
+        record_status: RecordStatus.ACTIVE
       },
     });
 
@@ -105,7 +105,7 @@ export const checkRoleRepo = async (roleId: number): Promise<boolean> => {
     const role = await prisma.roles.findFirst({
       where: {
         id: roleId,
-        recordStatus: RecordStatus.ACTIVE
+        record_status: RecordStatus.ACTIVE
       },
     });
     return role !== null;
