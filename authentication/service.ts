@@ -2,11 +2,11 @@ import { binaryToUuid, LoginRequest, RegisterRequest, StudentRequest, UserRespon
 import bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 import { User } from "./model";
-import { checkRoleRepo, checkStudentRepo, checkUserExists, getPermission, registerRepo } from "./repository";
+import { checkRoleRepo, checkUserExists, getPermission, registerRepo } from "./repository";
 import { convertToUser, toUserPermissionResponse } from "../utils/converter";
 import jwt from 'jsonwebtoken';
 import { Prisma, students } from "@prisma/client";
-import { registerStudentRepo } from "../student/repository";
+import { checkStudentRepo, registerStudentRepo } from "../student/repository";
 
 export const registerService = async ( data: RegisterRequest ) => {
 
@@ -18,7 +18,7 @@ export const registerService = async ( data: RegisterRequest ) => {
     const result: any = await registerRepo(user);
     console.log("User data has been saved", result);
 
-    const student = await checkStudentRepo(data.roleId);
+    const student = await checkStudentRepo(result.id);
     console.log("Check if user is student", result);
 
     if(student) {

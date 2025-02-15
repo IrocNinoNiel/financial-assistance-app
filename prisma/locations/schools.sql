@@ -1,0 +1,8 @@
+INSERT INTO `schools` VALUES (1, 57, 1225, 32492, 'CAGAYAN DE ORO', 'University of Science and Technology of Southern Philippines', 'Public School', 1, '2023-03-21 08:20:26', '2023-11-06 16:06:40', null, null);
+INSERT INTO `schools` VALUES (2, 57, 1226, 32521, 'EL SALVADOR', 'St. Ritas College of Balingasag', 'Private School', 1, '2023-03-21 08:22:33', '2023-11-06 14:26:41', null, null);
+INSERT INTO `schools` VALUES (3, 57, 1229, 32601, 'CAGAYAN DE ORO', 'University of Science and Technology of Southern Philippines', 'Public School', 1, '2023-03-30 03:51:24', '2023-06-15 21:38:48',NULL, NULL);
+INSERT INTO `schools` VALUES (4, 57, 1229, 32563, 'EL SALVADOR', 'El Salvado', 'Public School', 1, '2023-11-06 14:43:12', '2023-11-06 15:55:09', NULL, NULL);
+INSERT INTO `schools` VALUES (5, 57, 1225, 32486, 'EL SALVADOR', 'TEST', 'Public School', 1, '2023-11-06 16:04:23', '2023-11-06 16:04:27', NULL, NULL);
+INSERT INTO `schools` VALUES (6, 57, 1226, 32513, 'CAGAYAN DE ORO', 'TEST', 'Public School', 1, '2023-11-06 16:07:20', '2023-11-06 16:26:59', NULL, NULL);
+INSERT INTO `schools` VALUES (7, 53, 1225, 32487, 'EL SALVADOR', 'TESTs', 'Private School', 0, '2023-11-06 16:27:12', '2023-11-06 16:32:52', NULL, NULL);
+INSERT INTO `schools` VALUES (8, 54, 1181, 31447, 'EL SALVADOR', 'Camiguin HS', 'Public School', 0, '2023-11-27 06:31:10', '2023-11-27 06:31:10', NULL, NULL);

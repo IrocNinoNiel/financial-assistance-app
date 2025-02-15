@@ -3,14 +3,14 @@ import { logger } from "./middleware/logger";
 import authController from "./authentication/controller";
 import fileController from './file/controller';
 import userController from './user/controller';
-import { authAdmin, authentication } from "./middleware/authentication";
+import { authAdmin, authentication, authStudent } from "./middleware/authentication";
 import studentController from "./student/controller";
 
 const routes = Router();
 
 routes.use(logger);
 routes.use("/user", authController());
-routes.use('/students', authentication, studentController());
+routes.use('/students', authentication, authStudent, studentController());
 routes.use("/file-upload", authentication, fileController());
 routes.use("/users", authAdmin, userController())
 

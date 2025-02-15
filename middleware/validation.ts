@@ -2,9 +2,9 @@ import { error, LoginRequest, RegisterRequest, VALIDATION_MESSAGES } from "../ut
 import { NextFunction, Request, Response } from "express";
 import ResponseHandler from "../response/response";
 import { checkEmailExists } from "../authentication/repository";
-import { query, validationResult, body, param } from "express-validator";
-import { checkStudentEmailExists } from "../student/repository";
+import { validationResult, body, param } from "express-validator";
 import { checkRole } from "../authentication/service";
+import { isEmailTakenByAnotherStudent } from "../student/service";
 
 
 
@@ -77,11 +77,9 @@ export const validateRegisterInput = [
   },
 ];
 
-export const validateStudentRegistration = [
-
+const commonValidationMiddleware = [
   body('firstName').isString().withMessage(VALIDATION_MESSAGES.FIRST_NAME_REQUIRED),
   body('lastName').isString().withMessage(VALIDATION_MESSAGES.LAST_NAME_REQUIRED),
-  body('email').isEmail().withMessage(VALIDATION_MESSAGES.EMAIL_INVALID),
   body('mobileNumber').notEmpty().withMessage(VALIDATION_MESSAGES.MOBILE_NUMBER_INVALID),
   body('sex').optional().isIn(['Male', 'Female', 'Other']).withMessage(VALIDATION_MESSAGES.SEX_INVALID),
   body('birthdate').optional().isDate().withMessage(VALIDATION_MESSAGES.BIRTHDATE_INVALID),
@@ -140,15 +138,45 @@ export const validateStudentRegistration = [
   body('siblings.*.age').optional().isInt({ min: 0 }).withMessage(VALIDATION_MESSAGES.SIBLING_AGE_INVALID),
   body('siblings.*.status').optional().isString().withMessage(VALIDATION_MESSAGES.SIBLING_STATUS_REQUIRED),
   body('siblings.*.livingWithParents').optional().isBoolean().withMessage(VALIDATION_MESSAGES.SIBLING_LIVING_WITH_PARENTS_INVALID),
-  body('siblings.*.ownHouse').optional().isBoolean().withMessage(VALIDATION_MESSAGES.SIBLING_OWN_HOUSE_INVALID),
+  body('siblings.*.ownHouse').optional().isBoolean().withMessage(VALIDATION_MESSAGES.SIBLING_OWN_HOUSE_INVALID)
+]
 
-  // Validation result handler
-  async (req: Request, res: Response, next: NextFunction) => {
-    const errors: any = validationResult(req);
-    if (!errors.isEmpty()) {
-      ResponseHandler.invalidRequest(req, res, errors);
-    } else {
-      next();
+const validateErrors = async (req: Request, res: Response, next: NextFunction) => {
+  const errors: any = validationResult(req);
+  if (!errors.isEmpty()) {
+    ResponseHandler.invalidRequest(req, res, errors);
+  } else {
+    next();
+  }
+};
+
+export const validateUpdateStudent = [
+  body("email")
+  .notEmpty().withMessage(VALIDATION_MESSAGES.EMAIL_INVALID)
+  .isEmail().withMessage(VALIDATION_MESSAGES.EMAIL_INVALID)
+  .custom(async (value, { req }) => {
+
+    const studentId = req.params.studentId;
+    const exists = await isEmailTakenByAnotherStudent(value, studentId);
+    console.log("here is this", exists);
+    if (exists) {
+      return Promise.reject(VALIDATION_MESSAGES.EMAIL_IN_USE);
     }
-  },
+  }),
+  ...commonValidationMiddleware,
+  validateErrors
+];
+
+export const validateStudentRegistration = [
+  body("email")
+  .notEmpty().withMessage(VALIDATION_MESSAGES.EMAIL_INVALID)
+  .isEmail().withMessage(VALIDATION_MESSAGES.EMAIL_INVALID)
+  .custom(async value => {
+    const exists = await checkEmailExists(value);
+    if (exists) {
+      return Promise.reject(VALIDATION_MESSAGES.EMAIL_IN_USE);
+    }
+  }),
+  ...commonValidationMiddleware,
+  validateErrors
 ];

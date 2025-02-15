@@ -82,41 +82,41 @@ paths:
               schema:
                 $ref: '#/components/schemas/InternalErrorResponse'
   /students:
-    post:
-      tags:
-        - Student
-      summary: Add student information
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Student'
-      responses:
-        '200':
-          description: Login successful
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StudentCreateSuccessResponse'
-        '400':
-          description: Invalid request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '403':
-          description: Invalid request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ForbiddenErrorResponse'
-        '500':
-          description: Invalid request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/InternalErrorResponse'
+    # post:
+    #   tags:
+    #     - Student
+    #   summary: Add student information
+    #   requestBody:
+    #     required: true
+    #     content:
+    #       application/json:
+    #         schema:
+    #           $ref: '#/components/schemas/Student'
+    #   responses:
+    #     '200':
+    #       description: Login successful
+    #       content:
+    #         application/json:
+    #           schema:
+    #             $ref: '#/components/schemas/StudentCreateSuccessResponse'
+    #     '400':
+    #       description: Invalid request
+    #       content:
+    #         application/json:
+    #           schema:
+    #             $ref: '#/components/schemas/ErrorResponse'
+    #     '403':
+    #       description: Invalid request
+    #       content:
+    #         application/json:
+    #           schema:
+    #             $ref: '#/components/schemas/ForbiddenErrorResponse'
+    #     '500':
+    #       description: Invalid request
+    #       content:
+    #         application/json:
+    #           schema:
+    #             $ref: '#/components/schemas/InternalErrorResponse'
     get:
       tags:
         - Student

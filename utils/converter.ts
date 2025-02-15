@@ -86,7 +86,6 @@ export function convertStudentResponseToStudent(response: StudentRequest, userId
     number_of_siblings: response.numberOfSiblings,
     created_by: studentId,
     updated_by: studentId,
-    created_at: new Date(),
     updated_at: new Date(),
     record_status: true
     

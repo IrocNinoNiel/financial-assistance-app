@@ -3,6 +3,7 @@ import ResponseHandler from "../response/response";
 import { ERROR_MESSAGES, extractUserFromToken } from "../utils";
 import jwt from 'jsonwebtoken';
 import { getPermission, isAdmin } from "../user/service";
+import { checkStudent } from "../student/service";
 
 export async function authentication(req: Request, res: Response, next:NextFunction ) {
 
@@ -37,6 +38,31 @@ export async function authAdmin(req: Request, res: Response, next: NextFunction)
         ResponseHandler.forbidden(req, res, ERROR_MESSAGES.SERVER_ERROR);
     }
 }
+
+export async function authStudent(req: Request, res: Response, next: NextFunction) {
+    try {
+    const authenticated = await auth(req, res);
+
+    if (authenticated) {
+        const authHeader = req.headers.authorization;
+        const userDetails = extractUserFromToken(authHeader);
+        const student = await checkStudent(userDetails.userId);
+
+        if (student) {
+            next();
+        } else {
+            ResponseHandler.forbidden(req, res, ERROR_MESSAGES.NON_STUDENT_UNAUTHORIZED);
+        }
+    } else {
+        ResponseHandler.forbidden(req, res, ERROR_MESSAGES.INVALID_TOKEN);
+    }
+    } catch (error) {
+        console.error('Error in authAdmin middleware:', error);
+        ResponseHandler.forbidden(req, res, ERROR_MESSAGES.SERVER_ERROR);
+    }
+}
+
+
 
 async function auth(req: Request, res: Response ) {
 

@@ -2,6 +2,7 @@ export const ERROR_MESSAGES = {
     INVALID_REQUEST: 'The request is invalid.',
     NOT_FOUND: 'Resource not found',
     UNAUTHORIZED: 'Access denied',
+    NON_STUDENT_UNAUTHORIZED: 'Access denied only student can access this api',
     SERVER_ERROR: 'An unexpected error occurred',
     INVALID_NAME: 'Name is required',
     INVALID_ID: 'Invalid or missing category ID',
