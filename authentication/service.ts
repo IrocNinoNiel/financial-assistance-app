@@ -1,10 +1,12 @@
-import { binaryToUuid, LoginRequest, RegisterRequest, UserResponse, uuidToBinary } from "../utils";
+import { binaryToUuid, LoginRequest, RegisterRequest, StudentRequest, UserResponse, uuidToBinary } from "../utils";
 import bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
-import { User, UserRole } from "./model";
-import { checkRoleRepo, checkUserExists, getPermission, getRoleRepo, registerRepo } from "./repository";
+import { User } from "./model";
+import { checkRoleRepo, checkStudentRepo, checkUserExists, getPermission, registerRepo } from "./repository";
 import { convertToUser, toUserPermissionResponse } from "../utils/converter";
 import jwt from 'jsonwebtoken';
+import { Prisma, students } from "@prisma/client";
+import { registerStudentRepo } from "../student/repository";
 
 export const registerService = async ( data: RegisterRequest ) => {
 
@@ -13,8 +15,30 @@ export const registerService = async ( data: RegisterRequest ) => {
 
     const user: User = convertToUser(data, hashedPassword, userId);
 
-    console.log("User data to be save", user);
     const result: any = await registerRepo(user);
+    console.log("User data has been saved", result);
+
+    const student = await checkStudentRepo(data.roleId);
+    console.log("Check if user is student", result);
+
+    if(student) {
+
+        const studentId = uuidToBinary(uuidv4());
+        const studentData: Prisma.studentsUncheckedCreateInput = {
+            user_id: result.id,
+            student_id: studentId,
+            first_name: result.first_name,
+            last_name: result.last_name,
+            email: result.email,
+            mobile_number: result.mobile_number
+        };
+       
+     
+        const student: students = await registerStudentRepo(studentData);
+        console.log("Student data has been saved", student);
+    }
+
+
 
     const token = jwt.sign(
         { userId: result.id, email: result.email },

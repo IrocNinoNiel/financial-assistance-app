@@ -90,79 +90,79 @@ model students {
   middle_name           String?  @db.VarChar(255)
   last_name             String   @db.VarChar(255)
   extension_name        String?  @db.VarChar(255)
-  sex                   String   @db.VarChar(10)
-  place_of_birth        String   @db.VarChar(255)
-  birthdate             DateTime @db.Date
+  sex                   String?   @db.VarChar(10)
+  place_of_birth        String ?  @db.VarChar(255)
+  birthdate             DateTime? @db.Date
   height                Float?   @db.Float
   weight                Float?   @db.Float
-  permanent_street      String   @db.VarChar(255)
-  permanent_brg_id      Int      @db.Int
-  permanent_citymun_id  Int      @db.Int
-  permanent_province_id Int      @db.Int
-  permanent_region_id   Int      @db.Int
+  permanent_street      String?   @db.VarChar(255)
+  permanent_brg_id      Int?      @db.Int
+  permanent_citymun_id  Int?      @db.Int
+  permanent_province_id Int?      @db.Int
+  permanent_region_id   Int?      @db.Int
   permanent_zip_code    Int?     @db.Int
   permanent_country     String?  @default("Philippines") @db.VarChar(255)
 
-  current_street      String  @db.VarChar(255)
-  current_brg_id      Int     @db.Int
-  current_citymun_id  Int     @db.Int
-  current_province_id Int     @db.Int
-  current_region_id   Int     @db.Int
+  current_street      String?  @db.VarChar(255)
+  current_brg_id      Int?     @db.Int
+  current_citymun_id  Int?     @db.Int
+  current_province_id Int?     @db.Int
+  current_region_id   Int?     @db.Int
   current_zip_code    Int?     @db.Int
   current_country     String? @default("Philippines") @db.VarChar(255)
 
-  email                   String  @unique(map: "email") @db.VarChar(255)
-  mobile_number           String  @db.VarChar(15)
-  is_solo_parent          Boolean
-  is_child_of_solo_parent Boolean
-  is_indigenous_people    Boolean
+  email                   String?  @unique(map: "email") @db.VarChar(255)
+  mobile_number           String?  @db.VarChar(15)
+  is_solo_parent          Boolean?
+  is_child_of_solo_parent Boolean?
+  is_indigenous_people    Boolean?
   indigenous_group        String? @db.VarChar(255)
-  is_sped                 Boolean
-  is_pwd                  Boolean
+  is_sped                 Boolean?
+  is_pwd                  Boolean?
 
-  emergency_contact_name    String @db.VarChar(255)
-  emergency_contact_number  String @db.VarChar(15)
-  emergency_contact_name2   String @db.VarChar(255)
-  emergency_contact_number2 String @db.VarChar(15)
+  emergency_contact_name    String? @db.VarChar(255)
+  emergency_contact_number  String? @db.VarChar(15)
+  emergency_contact_name2   String? @db.VarChar(255)
+  emergency_contact_number2 String? @db.VarChar(15)
 
-  g12_academic_strand    String  @db.VarChar(255)
-  g12_program_name       String  @db.VarChar(255)
+  g12_academic_strand    String?  @db.VarChar(255)
+  g12_program_name       String?  @db.VarChar(255)
   g12_award_honor        String? @db.VarChar(255)
   g12_organization       String? @db.VarChar(255)
-  g12_year_of_graduation Int     @db.Int
-  g12_school_id          Int     @db.Int
+  g12_year_of_graduation Int?     @db.Int
+  g12_school_id          Int?     @db.Int
 
-  college_program_name String  @db.VarChar(255)
-  college_year_level   Int
+  college_program_name String?  @db.VarChar(255)
+  college_year_level   Int?
   college_award_honor  String? @db.VarChar(255)
   college_organization String? @db.VarChar(255)
-  college_school_id    Int     @db.Int
+  college_school_id    Int?     @db.Int
 
-  father_last_name     String  @db.VarChar(255)
-  father_first_name    String  @db.VarChar(255)
+  father_last_name     String? @db.VarChar(255)
+  father_first_name    String?  @db.VarChar(255)
   father_middle_name   String? @db.VarChar(255)
   father_extension     String? @db.VarChar(255)
-  father_occupation    String  @db.VarChar(255)
+  father_occupation    String?  @db.VarChar(255)
   father_income        Float?  @db.Float
-  father_mobile_number String  @db.VarChar(15)
+  father_mobile_number String?  @db.VarChar(15)
 
-  mother_maiden_last_name   String  @db.VarChar(255)
-  mother_maiden_first_name  String  @db.VarChar(255)
+  mother_maiden_last_name   String?  @db.VarChar(255)
+  mother_maiden_first_name  String?  @db.VarChar(255)
   mother_maiden_middle_name String? @db.VarChar(255)
   mother_maiden_extension   String? @db.VarChar(255)
-  mother_occupation         String  @db.VarChar(255)
+  mother_occupation         String?  @db.VarChar(255)
   mother_income             Float?  @db.Float
-  mother_mobile_number      String  @db.VarChar(15)
+  mother_mobile_number      String?  @db.VarChar(15)
 
-  guardian_last_name     String  @db.VarChar(255)
-  guardian_first_name    String  @db.VarChar(255)
+  guardian_last_name     String?  @db.VarChar(255)
+  guardian_first_name    String?  @db.VarChar(255)
   guardian_middle_name   String? @db.VarChar(255)
   guardian_extension     String? @db.VarChar(255)
-  guardian_occupation    String  @db.VarChar(255)
+  guardian_occupation    String?  @db.VarChar(255)
   guardian_income        Float?  @db.Float
-  guardian_mobile_number String  @db.VarChar(15)
+  guardian_mobile_number String?  @db.VarChar(15)
 
-  number_of_siblings Int
+  number_of_siblings Int?
   created_at         DateTime? @default(now()) @db.Timestamp(0)
   updated_at         DateTime? @default(now()) @db.Timestamp(0)
   created_by         Bytes?    @db.Binary(16)
@@ -172,18 +172,18 @@ model students {
   siblings siblings[]
   users    user       @relation(fields: [user_id], references: [id])
 
-  permanent_barangay barangays @relation("PermanentStudentAddress", fields: [permanent_brg_id], references: [id])
-  permanent_citynum  citymuns  @relation("PermanentStudentAddress", fields: [permanent_citymun_id], references: [id])
-  permanent_province provinces @relation("PermanentStudentAddress", fields: [permanent_province_id], references: [id])
-  permanent_region   regions   @relation("PermanentStudentAddress", fields: [permanent_region_id], references: [id])
+  permanent_barangay barangays? @relation("PermanentStudentAddress", fields: [permanent_brg_id], references: [id])
+  permanent_citynum  citymuns?  @relation("PermanentStudentAddress", fields: [permanent_citymun_id], references: [id])
+  permanent_province provinces? @relation("PermanentStudentAddress", fields: [permanent_province_id], references: [id])
+  permanent_region   regions?   @relation("PermanentStudentAddress", fields: [permanent_region_id], references: [id])
 
-  current_barangay barangays @relation("CurrentStudentAddress", fields: [current_brg_id], references: [id])
-  current_citynum  citymuns  @relation("CurrentStudentAddress", fields: [current_citymun_id], references: [id])
-  current_province provinces @relation("CurrentStudentAddress", fields: [current_province_id], references: [id])
-  current_region   regions   @relation("CurrentStudentAddress", fields: [current_region_id], references: [id])
+  current_barangay barangays? @relation("CurrentStudentAddress", fields: [current_brg_id], references: [id])
+  current_citynum  citymuns?  @relation("CurrentStudentAddress", fields: [current_citymun_id], references: [id])
+  current_province provinces? @relation("CurrentStudentAddress", fields: [current_province_id], references: [id])
+  current_region   regions?   @relation("CurrentStudentAddress", fields: [current_region_id], references: [id])
 
-  g12_school     schools @relation("G12School", fields: [g12_school_id], references: [id])
-  college_school schools @relation("CollegeSchool", fields: [college_school_id], references: [id])
+  g12_school     schools? @relation("G12School", fields: [g12_school_id], references: [id])
+  college_school schools? @relation("CollegeSchool", fields: [college_school_id], references: [id])
 
   @@index([user_id], map: "user_id")
 }

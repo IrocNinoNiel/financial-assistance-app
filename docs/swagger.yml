@@ -21,7 +21,7 @@ tags:
   - name: Announcement
     description: Endpoints for User announcement
 paths:
-  /register:
+  /user/register:
     post:
       tags:
         - Authentication
@@ -51,7 +51,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/InternalErrorResponse'
-  /login:
+  /user/login:
     post:
       tags:
         - Authentication

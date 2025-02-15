@@ -99,7 +99,6 @@ export const getPermission = async (roleId: number) : Promise<any> => {
 }
 
 
-
 export const checkRoleRepo = async (roleId: number): Promise<boolean> => {
   try {
     const role = await prisma.roles.findFirst({
@@ -109,6 +108,21 @@ export const checkRoleRepo = async (roleId: number): Promise<boolean> => {
       },
     });
     return role !== null;
+  } catch (error) {
+    console.error('Error checking role existence:', error);
+    throw new Error('Database error');
+  }
+};
+
+export const checkStudentRepo = async (roleId: number): Promise<boolean> => {
+  try {
+    const role = await prisma.roles.findFirst({
+      where: {
+        id: roleId,
+        record_status: RecordStatus.ACTIVE
+      },
+    });
+    return role.name.toLowerCase() == "student";
   } catch (error) {
     console.error('Error checking role existence:', error);
     throw new Error('Database error');
