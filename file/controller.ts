@@ -3,8 +3,8 @@ import multer from "multer";
 import { ResponseHandler } from "../response";
 import { extractUserFromToken, SUCCESS_MESSAGES, VALIDATION_MESSAGES } from "../utils";
 import path from "path";
-import { fileUpload } from "./service";
-import { findStudent } from "./repository";
+import { fileUpload, findFileTypeId } from "./service";
+
 
 
 export default () => {
@@ -14,9 +14,8 @@ export default () => {
             cb(null, "uploads/");
           },
           filename: (req, file, cb) => {
-            const date = new Date();
-            const formattedDate = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
-            cb(null, `${formattedDate}-${file.originalname}`);
+            const epochMilliseconds = Date.now();
+            cb(null, `${epochMilliseconds}-${file.originalname}`);
         }
     });
     
@@ -40,7 +39,7 @@ export default () => {
 
     const fileAPI = Router();
 
-    fileAPI.post('/',  async (req, res) => {
+    fileAPI.post('/', async (req, res) => {
         upload(req, res, async (err: any) => {
             if (err) {
               console.error("File upload error:", err);
@@ -49,18 +48,22 @@ export default () => {
             } else if (!req.file) {
               ResponseHandler.invalidRequest(req, res, { message: "No file uploaded" });
             } else {
-        
-        
-                const authHeader = req.headers.authorization;
-                const userDetails = extractUserFromToken(authHeader);
-                const studentId = await findStudent(userDetails.userId);
+              
+              const authHeader = req.headers.authorization;
+              const userDetails = extractUserFromToken(authHeader);
+              const { fileTypeId } = req.body;
 
-                const date = new Date();
-                const formattedDate = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
-                const uploadedFileName = `${formattedDate}-${req.file.originalname}`;
-        
-                await fileUpload( studentId, uploadedFileName ); 
-                ResponseHandler.created(req, res, SUCCESS_MESSAGES.FILE_SAVED);
+              if(!fileTypeId) {
+                ResponseHandler.invalidRequest(req, res, {"errors": [ {"type": "field", "value": fileTypeId, "msg": VALIDATION_MESSAGES.MISSING_FILE_TYPE_ID, "path": "fileTypeId", "location": "body"}]})
+              }
+
+              const exists = await findFileTypeId(Number(fileTypeId));
+              if (!exists) {
+                ResponseHandler.invalidRequest(req, res, {"errors": [ {"type": "field", "value": fileTypeId, "msg": VALIDATION_MESSAGES.INVALID_FILE_TYPE_ID, "path": "fileTypeId", "location": "body"}]})
+              }
+            
+              await fileUpload(userDetails.userId, req.file.filename, req.file.mimetype, Number(fileTypeId),  req.file.path, userDetails.userUUID);
+              ResponseHandler.created(req, res, SUCCESS_MESSAGES.FILE_SAVED);
             }
         });
     });

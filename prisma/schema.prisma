@@ -23,6 +23,7 @@ model user {
   updated_by    Bytes?     @db.Binary(16)
   record_status Boolean?   @default(true)
   students      students[]
+  files         file[]
   role          roles      @relation(fields: [role_id], references: [id])
 
   @@map("users")
@@ -262,7 +263,7 @@ model schools {
   city          String
   school_name   String
   school_type   String
-  record_status Int       @default(0)
+  record_status Int       @default(1)
   created_at    DateTime?
   updated_at    DateTime?
   created_by    Bytes?    @db.Binary(16)
@@ -280,6 +281,33 @@ model schools {
   @@index([province_id])
   @@index([citymun_id])
   @@index([brgy_id])
+}
+
+model fileType {
+  id            Int         @id @default(autoincrement())
+  name          String      @unique  
+  created_at    DateTime?   @default(now())
+  updated_at    DateTime?
+  created_by    Bytes?      @db.Binary(16)
+  updated_by    Bytes?      @db.Binary(16)
+
+  files         file[]
+}
+
+model file {
+  id              Int         @id @default(autoincrement())
+  file_name       String
+  path            String
+  mime_type       String
+  file_type_id    Int     
+  user_id         Int         @db.Int
+  record_status   Int         @default(1)
+  fileType        fileType    @relation(fields: [file_type_id], references: [id], onDelete: Cascade)    
+  user            user        @relation(fields: [user_id], references: [id], onDelete: Cascade)    
+  created_at      DateTime?   @default(now())
+  updated_at      DateTime?
+  created_by      Bytes?      @db.Binary(16)
+  updated_by      Bytes?      @db.Binary(16)
 }
 
 enum siblings_sibling_status {

@@ -71,6 +71,8 @@ export const VALIDATION_MESSAGES = {
     PASSWORD_MISMATCH: "Password Mismatch",
     INVALID_ROLE: "Invalid Role",
     INVALID_MOBILE_NUMBER: "Invalid Phone Number",
-    INVALID_FILE_TYPE: "File must be pdf or docs"
+    INVALID_FILE_TYPE: "File must be pdf or docs",
+    MISSING_FILE_TYPE_ID: "File type ID is required",
+    INVALID_FILE_TYPE_ID: "File type ID is Invalid",
 };
   

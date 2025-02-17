@@ -2,28 +2,31 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export const fileUploadRepo = async ( studentId: number, fileName: string ) => {
+
+export const fileUploadRepo = async (data: any) => {
     try {
-        // await prisma.students.update({
-        //     where: { id: studentId },
-        //     data: { application_form: fileName },
-        // });
+        const file = await prisma.file.create({
+            data: data,
+        });
+        return file;
     } catch (error) {
-        console.error('Error updating application form:', error);
+        console.error('Error creating file:', error);
         throw error;
     }
 };
 
-export const findStudent = async ( userId: number ): Promise<number> => {
+export const findFileTypeIdRepo = async (fileTypeId: number): Promise<boolean> => {
     try {
-        const studentId = await prisma.students.findFirst({
-            where: {user_id: userId},
-            select: { id: true }
-        })
+        console.log("here", fileTypeId);
+        const fileType = await prisma.fileType.findUnique({
+            where: {
+                id: fileTypeId, 
+            },
+        });
 
-        return studentId?.id;
+        return fileType !== null;
     } catch (error) {
-        console.error('Error updating application form:', error);
+        console.error('Error finding file type:', error);
         throw error;
     }
-}
+};

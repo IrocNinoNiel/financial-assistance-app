@@ -5,6 +5,7 @@ import { checkEmailExists } from "../authentication/repository";
 import { validationResult, body, param } from "express-validator";
 import { checkRole } from "../authentication/service";
 import { isEmailTakenByAnotherStudent } from "../student/service";
+import { findFileTypeId } from "../file/service";
 
 
 

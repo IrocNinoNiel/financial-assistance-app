@@ -163,13 +163,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/InternalErrorResponse'
-  /students/{id}:
+  /students/{studentId}:
     get:
       tags:
         - Student
       summary: Get a student
       parameters:
-        - name: id
+        - name: studentId
           in: path
           required: true
           description: The ID of the student to be updated
@@ -200,7 +200,7 @@ paths:
       summary: Edit student information
       description: Updates the details of an existing student.
       parameters:
-        - name: id
+        - name: studentId
           in: path
           required: true
           description: The ID of the student to be updated
@@ -249,7 +249,7 @@ paths:
       summary: Delete a student record
       description: Delete the details of an existing student.
       parameters:
-        - name: id
+        - name: studentId
           in: path
           required: true
           description: The ID of the student to be deleted
@@ -902,6 +902,9 @@ components:
     Student:
       type: object
       properties:
+        studentId:
+          type: string
+          example: 7ec6d79b-ad78-4d19-996b-9e24996e13f7
         firstName:
           type: string
           example: John

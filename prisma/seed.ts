@@ -93,7 +93,31 @@ async function initialModuleAndPermission() {
   console.log("✅ ModulePermission table seeded successfully!");
 }
 
+async function fileType() {
+  const fileTypes = [
+    { name: 'Birth Certificate' },
+    { name: 'Form 137' },
+    { name: 'Form 138' },
+    { name: 'Certificate of Good Moral Character' },
+    { name: 'Barangay Clearance' },
+    { name: 'Proof of Residency' },
+    { name: 'Proof of Income' },
+    { name: 'Valid ID' },
+    { name: 'Scholarship Application Form' },
+    { name: '2x2 ID Picture' },
+    { name: 'Recommendation Letter' },
+  ];
+
+  await prisma.fileType.createMany({
+    data: fileTypes,
+    skipDuplicates: true,
+  });
+
+  console.log('✅ File types seeded successfully!');
+}
+
 
 roleSeed();
 adminUser();
 initialModuleAndPermission();
+fileType();

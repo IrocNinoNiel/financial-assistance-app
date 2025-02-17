@@ -41,7 +41,7 @@ export const registerService = async ( data: RegisterRequest ) => {
 
 
     const token = jwt.sign(
-        { userId: result.id, email: result.email },
+        { userId: result.id, email: result.email, userUUID: userId },
         process.env.SECRET_KEY, 
         { expiresIn: '1h' }
     );
@@ -74,7 +74,7 @@ export const loginService = async ( data: LoginRequest ) => {
     }  
 
     const token = jwt.sign(
-        { userId: user.id, email: user.email },
+        { userId: user.id, email: user.email, userUUID: binaryToUuid(user.user_id)  },
         process.env.SECRET_KEY, 
         { expiresIn: '1h' }
     );
