@@ -297,6 +297,9 @@ paths:
                   type: string
                   format: binary
                   description: The file to upload.
+                fileTypeId:
+                  type: number
+                  example: 1
       responses:
         '201':
           description: File Succesfully saved
