@@ -40,32 +40,32 @@ export default () => {
     const fileAPI = Router();
 
     fileAPI.post('/', async (req, res) => {
-        upload(req, res, async (err: any) => {
-            if (err) {
-              console.error("File upload error:", err);
-              ResponseHandler.invalidRequest(req, res, { message: err.message });
-              
-            } else if (!req.file) {
-              ResponseHandler.invalidRequest(req, res, { message: "No file uploaded" });
-            } else {
-              
-              const authHeader = req.headers.authorization;
-              const userDetails = extractUserFromToken(authHeader);
-              const { fileTypeId } = req.body;
+      upload(req, res, async (err: any) => {
+        if (err) {
+          console.error("File upload error:", err);
+          ResponseHandler.invalidRequest(req, res, { message: err.message });
+          
+        } else if (!req.file) {
+          ResponseHandler.invalidRequest(req, res, { message: "No file uploaded" });
+        } else {
+          
+          const authHeader = req.headers.authorization;
+          const userDetails = extractUserFromToken(authHeader);
+          const { fileTypeId } = req.body;
 
-              if(!fileTypeId) {
-                ResponseHandler.invalidRequest(req, res, {"errors": [ {"type": "field", "value": fileTypeId, "msg": VALIDATION_MESSAGES.MISSING_FILE_TYPE_ID, "path": "fileTypeId", "location": "body"}]})
-              }
+          if(!fileTypeId) {
+            ResponseHandler.invalidRequest(req, res, {"errors": [ {"type": "field", "value": fileTypeId, "msg": VALIDATION_MESSAGES.MISSING_FILE_TYPE_ID, "path": "fileTypeId", "location": "body"}]})
+          }
 
-              const exists = await findFileTypeId(Number(fileTypeId));
-              if (!exists) {
-                ResponseHandler.invalidRequest(req, res, {"errors": [ {"type": "field", "value": fileTypeId, "msg": VALIDATION_MESSAGES.INVALID_FILE_TYPE_ID, "path": "fileTypeId", "location": "body"}]})
-              }
-            
-              await fileUpload(userDetails.userId, req.file.filename, req.file.mimetype, Number(fileTypeId),  req.file.path, userDetails.userUUID);
-              ResponseHandler.created(req, res, SUCCESS_MESSAGES.FILE_SAVED);
-            }
-        });
+          const exists = await findFileTypeId(Number(fileTypeId));
+          if (!exists) {
+            ResponseHandler.invalidRequest(req, res, {"errors": [ {"type": "field", "value": fileTypeId, "msg": VALIDATION_MESSAGES.INVALID_FILE_TYPE_ID, "path": "fileTypeId", "location": "body"}]})
+          }
+        
+          await fileUpload(userDetails.userId, req.file.filename, req.file.mimetype, Number(fileTypeId),  req.file.path, userDetails.userUUID);
+          ResponseHandler.created(req, res, SUCCESS_MESSAGES.FILE_SAVED);
+        }
+      });
     });
 
     return fileAPI;
