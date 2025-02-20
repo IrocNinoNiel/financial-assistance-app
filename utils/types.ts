@@ -41,6 +41,11 @@ export interface RoleResponse {
   description: string;
 }
 
+export interface SchoolResponse {
+  id: number;
+  name: string;
+}
+
 export const RecordStatus = {
     DELETED: false,
     ACTIVE: true
