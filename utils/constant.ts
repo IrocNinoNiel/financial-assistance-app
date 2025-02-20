@@ -74,5 +74,14 @@ export const VALIDATION_MESSAGES = {
     INVALID_FILE_TYPE: "File must be pdf or docs",
     MISSING_FILE_TYPE_ID: "File type ID is required",
     INVALID_FILE_TYPE_ID: "File type ID is Invalid",
+    INVALID_REGION: "Region code must be a string",
+    MISSING_REGION: "Region code is required",
+    NOT_FOUND_REGION: "Region does not exist in the system",
+    INVALID_PROVINCE: "Province code must be a string",
+    MISSING_PROVINCE: "Province code is required",
+    NOT_FOUND_PROVINCE: "Province does not exist in the system",
+    INVALID_CITYMUN: "City/Municipality code must be a string",
+    MISSING_CITYMUN: "City/Municipality code is required",
+    NOT_FOUND_CITYMUN: "City/Municipality does not exist in the system"
 };
   

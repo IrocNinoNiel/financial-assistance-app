@@ -1,7 +1,7 @@
 
 import { Prisma } from "@prisma/client";
 import { User } from "../authentication/model";
-import { RegisterRequest, SiblingRequest, StudentListResponse, StudentRequest, UserListResponse, UserResponse } from "./types";
+import { AddressResponse, RegisterRequest, SiblingRequest, StudentListResponse, StudentRequest, UserListResponse, UserResponse } from "./types";
 import { binaryToUuid, uuidToBinary } from "./utils";
 
 export function toUserResponse(user: any,): UserResponse { 
@@ -226,5 +226,20 @@ export function toUserPermissionResponse(permissions: any[]): any[] {
     edit: permission.edit,
     save: permission.save,
     delete: permission.delete,
+  }));
+}
+
+
+export function toAddressResponse(data: any[]): AddressResponse[] {
+  return data.map((item) => ({
+    psgcCode: item.psgc_code,
+    regDesc: item.reg_desc,
+    regCode: item.reg_code,
+    provDesc: item.prov_desc,
+    provDode: item.prov_code,
+    citymunDesc: item.citymun_desc,
+    citymunCode: item.citymun_code,
+    brgyCode: item.brgy_code,
+    brgyDesc: item.brgy_desc,
   }));
 }

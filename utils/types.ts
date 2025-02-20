@@ -23,6 +23,18 @@ export interface RegisterRequest {
     middleName: string;
 }
 
+export interface AddressResponse {
+  psgcCode?: string;
+  regDesc?: string;
+  regCode?: string;
+  provDesc?: string;
+  provCode?: string;
+  citymunDesc?: string;
+  citymunCode?: string;
+  brgyCode?: string;
+  brgyDesc?: string;
+}
+
 export const RecordStatus = {
     DELETED: false,
     ACTIVE: true

@@ -1,13 +1,12 @@
 import { error, LoginRequest, RegisterRequest, VALIDATION_MESSAGES } from "../utils";
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Request, RequestHandler, Response } from "express";
 import ResponseHandler from "../response/response";
 import { checkEmailExists } from "../authentication/repository";
 import { validationResult, body, param } from "express-validator";
 import { checkRole } from "../authentication/service";
 import { isEmailTakenByAnotherStudent } from "../student/service";
-import { findFileTypeId } from "../file/service";
-
-
+import { query } from "express-validator";
+import { checkCityMunExist, checkProvinceExist, checkRegionExist } from "../address/service";
 
 export const validateLoginInput = async (req: Request, res: Response, next: NextFunction) => {
   const data: LoginRequest = req.body;
@@ -179,5 +178,51 @@ export const validateStudentRegistration = [
     }
   }),
   ...commonValidationMiddleware,
+  validateErrors
+];
+
+export const validateRegionCode = [
+  query("regCode")
+    .notEmpty()
+    .withMessage(VALIDATION_MESSAGES.MISSING_REGION)
+    .isString()
+    .withMessage(VALIDATION_MESSAGES.INVALID_REGION)
+    .custom(async value => {
+      const exists = await checkRegionExist(value);
+      if (exists) {
+        return Promise.reject(VALIDATION_MESSAGES.NOT_FOUND_REGION);
+      }
+    }),
+  validateErrors
+];
+
+
+export const validateProvinceCode = [
+  query("provinceCode")
+    .notEmpty()
+    .withMessage(VALIDATION_MESSAGES.MISSING_PROVINCE)
+    .isString()
+    .withMessage(VALIDATION_MESSAGES.INVALID_PROVINCE)
+    .custom(async value => {
+      const exists = await checkProvinceExist(value);
+      if (exists) {
+        return Promise.reject(VALIDATION_MESSAGES.NOT_FOUND_PROVINCE);
+      }
+    }),
+  validateErrors
+];
+
+export const validateCityMunCode = [
+  query("citymunCode")
+    .notEmpty()
+    .withMessage(VALIDATION_MESSAGES.MISSING_CITYMUN)
+    .isString()
+    .withMessage(VALIDATION_MESSAGES.INVALID_CITYMUN)
+    .custom(async value => {
+      const exists = await checkCityMunExist(value);
+      if (exists) {
+        return Promise.reject(VALIDATION_MESSAGES.NOT_FOUND_CITYMUN);
+      }
+    }),
   validateErrors
 ];
