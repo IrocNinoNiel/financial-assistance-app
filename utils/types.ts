@@ -35,6 +35,12 @@ export interface AddressResponse {
   brgyDesc?: string;
 }
 
+export interface RoleResponse {
+  id: number;
+  name: string;
+  description: string;
+}
+
 export const RecordStatus = {
     DELETED: false,
     ACTIVE: true
