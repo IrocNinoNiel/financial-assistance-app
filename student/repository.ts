@@ -1,7 +1,7 @@
-import { RecordStatus, uuidToBinary } from "../utils";
+import { binaryToUuid, RecordStatus, uuidToBinary } from "../utils";
 import { Prisma, PrismaClient, students } from '@prisma/client';
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({  });
 
 export const registerStudentRepo = async ( student: Prisma.studentsUncheckedCreateInput ) : Promise<students> => {
 
@@ -24,7 +24,7 @@ export const updateStudentRepo = async (
 ): Promise<students> => {
   try {
     const updatedStudent = await prisma.students.update({
-      where: { student_id: studentId },
+      where: { id: studentId },
       data: studentData
     });
 
@@ -48,14 +48,14 @@ export const registerSiblingsRepo = async (siblings: Prisma.siblingsUncheckedCre
 }
 
 export const updateSiblingsRepo = async (
-  studentId: number,
+  studentId: string,
   siblings: Prisma.siblingsUncheckedCreateInput[]
 ): Promise<void> => {
   try {
     await prisma.$transaction([
       // Delete all existing siblings linked to the student
       prisma.siblings.deleteMany({
-        where: { student_id: studentId }
+        where: { student_id: uuidToBinary(studentId) }
       }),
 
       prisma.siblings.createMany({
@@ -105,15 +105,38 @@ export const getAllStudentRepo = async () : Promise<any> => {
   }
 }
 
-export const checkStudentRepo = async (userId: number): Promise<boolean> => {
+export const getOneStudentRepo = async ( userId: string) : Promise<any> => {
+  try {
+    const users = await prisma.students.findFirst({
+      where: {
+        record_status: RecordStatus.ACTIVE,
+        user_id: uuidToBinary(userId)
+      },
+      include: {
+        siblings:true
+      }
+    });
+
+    return users;
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    throw new Error('Database error');
+  }
+}
+
+
+
+export const checkStudentRepo = async (userId: string): Promise<boolean> => {
   try {
     const user = await prisma.user.findUnique({
       where: {
-        id: userId
+        id: uuidToBinary(userId),
+        record_status: RecordStatus.ACTIVE
       },
       select: {
         role: {
           select: {
+            id: true,
             name: true,
             record_status: true
           }
@@ -124,6 +147,8 @@ export const checkStudentRepo = async (userId: number): Promise<boolean> => {
     if (!user || !user.role || user.role.record_status !== RecordStatus.ACTIVE) {
       return false;
     }
+
+    console.log("user", userId, {id: binaryToUuid(user.role.id), role_name: user.role.name});
 
     return user.role.name.toLowerCase() === "student";
   } catch (error) {
@@ -137,7 +162,7 @@ export const isEmailTakenByAnotherStudentRepo = async (email: string, studentId:
     const existingUser = await prisma.students.findFirst({
       where: {
         email,
-        student_id: { not: uuidToBinary(studentId) },
+        id: { not: uuidToBinary(studentId) },
       },
     });
 
@@ -147,3 +172,10 @@ export const isEmailTakenByAnotherStudentRepo = async (email: string, studentId:
     throw new Error('Database error');
   }
 };
+
+export const doesStudentExistRepo = async (studentId: string): Promise<boolean> => {
+  const student = await prisma.students.findUnique({
+    where: { id: uuidToBinary(studentId) }, 
+  });
+  return !!student;
+}

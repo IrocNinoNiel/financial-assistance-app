@@ -82,6 +82,10 @@ export const VALIDATION_MESSAGES = {
     NOT_FOUND_PROVINCE: "Province does not exist in the system",
     INVALID_CITYMUN: "City/Municipality code must be a string",
     MISSING_CITYMUN: "City/Municipality code is required",
-    NOT_FOUND_CITYMUN: "City/Municipality does not exist in the system"
+    NOT_FOUND_CITYMUN: "City/Municipality does not exist in the system",
+    STUDENT_ID_REQUIRED: "Student Id is Required",
+    STUDENT_NOT_FOUND: "Student not found",
+    USER_NOT_FOUND: " User not found",
+    USER_NO_STUDENT_INFO: "User don't have student information"
 };
   

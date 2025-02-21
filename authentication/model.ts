@@ -1,8 +1,7 @@
-export interface User {               
-    user_id: Buffer;                   
+export interface User {                                 
     email: string;  
     first_name: string;
-    role_id: number;
+    role_id: Buffer;
     middle_name?: string;
     last_name: string;
     mobile_number: string;          
@@ -15,6 +14,6 @@ export interface User {
 }
 
 export interface UserRole {
-  user_id: number;
-  role_id: number;
+  user_id: Buffer;
+  role_id: Buffer;
 }

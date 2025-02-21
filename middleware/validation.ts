@@ -4,9 +4,11 @@ import ResponseHandler from "../response/response";
 import { checkEmailExists } from "../authentication/repository";
 import { validationResult, body, param } from "express-validator";
 import { checkRole } from "../authentication/service";
-import { isEmailTakenByAnotherStudent } from "../student/service";
+import { doesStudentExist, getOneStudent, isEmailTakenByAnotherStudent } from "../student/service";
 import { query } from "express-validator";
 import { checkCityMunExist, checkProvinceExist, checkRegionExist } from "../address/service";
+import { doesUserExist } from "../user/service";
+import { getOneStudentRepo } from "../student/repository";
 
 export const validateLoginInput = async (req: Request, res: Response, next: NextFunction) => {
   const data: LoginRequest = req.body;
@@ -106,12 +108,12 @@ const commonValidationMiddleware = [
   body('g12AcademicStrand').optional().isString().withMessage(VALIDATION_MESSAGES.G12_ACADEMIC_STRAND_REQUIRED),
   body('g12ProgramName').optional().isString().withMessage(VALIDATION_MESSAGES.G12_PROGRAM_NAME_REQUIRED),
   body('g12YearOfGraduation').optional().isInt().withMessage(VALIDATION_MESSAGES.G12_YEAR_OF_GRADUATION_INVALID),
-  body('g12SchoolId').optional().isInt().withMessage(VALIDATION_MESSAGES.G12_SCHOOL_ID_INVALID),
+  body('g12SchoolId').optional().isString().withMessage(VALIDATION_MESSAGES.G12_SCHOOL_ID_INVALID),
 
   // College Information
   body('collegeProgramName').optional().isString().withMessage(VALIDATION_MESSAGES.COLLEGE_PROGRAM_NAME_REQUIRED),
   body('collegeYearLevel').optional().isInt().withMessage(VALIDATION_MESSAGES.COLLEGE_YEAR_LEVEL_INVALID),
-  body('collegeSchoolId').optional().isInt().withMessage(VALIDATION_MESSAGES.COLLEGE_SCHOOL_ID_INVALID),
+  body('collegeSchoolId').optional().isString().withMessage(VALIDATION_MESSAGES.COLLEGE_SCHOOL_ID_INVALID),
 
   // Father details
   body('fatherFirstName').optional().isString().withMessage(VALIDATION_MESSAGES.FATHER_FIRST_NAME_REQUIRED),
@@ -151,6 +153,14 @@ const validateErrors = async (req: Request, res: Response, next: NextFunction) =
 };
 
 export const validateUpdateStudent = [
+  param("studentId")
+    .notEmpty().withMessage(VALIDATION_MESSAGES.STUDENT_ID_REQUIRED)
+    .custom(async (studentId) => {
+      const studentExists = await doesStudentExist(studentId);
+      if (!studentExists) {
+        return Promise.reject(VALIDATION_MESSAGES.STUDENT_NOT_FOUND);
+      }
+  }),
   body("email")
   .notEmpty().withMessage(VALIDATION_MESSAGES.EMAIL_INVALID)
   .isEmail().withMessage(VALIDATION_MESSAGES.EMAIL_INVALID)
@@ -158,7 +168,6 @@ export const validateUpdateStudent = [
 
     const studentId = req.params.studentId;
     const exists = await isEmailTakenByAnotherStudent(value, studentId);
-    console.log("here is this", exists);
     if (exists) {
       return Promise.reject(VALIDATION_MESSAGES.EMAIL_IN_USE);
     }
@@ -224,5 +233,23 @@ export const validateCityMunCode = [
         return Promise.reject(VALIDATION_MESSAGES.NOT_FOUND_CITYMUN);
       }
     }),
+  validateErrors
+];
+
+export const validateGetOneStudent = [
+  param("userId")
+    .notEmpty().withMessage(VALIDATION_MESSAGES.STUDENT_ID_REQUIRED)
+    .custom(async (userId) => {
+      console.log("params", userId);
+      const studentExists = await doesUserExist(userId);
+      if (!studentExists) {
+        return Promise.reject(VALIDATION_MESSAGES.USER_NOT_FOUND);
+      }
+
+      const haveData = await getOneStudent( userId );
+      if( haveData === null ) {
+        return Promise.reject(VALIDATION_MESSAGES.USER_NO_STUDENT_INFO); 
+      }
+  }),
   validateErrors
 ];

@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { RecordStatus, uuidToBinary } from '../utils';
+import { binaryToUuid, RecordStatus, uuidToBinary } from '../utils';
 import { User, UserRole } from './model';
 
 const prisma = new PrismaClient();
@@ -66,7 +66,7 @@ export const registerRepo = async (user: User) : Promise<any> => {
     }
 }
 
-export const getPermission = async (roleId: number) : Promise<any> => {
+export const getPermission = async (roleId: Buffer) : Promise<any> => {
   try {
     const permission = await prisma.modulePermission.findMany({
       where: {
@@ -100,11 +100,11 @@ export const getPermission = async (roleId: number) : Promise<any> => {
 }
 
 
-export const checkRoleRepo = async (roleId: number): Promise<boolean> => {
+export const checkRoleRepo = async (roleId: string): Promise<boolean> => {
   try {
     const role = await prisma.roles.findFirst({
       where: {
-        id: roleId,
+        id: uuidToBinary(roleId),
         record_status: RecordStatus.ACTIVE
       },
     });

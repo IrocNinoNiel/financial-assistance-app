@@ -16,7 +16,7 @@ export interface RegisterRequest {
     username: string;
     password: string;
     repassword: string;
-    roleId: number;
+    roleId: string;
     mobileNumber: string;
     firstName: string;
     lastName: string;
@@ -36,13 +36,13 @@ export interface AddressResponse {
 }
 
 export interface RoleResponse {
-  id: number;
+  id: string;
   name: string;
   description: string;
 }
 
 export interface SchoolResponse {
-  id: number;
+  id: string;
   name: string;
 }
 
@@ -98,12 +98,12 @@ export interface StudentRequest {
   g12AwardHonor?: string;
   g12Organization?: string;
   g12YearOfGraduation?: number;
-  g12SchoolId?: number;
+  g12SchoolId?: string;
   collegeProgramName?: string;
   collegeYearLevel?: number;
   collegeAwardHonor?: string;
   collegeOrganization?: string;
-  collegeSchoolId?: number;
+  collegeSchoolId?: string;
   fatherFirstName?: string;
   fatherMiddleName?: string;
   fatherLastName?: string;

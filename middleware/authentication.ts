@@ -10,6 +10,7 @@ export async function authentication(req: Request, res: Response, next:NextFunct
    const token = await auth(req, res);
 
     if(token !== null) {
+        console.log('General authentication passed, proceeding to next middleware')
         next()
     } else {
         ResponseHandler.forbidden(req, res, ERROR_MESSAGES.INVALID_TOKEN );
@@ -49,6 +50,7 @@ export async function authStudent(req: Request, res: Response, next: NextFunctio
         const student = await checkStudent(userDetails.userId);
 
         if (student) {
+            console.log('Student authentication passed, proceeding to next middleware')
             next();
         } else {
             ResponseHandler.forbidden(req, res, ERROR_MESSAGES.NON_STUDENT_UNAUTHORIZED);
@@ -64,6 +66,8 @@ export async function authStudent(req: Request, res: Response, next: NextFunctio
 
 
 
+
+
 async function auth(req: Request, res: Response ) {
 
     const authHeader = req.headers.authorization;
@@ -76,7 +80,6 @@ async function auth(req: Request, res: Response ) {
 
     try {
         jwt.verify(token, process.env.SECRET_KEY);
-        console.log('API validation passed, proceeding to next middleware')
         return token;
     } catch (err) {
         return null;

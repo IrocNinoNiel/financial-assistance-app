@@ -13,11 +13,11 @@ const routes = Router();
 
 routes.use(logger);
 routes.use("/user", authController());
+routes.use("/roles", roleController());
 routes.use('/students', authentication, authStudent, studentController());
 routes.use("/file-upload", authentication, fileController());
 routes.use("/users", authAdmin, userController())
 routes.use("/address", authentication, addressController());
-routes.use("/roles", authentication, roleController());
 routes.use("/schools", authentication, schoolController());
 
 routes.get("/verify", authentication, (req, res) => {

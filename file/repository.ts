@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import { uuidToBinary } from '../utils';
 
 const prisma = new PrismaClient();
 
@@ -15,12 +16,12 @@ export const fileUploadRepo = async (data: any) => {
     }
 };
 
-export const findFileTypeIdRepo = async (fileTypeId: number): Promise<boolean> => {
+export const findFileTypeIdRepo = async (fileTypeId: string): Promise<boolean> => {
     try {
         console.log("here", fileTypeId);
         const fileType = await prisma.fileType.findUnique({
             where: {
-                id: fileTypeId, 
+                id: uuidToBinary(fileTypeId), 
             },
         });
 

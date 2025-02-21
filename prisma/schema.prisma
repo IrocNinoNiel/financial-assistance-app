@@ -8,13 +8,12 @@ datasource db {
 }
 
 model user {
-  id            Int        @id @default(autoincrement())
-  role_id       Int
+  id            Bytes     @id   @default(dbgenerated("(UUID_TO_BIN(UUID()))")) @db.Binary(16)
+  role_id       Bytes      @db.Binary(16)
   first_name    String     @db.VarChar(255)
   middle_name   String?    @db.VarChar(255)
   last_name     String     @db.VarChar(255)
   mobile_number String     @db.VarChar(15)
-  user_id       Bytes      @unique(map: "user_id") @db.Binary(16)
   email         String     @unique(map: "email") @db.VarChar(255)
   password      String     @db.VarChar(255)
   created_at    DateTime?  @default(now()) @db.Timestamp(0)
@@ -30,7 +29,7 @@ model user {
 }
 
 model roles {
-  id            Int                @id @default(autoincrement())
+  id            Bytes              @id   @default(dbgenerated("(UUID_TO_BIN(UUID()))")) @db.Binary(16)
   name          String             @unique(map: "name") @db.VarChar(100)
   description   String?            @db.Text
   created_at    DateTime?          @default(now()) @db.Timestamp(0)
@@ -43,7 +42,7 @@ model roles {
 }
 
 model module {
-  id            Int                @id @default(autoincrement())
+  id            Bytes              @id   @default(dbgenerated("(UUID_TO_BIN(UUID()))")) @db.Binary(16)
   name          String
   parentModule  Int?
   sorter        Int
@@ -52,9 +51,9 @@ model module {
 }
 
 model modulePermission {
-  id        Int     @id @default(autoincrement())
-  role_id   Int
-  module_id Int
+  id        Bytes              @id   @default(dbgenerated("(UUID_TO_BIN(UUID()))")) @db.Binary(16)
+  role_id   Bytes   @db.Binary(16)
+  module_id Bytes   @db.Binary(16)
   show      Boolean @default(false)
   edit      Boolean @default(false)
   save      Boolean @default(false)
@@ -65,8 +64,8 @@ model modulePermission {
 }
 
 model siblings {
-  id                  Int                     @id @default(autoincrement())
-  student_id          Int
+  id                  Bytes                   @id   @default(dbgenerated("(UUID_TO_BIN(UUID()))")) @db.Binary(16)
+  student_id          Bytes                   @db.Binary(16)
   sibling_name        String                  @db.VarChar(255)
   sibling_bdate       DateTime                @db.Date
   sibling_age         Int
@@ -84,9 +83,8 @@ model siblings {
 }
 
 model students {
-  id                    Int      @id @default(autoincrement())
-  student_id            Bytes    @unique(map: "student_id") @db.Binary(16)
-  user_id               Int      @db.Int
+  id                    Bytes     @id   @default(dbgenerated("(UUID_TO_BIN(UUID()))")) @db.Binary(16)
+  user_id               Bytes      @db.Binary(16)
   first_name            String   @db.VarChar(255)
   middle_name           String?  @db.VarChar(255)
   last_name             String   @db.VarChar(255)
@@ -131,13 +129,13 @@ model students {
   g12_award_honor        String? @db.VarChar(255)
   g12_organization       String? @db.VarChar(255)
   g12_year_of_graduation Int?     @db.Int
-  g12_school_id          Int?     @db.Int
+  g12_school_id          Bytes?     @db.Binary(16)
 
   college_program_name String?  @db.VarChar(255)
   college_year_level   Int?
   college_award_honor  String? @db.VarChar(255)
   college_organization String? @db.VarChar(255)
-  college_school_id    Int?     @db.Int
+  college_school_id    Bytes?     @db.Binary(16)
 
   father_last_name     String? @db.VarChar(255)
   father_first_name    String?  @db.VarChar(255)
@@ -190,7 +188,7 @@ model students {
 }
 
 model announcement {
-  id                  Int                    @id @default(autoincrement())
+  id                  Bytes                  @id   @default(dbgenerated("(UUID_TO_BIN(UUID()))")) @db.Binary(16)
   title               String                 @db.VarChar(255)
   content             String                 @db.Text
   target_municipality String?                @db.VarChar(255)
@@ -203,8 +201,8 @@ model announcement {
 }
 
 model announcementLocation {
-  id              Int          @id @default(autoincrement())
-  announcement_id Int
+  id              Bytes     @id   @default(dbgenerated("(UUID_TO_BIN(UUID()))")) @db.Binary(16)
+  announcement_id Bytes        @db.Binary(16)
   municipality    String       @db.VarChar(255)
   announcement    announcement @relation(fields: [announcement_id], references: [id], onDelete: Cascade)
 
@@ -256,7 +254,7 @@ model barangays {
 }
 
 model schools {
-  id            Int       @id @default(autoincrement())
+  id            Bytes     @id   @default(dbgenerated("(UUID_TO_BIN(UUID()))")) @db.Binary(16)
   province_id   Int
   citymun_id    Int
   brgy_id       Int
@@ -284,7 +282,7 @@ model schools {
 }
 
 model fileType {
-  id            Int         @id @default(autoincrement())
+  id            Bytes     @id   @default(dbgenerated("(UUID_TO_BIN(UUID()))")) @db.Binary(16)
   name          String      @unique  
   created_at    DateTime?   @default(now())
   updated_at    DateTime?
@@ -295,12 +293,12 @@ model fileType {
 }
 
 model file {
-  id              Int         @id @default(autoincrement())
+  id              Bytes     @id   @default(dbgenerated("(UUID_TO_BIN(UUID()))")) @db.Binary(16)
   file_name       String
   path            String
   mime_type       String
-  file_type_id    Int     
-  user_id         Int         @db.Int
+  file_type_id    Bytes       @db.Binary(16)
+  user_id         Bytes         @db.Binary(16)
   record_status   Int         @default(1)
   fileType        fileType    @relation(fields: [file_type_id], references: [id], onDelete: Cascade)    
   user            user        @relation(fields: [user_id], references: [id], onDelete: Cascade)    

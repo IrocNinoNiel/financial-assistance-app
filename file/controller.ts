@@ -57,12 +57,12 @@ export default () => {
             ResponseHandler.invalidRequest(req, res, {"errors": [ {"type": "field", "value": fileTypeId, "msg": VALIDATION_MESSAGES.MISSING_FILE_TYPE_ID, "path": "fileTypeId", "location": "body"}]})
           }
 
-          const exists = await findFileTypeId(Number(fileTypeId));
+          const exists = await findFileTypeId(fileTypeId);
           if (!exists) {
             ResponseHandler.invalidRequest(req, res, {"errors": [ {"type": "field", "value": fileTypeId, "msg": VALIDATION_MESSAGES.INVALID_FILE_TYPE_ID, "path": "fileTypeId", "location": "body"}]})
           }
         
-          await fileUpload(userDetails.userId, req.file.filename, req.file.mimetype, Number(fileTypeId),  req.file.path, userDetails.userUUID);
+          await fileUpload(userDetails.userId, req.file.filename, req.file.mimetype, fileTypeId,  req.file.path, userDetails.userId);
           ResponseHandler.created(req, res, SUCCESS_MESSAGES.FILE_SAVED);
         }
       });

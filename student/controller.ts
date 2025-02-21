@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { ResponseHandler } from "../response";
 import { StudentRequest, VALIDATION_MESSAGES } from "../utils";
-import { getAllStudent, registerStudentService, updateStudentService } from "./service";
-import { validateStudentRegistration, validateUpdateStudent } from "../middleware/validation";
+import { getAllStudent, getOneStudent, registerStudentService, updateStudentService } from "./service";
+import { validateGetOneStudent, validateStudentRegistration, validateUpdateStudent } from "../middleware/validation";
 import { permission } from "../middleware/authentication";
 import { toStudentResponse } from "../utils/converter";
 
@@ -26,6 +26,7 @@ export default () => {
     studentAPI.put('/:studentId', validateUpdateStudent, async (req, res) => {
 
         try {
+           
             const data: StudentRequest = req.body;
             const authHeader = req.headers.authorization;
             const { studentId } = req.params;
@@ -37,12 +38,13 @@ export default () => {
         }
     });
 
-    studentAPI.get('/', permission, async (req, res) => { 
+    studentAPI.get('/:userId', validateGetOneStudent, async (req, res) => { 
         try {
 
-            const result = await getAllStudent();
-            const converted = toStudentResponse( result );
-            ResponseHandler.ok(req, res, { count: converted.length, students: converted });
+            const { userId } = req.params;
+            const result = await getOneStudent( userId );
+            ResponseHandler.ok(req, res, result);
+
         } catch (err) {
             ResponseHandler.internalServerError(req, res , err.message);
         }

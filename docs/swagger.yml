@@ -163,18 +163,19 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/InternalErrorResponse'
-  /students/{studentId}:
+  /students/{userId}:
     get:
       tags:
         - Student
       summary: Get a student
       parameters:
-        - name: studentId
+        - name: userId
           in: path
           required: true
-          description: The ID of the student to be updated
+          description: The ID of the user with student details
           schema:
-            type: integer
+            type: string
+            example: fa8d0ba7-3bd8-4a30-8127-82ca571d1bd0
       responses:
         '200':
           description: A list of students
@@ -194,6 +195,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/InternalErrorResponse'
+  /students/{studentId}:
     put:
       tags:
         - Student
@@ -205,7 +207,8 @@ paths:
           required: true
           description: The ID of the student to be updated
           schema:
-            type: integer
+            type: string
+            example: fa8d0ba7-3bd8-4a30-8127-82ca571d1bd0
       requestBody:
         required: true
         content:
@@ -254,7 +257,8 @@ paths:
           required: true
           description: The ID of the student to be deleted
           schema:
-            type: integer
+            type: string
+            example: fa8d0ba7-3bd8-4a30-8127-82ca571d1bd0
       responses:
         '200':
           description: delete details
@@ -372,18 +376,19 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/InternalErrorResponse'
-  /users/{id}:
+  /users/{userId}:
     get:
       tags:
         - User
       summary: Get a user
       parameters:
-        - name: id
+        - name: userId
           in: path
           required: true
           description: The ID of the user to be retrieved
           schema:
-            type: integer
+            type: string
+            example: fa8d0ba7-3bd8-4a30-8127-82ca571d1bd0
       responses:
         '200':
           description: A user details
@@ -409,12 +414,13 @@ paths:
       summary: Edit user information
       description: Updates the details of an existing user.
       parameters:
-        - name: id
+        - name: userId
           in: path
           required: true
           description: The ID of the user to be updated
           schema:
-            type: integer
+            type: string
+            example: fa8d0ba7-3bd8-4a30-8127-82ca571d1bd0
       requestBody:
         required: true
         content:
@@ -458,12 +464,13 @@ paths:
       summary: Delete a user record
       description: Delete the details of an existing user.
       parameters:
-        - name: id
+        - name: userId
           in: path
           required: true
           description: The ID of the user to be deleted
           schema:
-            type: integer
+            type: string
+            example: fa8d0ba7-3bd8-4a30-8127-82ca571d1bd0
       responses:
         '200':
           description: delete details
@@ -570,17 +577,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/InternalErrorResponse'
-  /announcements/{id}:
+  /announcements/{annId}:
     put:
       summary: Update a announcement record
       description: Updates the details of an existing announcement.
       parameters:
-        - name: id
+        - name: annId
           in: path
           required: true
           description: The ID of the announcement to be updated
           schema:
-            type: integer
+            type: string
+            example: fa8d0ba7-3bd8-4a30-8127-82ca571d1bd0
       tags:
         - Announcement
       requestBody:
@@ -620,12 +628,13 @@ paths:
       summary: Get a announcement record
       description: Get the details of an existing announcement.
       parameters:
-        - name: id
+        - name: annId
           in: path
           required: true
           description: The ID of the announcement to be retreived
           schema:
-            type: integer
+            type: string
+            example: fa8d0ba7-3bd8-4a30-8127-82ca571d1bd0
       responses:
         '200':
           description: A list of users
@@ -657,12 +666,13 @@ paths:
       summary: Delete a announcement record
       description: Delete the details of an existing announcement.
       parameters:
-        - name: id
+        - name: annId
           in: path
           required: true
           description: The ID of the announcement to be deleted
           schema:
-            type: integer
+            type: string
+            example: fa8d0ba7-3bd8-4a30-8127-82ca571d1bd0
       responses:
         '200':
           description: Succesful delete
@@ -703,8 +713,8 @@ components:
           type: string
           example: '123456'
         roleId:
-          type: number
-          example: 1
+          type: string
+          example: fa8d0ba7-3bd8-4a30-8127-82ca571d1bd0
         firstName:
           type: string
           example: John
@@ -997,8 +1007,8 @@ components:
           type: boolean
           example: false
         grade12SchoolId:
-          type: integer
-          example: 1
+          type: string
+          example: fa8d0ba7-3bd8-4a30-8127-82ca571d1bd0
         grade12Strand:
           type: string
           example: STEM
@@ -1027,8 +1037,8 @@ components:
           type: string
           example: Computer Society
         collegeSchoolId:
-          type: integer
-          example: 10
+          type: string
+          example: fa8d0ba7-3bd8-4a30-8127-82ca571d1bd0
         emergencyFullName:
           type: string
           example: Jane Doe
@@ -1132,14 +1142,14 @@ components:
       type: object
       properties:
         moduleId:
-          type: number
-          example: 1
+          type: string
+          example: fa8d0ba7-3bd8-4a30-8127-82ca571d1bd0
         moduleName:
           type: string
           example: Default
         roleId:
-          type: number
-          example: 1
+          type: string
+          example: fa8d0ba7-3bd8-4a30-8127-82ca571d1bd0
         roleName:
           type: string
           example: Default
@@ -1225,7 +1235,6 @@ components:
         message:
           type: string
           example: Resource Successfully Retrieved!
-
         data:
           type: object
           properties:
@@ -1237,29 +1246,32 @@ components:
               items:
                 type: object
                 properties:
-                  first_name:
+                  firstName:
                     type: string
                     example: John
-                  middle_name:
+                  middleName:
                     type: string
                     example: D.
                     nullable: true
-                  last_name:
+                  lastLame:
                     type: string
                     example: Doe
-                  mobile_number:
+                  mobileNumber:
                     type: string
                     example: 09384716212
-                  user_id:
+                  useId:
                     type: string
-                    format: uuid
+                    example: fa8d0ba7-3bd8-4a30-8127-82ca571d1bd0
                   email:
                     type: string
                     format: email
                     example: johndoe@gmail.com
-                  user_type:
+                  userType:
                     type: string
                     example: student
+                  userTypeId:
+                    type: string
+                    example: fa8d0ba7-3bd8-4a30-8127-82ca571d1bd0
     AnnouncementPayload:
       type: object
       properties:
@@ -1269,9 +1281,9 @@ components:
         content:
           type: string
           example: Sample content
-        targetMunicipality:
+        targetMunicipalityId:
           type: string
-          example: Jasaan
+          example: fa8d0ba7-3bd8-4a30-8127-82ca571d1bd0
     AnnouncementSuccessCreateResponse:
       type: object
       properties:
@@ -1290,9 +1302,9 @@ components:
             content:
               type: string
               example: Sample content
-            targetMunicipality:
+            targetMunicipalityId:
               type: string
-              example: Jasaan
+              example: fa8d0ba7-3bd8-4a30-8127-82ca571d1bd0
     AnnouncementSuccessUpdateResponse:
       type: object
       properties:
@@ -1311,9 +1323,9 @@ components:
             content:
               type: string
               example: Sample content
-            targetMunicipality:
+            targetMunicipalityId:
               type: string
-              example: Jasaan
+              example: fa8d0ba7-3bd8-4a30-8127-82ca571d1bd0
     AnnouncementSuccessGetAllResponse:
       type: object
       properties:
@@ -1340,9 +1352,9 @@ components:
                   content:
                     type: string
                     example: Sample content
-                  targetMunicipality:
+                  targetMunicipalityId:
                     type: string
-                    example: Jasaan
+                    example: fa8d0ba7-3bd8-4a30-8127-82ca571d1bd0
     AnnouncementSuccessGetResponse:
       type: object
       properties:
@@ -1361,9 +1373,9 @@ components:
             content:
               type: string
               example: Sample content
-            targetMunicipality:
+            targetMunicipalityId:
               type: string
-              example: Jasaan
+              example: fa8d0ba7-3bd8-4a30-8127-82ca571d1bd0
     SuccessDeleteResponse:
       type: object
       properties:
@@ -1385,38 +1397,41 @@ components:
         data:
           type: object
           properties:
-            first_name:
+            firstName:
               type: string
               example: John
-            middle_name:
+            middleName:
               type: string
               example: D.
               nullable: true
-            last_name:
+            lastName:
               type: string
               example: Doe
-            mobile_number:
+            mobileNumber:
               type: string
               example: 09384716212
-            user_id:
+            userId:
               type: string
-              format: uuid
+              example: fa8d0ba7-3bd8-4a30-8127-82ca571d1bd0
             email:
               type: string
               format: email
               example: johndoe@gmail.com
-            user_type:
+            userType:
               type: string
               example: student
+            userTypeId:
+              type: string
+              example: fa8d0ba7-3bd8-4a30-8127-82ca571d1bd0
     UserPayload:
       type: object
       properties:
         username:
           type: string
           example: qwer2@gmail.com
-        role:
-          type: number
-          example: 1
+        roleId:
+          type: string
+          example: fa8d0ba7-3bd8-4a30-8127-82ca571d1bd0
         firstName:
           type: string
           example: John
@@ -1448,9 +1463,9 @@ components:
             username:
               type: string
               example: qwer2@gmail.com
-            role:
-              type: number
-              example: 1
+            roleId:
+              type: string
+              example: fa8d0ba7-3bd8-4a30-8127-82ca571d1bd0
             firstName:
               type: string
               example: John

@@ -36,11 +36,15 @@ async function roleSeed() {
 async function adminUser() {
   try {
 
+    const role = await prisma.roles.findUnique({
+      where: { name: "System Admin" }, // Adjust based on your schema
+      select: { id: true },
+    });
+
     const hashedPassword = await bcrypt.hash("12345678", 10);
     await prisma.user.create({
       data: {
-        user_id: uuidToBinary(uuidv4()),
-        role_id: 2,                
+        role_id: role.id,                
         email: "admin@gmail.com",
         first_name: "John",
         last_name: "Doe",
@@ -58,39 +62,57 @@ async function adminUser() {
 }
 
 async function initialModuleAndPermission() {
-  await prisma.module.createMany({
-    data: [
-      { name: "Dashboard", sorter: 1, record_status: true },
-      { name: "Profile", sorter: 2, record_status: true }
-    ],
-    skipDuplicates: true, // Avoid inserting duplicates
-  });
-  console.log("✅ Module table seeded successfully!");
+  try {
+    // Insert modules
+    await prisma.module.createMany({
+      data: [
+        {  name: "Dashboard", sorter: 1, record_status: true },
+        {  name: "Profile", sorter: 2, record_status: true },
+      ],
+      skipDuplicates: true,
+    });
+    console.log("✅ Module table seeded successfully!");
 
-  await prisma.modulePermission.createMany({
-    data: [
-      { role_id: 1, module_id: 1, show: true, edit: true, save: true, delete: true },
-      { role_id: 1, module_id: 2, show: true, edit: true, save: true, delete: true },
-      { role_id: 2, module_id: 1, show: true, edit: true, save: true, delete: true },
-      { role_id: 2, module_id: 2, show: true, edit: true, save: true, delete: true },
-      { role_id: 3, module_id: 1, show: true, edit: true, save: true, delete: true },
-      { role_id: 3, module_id: 2, show: true, edit: true, save: true, delete: true },
-      { role_id: 4, module_id: 1, show: true, edit: true, save: true, delete: true },
-      { role_id: 4, module_id: 2, show: true, edit: true, save: true, delete: true },
-      { role_id: 5, module_id: 1, show: true, edit: true, save: true, delete: true },
-      { role_id: 5, module_id: 2, show: true, edit: true, save: true, delete: true },
-      { role_id: 6, module_id: 1, show: true, edit: true, save: true, delete: true },
-      { role_id: 6, module_id: 2, show: true, edit: true, save: true, delete: true },
-      { role_id: 7, module_id: 1, show: true, edit: true, save: true, delete: true },
-      { role_id: 7, module_id: 2, show: true, edit: true, save: true, delete: true },
-      { role_id: 8, module_id: 1, show: true, edit: true, save: true, delete: true },
-      { role_id: 8, module_id: 2, show: true, edit: true, save: true, delete: true },
-      { role_id: 9, module_id: 1, show: true, edit: true, save: true, delete: true },
-      { role_id: 9, module_id: 2, show: true, edit: true, save: true, delete: true }
-    ],
-    skipDuplicates: true,
-  });
-  console.log("✅ ModulePermission table seeded successfully!");
+    // Fetch role UUIDs
+    const roles = await prisma.roles.findMany({
+      select: { id: true },
+    });
+
+    // Fetch module UUIDs
+    const modules = await prisma.module.findMany({
+      select: { id: true, name: true },
+    });
+
+    if (roles.length === 0 || modules.length === 0) {
+      throw new Error("No roles or modules found!");
+    }
+
+    // Map modules to find correct IDs
+    const dashboardModule = modules.find((m) => m.name === "Dashboard")?.id;
+    const profileModule = modules.find((m) => m.name === "Profile")?.id;
+
+    if (!dashboardModule || !profileModule) {
+      throw new Error("Modules not found!");
+    }
+
+    // Generate permissions dynamically for each role
+    const permissions = roles.flatMap((role) => [
+      { role_id: role.id, module_id: dashboardModule, show: true, edit: true, save: true, delete: true },
+      { role_id: role.id, module_id: profileModule, show: true, edit: true, save: true, delete: true },
+    ]);
+
+    // Insert permissions
+    await prisma.modulePermission.createMany({
+      data: permissions,
+      skipDuplicates: true,
+    });
+
+    console.log("✅ ModulePermission table seeded successfully!");
+  } catch (e) {
+    console.error("Error seeding modules and permissions:", e);
+  } finally {
+    await prisma.$disconnect();
+  }
 }
 
 async function fileType() {
@@ -117,7 +139,7 @@ async function fileType() {
 }
 
 
-roleSeed();
+// roleSeed();
+// initialModuleAndPermission();
+// fileType();
 adminUser();
-initialModuleAndPermission();
-fileType();

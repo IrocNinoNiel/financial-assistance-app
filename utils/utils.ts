@@ -12,7 +12,7 @@ export function binaryToUuid(binary: Uint8Array): string {
   return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20, 32)}`;
 }
 
-export const extractUserFromToken = (authHeader: any): { userId: number; email: string, userUUID: string } => {
+export const extractUserFromToken = (authHeader: any): { email: string, userId: string } => {
 
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -27,11 +27,10 @@ export const extractUserFromToken = (authHeader: any): { userId: number; email: 
   }
 
   try {
-      const decoded = jwt.verify(token, secretKey) as { userId: string; email: string, userUUID: string };
+      const decoded = jwt.verify(token, secretKey);
       return {
-          userId: Number(decoded.userId),
           email: decoded.email,
-          userUUID: decoded.userUUID
+          userId: decoded.userId
       };
   } catch (err) {
       throw new Error("Invalid or expired token.");

@@ -1,13 +1,13 @@
 import { PrismaClient } from '@prisma/client';
-import { GetAllUsersParams } from '../utils';
+import { GetAllUsersParams, uuidToBinary } from '../utils';
 
 const prisma = new PrismaClient();
 
-export const isAdminRepo = async (userId: number) : Promise<boolean> => {
+export const isAdminRepo = async (userId: string) : Promise<boolean> => {
   try {
     const isSystemAdmin = await prisma.user.findFirst({
       where: {
-        id: userId,
+        id: uuidToBinary(userId),
         role: {
           name: 'System Admin',
         },
@@ -24,15 +24,12 @@ export const isAdminRepo = async (userId: number) : Promise<boolean> => {
 export const getAllUsersRepo = async () => {
     try {
       const users = await prisma.user.findMany({
-        where: {
-          role_id: { not: 2 }
-        },
         select: {
             first_name: true,
             middle_name: true,
             last_name: true,
             mobile_number: true,
-            user_id: true,
+            id: true,
             email: true,
             role: {
               select: {
@@ -47,4 +44,11 @@ export const getAllUsersRepo = async () => {
       console.error('Error fetching users:', error);
       throw new Error('Database error');
     }
+};
+
+export const doesUserExistRepo = async (userId: string): Promise<boolean> => {
+  const data = await prisma.user.findUnique({
+      where: { id: uuidToBinary(userId) }, 
+    });
+    return !!data;
 };

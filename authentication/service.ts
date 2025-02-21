@@ -11,22 +11,19 @@ import { checkStudentRepo, registerStudentRepo } from "../student/repository";
 export const registerService = async ( data: RegisterRequest ) => {
 
     const hashedPassword = await bcrypt.hash(data.password, 10);
-    const userId = uuidv4();
 
-    const user: User = convertToUser(data, hashedPassword, userId);
+    const user: User = convertToUser(data, hashedPassword);
 
     const result: any = await registerRepo(user);
     console.log("User data has been saved", result);
 
-    const student = await checkStudentRepo(result.id);
-    console.log("Check if user is student", result);
+    const student = await checkStudentRepo(binaryToUuid(result.id));
+    console.log("Check if user is student", student);
 
     if(student) {
 
-        const studentId = uuidToBinary(uuidv4());
         const studentData: Prisma.studentsUncheckedCreateInput = {
             user_id: result.id,
-            student_id: studentId,
             first_name: result.first_name,
             last_name: result.last_name,
             email: result.email,
@@ -41,17 +38,20 @@ export const registerService = async ( data: RegisterRequest ) => {
 
 
     const token = jwt.sign(
-        { userId: result.id, email: result.email, userUUID: userId },
+        { userId: binaryToUuid(result.id), email: result.email },
         process.env.SECRET_KEY, 
         { expiresIn: '1h' }
     );
+    console.log("jwt has been sign");
 
     const permission: any[] = await getPermission(user.role_id);
+    console.log("Get Role Permission", permission);
     const converted: any = toUserPermissionResponse(permission);
+    console.log("Get Role Permission converted", converted);
 
     const userData =  {
         "user": result.email,
-        "userId": binaryToUuid(result.user_id),
+        "userId": binaryToUuid(result.id),
         "token": token,
         "permissions": converted
     };
@@ -74,7 +74,7 @@ export const loginService = async ( data: LoginRequest ) => {
     }  
 
     const token = jwt.sign(
-        { userId: user.id, email: user.email, userUUID: binaryToUuid(user.user_id)  },
+        { userId: binaryToUuid(user.id), email: user.email },
         process.env.SECRET_KEY, 
         { expiresIn: '1h' }
     );
@@ -82,16 +82,14 @@ export const loginService = async ( data: LoginRequest ) => {
     const permission: any[] = await getPermission(user.role_id);
     const converted: any = toUserPermissionResponse(permission);
 
-    console.log(user);
-
     return {
         "user": user.email,
-        "userId": binaryToUuid(user.user_id),
+        "userId": binaryToUuid(user.id),
         "token": token,
         "permissions": converted
     };
 }
 
-export const checkRole = async ( roleId: number) => {
+export const checkRole = async ( roleId: string) => {
     return checkRoleRepo(roleId);
 }
