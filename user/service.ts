@@ -15,6 +15,7 @@ export const getPermission = async (userId: string) : Promise<boolean> => {
 export const getAllUsers = async (  ) => { 
 
     const data: any = await getAllUsersRepo();
+    console.log(data);
     const converted = toUserListResponse(data);
     return { count: converted.length, users: converted};
 }

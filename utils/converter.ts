@@ -134,9 +134,9 @@ export function toUserListResponse(data: any): UserListResponse[] {
     middle_name: user.middle_name ?? null,
     last_name: user.last_name,
     mobile_number: user.mobile_number,
-    user_id: binaryToUuid(user.user_id),
+    user_id: binaryToUuid(user.id),
     email: user.email,
-    user_type: user.role_user[0]?.roles?.name || 'Unknown' // Handle cases with missing role_user
+    user_type: user.role?.name || 'Unknown' // Handle cases with missing role_user
   }));
 }
 
@@ -317,7 +317,7 @@ export function toAddressResponse(data: any[]): AddressResponse[] {
     regDesc: item.reg_desc,
     regCode: item.reg_code,
     provDesc: item.prov_desc,
-    provDode: item.prov_code,
+    provCode: item.prov_code,
     citymunDesc: item.citymun_desc,
     citymunCode: item.citymun_code,
     brgyCode: item.brgy_code,

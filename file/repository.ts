@@ -18,7 +18,6 @@ export const fileUploadRepo = async (data: any) => {
 
 export const findFileTypeIdRepo = async (fileTypeId: string): Promise<boolean> => {
     try {
-        console.log("here", fileTypeId);
         const fileType = await prisma.fileType.findUnique({
             where: {
                 id: uuidToBinary(fileTypeId), 

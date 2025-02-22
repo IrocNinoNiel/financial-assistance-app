@@ -20,6 +20,8 @@ tags:
     description: Endpoints for User management
   - name: Announcement
     description: Endpoints for User announcement
+  - name: Address
+    description: Endpoints for Address
 paths:
   /user/register:
     post:
@@ -82,41 +84,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/InternalErrorResponse'
   /students:
-    # post:
-    #   tags:
-    #     - Student
-    #   summary: Add student information
-    #   requestBody:
-    #     required: true
-    #     content:
-    #       application/json:
-    #         schema:
-    #           $ref: '#/components/schemas/Student'
-    #   responses:
-    #     '200':
-    #       description: Login successful
-    #       content:
-    #         application/json:
-    #           schema:
-    #             $ref: '#/components/schemas/StudentCreateSuccessResponse'
-    #     '400':
-    #       description: Invalid request
-    #       content:
-    #         application/json:
-    #           schema:
-    #             $ref: '#/components/schemas/ErrorResponse'
-    #     '403':
-    #       description: Invalid request
-    #       content:
-    #         application/json:
-    #           schema:
-    #             $ref: '#/components/schemas/ForbiddenErrorResponse'
-    #     '500':
-    #       description: Invalid request
-    #       content:
-    #         application/json:
-    #           schema:
-    #             $ref: '#/components/schemas/InternalErrorResponse'
     get:
       tags:
         - Student
@@ -698,6 +665,122 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/InternalErrorResponse'
+  /address/regions:
+    get:
+      tags:
+        - Address
+      summary: Get all region
+      responses:
+        '200':
+          description: A list of region
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetAllRegionsSuccessResponse'
+        '403':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenErrorResponse'
+        '500':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
+  /address/provinces:
+    get:
+      tags:
+        - Address
+      summary: Get all provinces
+      parameters:
+        - in: query
+          name: regCode
+          schema:
+            type: string
+          description: "01"
+      responses:
+        '200':
+          description: A list of provinces
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetAllProvinceSuccessResponse'
+        '403':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenErrorResponse'
+        '500':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
+  /address/citymuns:
+    get:
+      tags:
+        - Address
+      summary: Get all citymuns
+      parameters:
+        - in: query
+          name: provinceCode
+          schema:
+            type: string
+          description: "0128"
+      responses:
+        '200':
+          description: A list of citymuns
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetAllCitymunsSuccessResponse'
+        '403':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenErrorResponse'
+        '500':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
+  /address/barangays:
+    get:
+      tags:
+        - Address
+      summary: Get all barangays
+      parameters:
+        - in: query
+          name: citymunCode
+          schema:
+            type: string
+          description: "012801"
+      responses:
+        '200':
+          description: A list of barangays
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetAllBarangaySuccessResponse'
+        '403':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenErrorResponse'
+        '500':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
+
+
 components:
   schemas:
     RegisterPayload:
@@ -1475,3 +1558,113 @@ components:
             mobileNumber:
               type: string
               example: '09837162132'
+    GetAllRegionsSuccessResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: Request Successfully Accepted!
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              psgcCode:
+                type: string
+                example: 010000000
+              regDesc:
+                type: string
+                example: REGION I (ILOCOS REGION)
+              regCode:
+                type: string
+                example: 01
+    GetAllProvinceSuccessResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: Request Successfully Accepted!
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              psgcCode:
+                type: string
+                example: 010000000
+              regCode:
+                type: string
+                example: 01
+              provDesc:
+                type: string
+                example: Ilocos Norte
+              provCode:
+                type: string
+                example: 0128
+    GetAllCitymunsSuccessResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: Request Successfully Accepted!
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              psgcCode:
+                type: string
+                example: 010000000
+              regCode:
+                type: string
+                example: 01
+              provCode:
+                type: string
+                example: 0128
+              citymunDesc:
+                type: string
+                example: Adams
+              citymunCode:
+                type: string
+                example: 012801
+    GetAllBarangaySuccessResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: Request Successfully Accepted!
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              psgcCode:
+                type: string
+                example: 010000000
+              regCode:
+                type: string
+                example: 01
+              provCode:
+                type: string
+                example: 0128
+              citymunCode:
+                type: string
+                example: 012801
+              brgyDesc:
+                type: string
+                example: Adams (Pob.)
+              brgyCode:
+                type: string
+                example: 012801001

@@ -139,7 +139,7 @@ async function fileType() {
 }
 
 
-// roleSeed();
-// initialModuleAndPermission();
-// fileType();
+roleSeed();
+initialModuleAndPermission();
+fileType();
 adminUser();
