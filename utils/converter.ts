@@ -335,7 +335,7 @@ export function toRolesResponse(data: any[]): RoleResponse[] {
 
 export function toSchoolResponse(data: any[]): SchoolResponse[] {
   return data.map((item) => ({
-    id: item.id,
+    id: binaryToUuid(item.id),
     name: item.school_name
   }));
 }
