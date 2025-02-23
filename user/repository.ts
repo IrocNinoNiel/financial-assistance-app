@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { GetAllUsersParams, uuidToBinary } from '../utils';
+import { GetAllUsersParams, PartialStudentUser, uuidToBinary } from '../utils';
 
 const prisma = new PrismaClient();
 
@@ -52,3 +52,19 @@ export const doesUserExistRepo = async (userId: string): Promise<boolean> => {
     });
     return !!data;
 };
+
+export const partialUpdateUserRepo = async ( userData: PartialStudentUser, userId: string): Promise<void> => {
+  try {
+    
+    const updateUser = await prisma.user.update({
+      where: { id: uuidToBinary(userId) },
+      data: userData
+    });
+
+    console.log("User partially updated successfully", updateUser);
+
+  } catch (error) {
+    console.error("Error updating student: ", error);
+    throw new Error("Database error: " + error.message);
+  }
+}

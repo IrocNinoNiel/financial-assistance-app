@@ -57,6 +57,13 @@ export interface UserResponse {
     token?: string
 }
 
+export interface PartialStudentUser {
+  first_name: string,
+  middle_name: string,
+  last_name: string,
+  mobile_number: string,
+}
+
 export interface StudentRequest {
   firstName: string;
   middleName?: string;

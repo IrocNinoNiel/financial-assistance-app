@@ -1,7 +1,7 @@
 
 import { Prisma } from "@prisma/client";
 import { User } from "../authentication/model";
-import { AddressResponse, RegisterRequest, RoleResponse, SchoolResponse, SiblingRequest, StudentListResponse, StudentRequest, UserListResponse, UserResponse } from "./types";
+import { AddressResponse, PartialStudentUser, RegisterRequest, RoleResponse, SchoolResponse, SiblingRequest, StudentListResponse, StudentRequest, UserListResponse, UserResponse } from "./types";
 import { binaryToUuid, uuidToBinary } from "./utils";
 
 export function toUserResponse(user: any,): UserResponse { 
@@ -89,6 +89,15 @@ export function convertStudentResponseToStudent(response: StudentRequest, userId
     record_status: true
     
   };
+}
+
+export function convertToStudentUser(response: any): PartialStudentUser {
+  return {
+    first_name: response.firstName,
+    middle_name: response.middleName,
+    last_name: response.lastName,
+    mobile_number: response.mobileNumber
+  }
 }
 
 export function convertToStudentResponse(
