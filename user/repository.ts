@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient, user } from '@prisma/client';
 import { GetAllUsersParams, PartialStudentUser, uuidToBinary } from '../utils';
 
 const prisma = new PrismaClient();
@@ -47,10 +47,15 @@ export const getAllUsersRepo = async () => {
 };
 
 export const doesUserExistRepo = async (userId: string): Promise<boolean> => {
-  const data = await prisma.user.findUnique({
+  try {
+    const data = await prisma.user.findUnique({
       where: { id: uuidToBinary(userId) }, 
     });
-    return !!data;
+  return !!data;
+  } catch (error) {
+    console.error('Error doesUserExistRepo:', error);
+    throw new Error('Database error');
+  }
 };
 
 export const partialUpdateUserRepo = async ( userData: PartialStudentUser, userId: string): Promise<void> => {
@@ -68,3 +73,16 @@ export const partialUpdateUserRepo = async ( userData: PartialStudentUser, userI
     throw new Error("Database error: " + error.message);
   }
 }
+
+export const getOneUserRepo = async (userId: string): Promise<user> => {
+  try{
+    const data: user = await prisma.user.findFirst({
+      where: { id: uuidToBinary(userId) }, 
+    });
+    return data;
+  } catch (error) {
+    console.error('Error getOneUserRepo:', error);
+    throw new Error('Database error');
+  }
+    
+};

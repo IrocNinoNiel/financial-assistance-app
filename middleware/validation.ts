@@ -323,3 +323,16 @@ export const validateGetOneStudent = [
   }),
   validateErrors
 ];
+
+export const validateUserId = [
+  param("userId")
+    .notEmpty().withMessage(VALIDATION_MESSAGES.STUDENT_ID_REQUIRED)
+    .custom(async (userId) => {
+      console.log("params", userId);
+      const userExist = await doesUserExist(userId);
+      if (!userExist) {
+        return Promise.reject(VALIDATION_MESSAGES.USER_NOT_FOUND);
+      }
+  }),
+  validateErrors
+];

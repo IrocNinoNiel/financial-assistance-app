@@ -1,6 +1,7 @@
-import { GetAllUsersParams } from "../utils";
-import { toUserListResponse } from "../utils/converter";
-import { doesUserExistRepo, getAllUsersRepo, isAdminRepo } from "./repository"
+import { user } from "@prisma/client";
+import { GetAllUsersParams, UserDetailsResponse, UserResponse } from "../utils";
+import { toUserDetailResponse, toUserListResponse } from "../utils/converter";
+import { doesUserExistRepo, getAllUsersRepo, getOneUserRepo, isAdminRepo } from "./repository"
 
 export const isAdmin = async (userId: string) : Promise<boolean> => { 
     return isAdminRepo(userId);
@@ -22,4 +23,10 @@ export const getAllUsers = async (  ) => {
 
 export const doesUserExist = async ( userId: string ) : Promise<boolean> => {
     return await doesUserExistRepo( userId);
+}
+
+
+export const getOneUser = async ( userId: string ) : Promise<UserDetailsResponse> => {
+    const data: user = await getOneUserRepo( userId);
+    return toUserDetailResponse( data );
 }

@@ -57,6 +57,17 @@ export interface UserResponse {
     token?: string
 }
 
+export interface UserDetailsResponse {
+  userId: string,
+  email: string,
+  roleId: string,
+  firstName: string,
+  middleName?: string,
+  lastName: string, 
+  mobileNumber: string
+}
+
+
 export interface PartialStudentUser {
   first_name: string,
   middle_name: string,

@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { ResponseHandler } from "../response";
-import { getAllUsers } from "./service";
+import { getAllUsers, getOneUser } from "./service";
+import { validateUserId } from "../middleware/validation";
 
 
 
@@ -18,6 +19,19 @@ export default () => {
             ResponseHandler.invalidRequest(req, res , err.message);
         }
     });
+
+    userAPI.get('/:userId', validateUserId, async (req, res) => {
+
+        try {
+            
+            const { userId } = req.params;
+            const data = await getOneUser( userId );
+            ResponseHandler.ok(req, res, data);
+        } catch (err) {
+            ResponseHandler.invalidRequest(req, res , err.message);
+        }
+    });
+
 
     return userAPI;
 }

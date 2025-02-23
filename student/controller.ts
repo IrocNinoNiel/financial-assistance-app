@@ -1,10 +1,9 @@
 import { Router } from "express";
 import { ResponseHandler } from "../response";
-import { StudentRequest, VALIDATION_MESSAGES } from "../utils";
-import { getAllStudent, getOneStudent, registerStudentService, updateStudentService } from "./service";
-import { validateGetOneStudent, validateStudentRegistration, validateUpdateStudent } from "../middleware/validation";
-import { permission } from "../middleware/authentication";
-import { toStudentResponse } from "../utils/converter";
+import { StudentRequest } from "../utils";
+import { getOneStudent, updateStudentService } from "./service";
+import { validateStudentRegistration, validateUpdateStudent, validateGetOneStudent } from "../middleware/validation";
+
 
 export default () => {
 
