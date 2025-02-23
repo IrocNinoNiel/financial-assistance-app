@@ -1,6 +1,6 @@
 import { AddressResponse } from "../utils";
 import { toAddressResponse } from "../utils/converter";
-import { checkCityMunExistRepo, checkProvinceExistRepo, checkRegionExistRepo, getBarangaysRepo, getCityMunsRepo, getProvincesRepo, getRegionsRepo } from "./repository";
+import { checkBarangayExistRepo, checkCityMunExistRepo, checkProvinceExistRepo, checkRegionExistRepo, getBarangaysRepo, getCityMunsRepo, getProvincesRepo, getRegionsRepo } from "./repository";
 
 
 export const getRegions = async (): Promise<AddressResponse[]> => {
@@ -39,14 +39,18 @@ export const getBarangays = async ( citymunCode: string ): Promise<AddressRespon
 
 }
 
-export const checkRegionExist = async ( regCode: string ): Promise<boolean> => {
-    return checkRegionExistRepo( regCode );
+export const checkRegionExist = async ( regCode: string = "", id: number = 0 ): Promise<boolean> => {
+    return checkRegionExistRepo( regCode, id );
 }
 
-export const checkProvinceExist = async ( provinceCode: string ): Promise<boolean> => {
-    return checkProvinceExistRepo( provinceCode );
+export const checkProvinceExist = async ( provinceCode: string = "", id: number = 0 ): Promise<boolean> => {
+    return checkProvinceExistRepo( provinceCode, id );
 }
 
-export const checkCityMunExist = async ( citymunCode: string ):  Promise<boolean> => {
-    return checkCityMunExistRepo( citymunCode );
+export const checkCityMunExist = async ( citymunCode: string = "", id: number = 0 ):  Promise<boolean> => {
+    return checkCityMunExistRepo( citymunCode, id );
+}
+
+export const checkBarangayExist = async ( brgCode: string = "", id: number = 0 ):  Promise<boolean> => {
+    return checkBarangayExistRepo( brgCode, id );
 }

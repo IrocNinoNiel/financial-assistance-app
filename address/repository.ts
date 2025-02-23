@@ -54,10 +54,15 @@ export const getBarangaysRepo = async ( citymunCode: string ): Promise<any> => {
 
 }
 
-export const checkRegionExistRepo = async ( regCode: string ): Promise<boolean> => {
+export const checkRegionExistRepo = async ( regCode: string, id: number ): Promise<boolean> => {
    try {
+      const whereCondition: any = {};
+        
+      if (regCode || regCode !== "") whereCondition.reg_code = regCode;
+      if (id > 0) whereCondition.id = id;
+
       const region = await prisma.regions.findFirst({
-         where: { reg_code: regCode },
+          where: whereCondition,
       });
       
       return region === null; 
@@ -67,10 +72,16 @@ export const checkRegionExistRepo = async ( regCode: string ): Promise<boolean> 
    }
 }
 
-export const checkProvinceExistRepo = async ( provinceCode: string ): Promise<boolean> => {
+export const checkProvinceExistRepo = async ( provinceCode: string, id: number ): Promise<boolean> => {
    try {
+
+      const whereCondition: any = {};
+        
+      if (provinceCode || provinceCode !== "") whereCondition.reg_code = provinceCode;
+      if (id > 0) whereCondition.id = id;
+
       const province = await prisma.provinces.findFirst({
-         where: { prov_code: provinceCode },
+         where: whereCondition,
       });
       
       return province === null; 
@@ -80,10 +91,16 @@ export const checkProvinceExistRepo = async ( provinceCode: string ): Promise<bo
    }
 }
 
-export const checkCityMunExistRepo = async ( citymunCode: string ): Promise<boolean> => {
+export const checkCityMunExistRepo = async ( citymunCode: string, id: number ): Promise<boolean> => {
    try {
+
+      const whereCondition: any = {};
+        
+      if (citymunCode || citymunCode !== "") whereCondition.reg_code = citymunCode;
+      if (id > 0) whereCondition.id = id;
+
       const cityMun = await prisma.citymuns.findFirst({
-         where: { citymun_code: citymunCode },
+         where: whereCondition,
       });
       
       return cityMun === null; 
@@ -92,3 +109,23 @@ export const checkCityMunExistRepo = async ( citymunCode: string ): Promise<bool
       throw new Error('Database error');
    }
 }
+
+export const checkBarangayExistRepo = async ( brgCode: string, id: number ): Promise<boolean> => {
+   try {
+
+      const whereCondition: any = {};
+        
+      if (brgCode || brgCode !== "") whereCondition.brgy_code = brgCode;
+      if (id > 0) whereCondition.id = id;
+
+      const barangay = await prisma.barangays.findFirst({
+         where: whereCondition,
+      });
+      
+      return barangay === null; 
+   } catch (error) {
+      console.error('Error getRegionsRepo:', error);
+      throw new Error('Database error');
+   }
+}
+

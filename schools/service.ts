@@ -1,6 +1,6 @@
 import { SchoolResponse } from "../utils";
 import { toSchoolResponse } from "../utils/converter";
-import { getSchoolsRepo } from "./repository";
+import { checkSchoolExistRepo, getSchoolsRepo } from "./repository";
 
 export const getSchools = async (): Promise<SchoolResponse[]> => {
 
@@ -9,4 +9,8 @@ export const getSchools = async (): Promise<SchoolResponse[]> => {
    
     return converted;
 
+}
+
+export const checkSchoolExist = async ( id: string): Promise<Boolean> => {
+    return checkSchoolExistRepo( id );
 }

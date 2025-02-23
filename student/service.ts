@@ -1,6 +1,6 @@
 import { binaryToUuid, extractUserFromToken, StudentRequest, uuidToBinary } from "../utils";
 import { v4 as uuidv4 } from 'uuid';
-import { convertStudentResponseToStudent, convertToSiblingData, convertToStudentResponse, toOneStudentResponse, toStudentResponse } from "../utils/converter";
+import { convertStudentResponseToStudent, convertToSiblingData, convertToStudentResponse, toStudentResponse } from "../utils/converter";
 import { checkStudentRepo, doesStudentExistRepo, getAllStudentRepo, getOneStudentRepo, isEmailTakenByAnotherStudentRepo, registerSiblingsRepo, registerStudentRepo, updateSiblingsRepo, updateStudentRepo } from "./repository";
 import { Prisma, students } from "@prisma/client";
 
@@ -56,7 +56,7 @@ export const getOneStudent = async ( userId: string ) => {
         return null;
     }
 
-    const converted = toOneStudentResponse( data );
+    const converted = toStudentResponse( data );
     return converted;
 }
 

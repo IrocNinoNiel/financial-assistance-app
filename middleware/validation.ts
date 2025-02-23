@@ -6,9 +6,10 @@ import { validationResult, body, param } from "express-validator";
 import { checkRole } from "../authentication/service";
 import { doesStudentExist, getOneStudent, isEmailTakenByAnotherStudent } from "../student/service";
 import { query } from "express-validator";
-import { checkCityMunExist, checkProvinceExist, checkRegionExist } from "../address/service";
+import { checkBarangayExist, checkCityMunExist, checkProvinceExist, checkRegionExist } from "../address/service";
 import { doesUserExist } from "../user/service";
 import { getOneStudentRepo } from "../student/repository";
+import { checkSchoolExist } from "../schools/service";
 
 export const validateLoginInput = async (req: Request, res: Response, next: NextFunction) => {
   const data: LoginRequest = req.body;
@@ -88,17 +89,9 @@ const commonValidationMiddleware = [
   body('height').optional().isFloat({ min: 0 }).withMessage(VALIDATION_MESSAGES.HEIGHT_INVALID),
   body('weight').optional().isFloat({ min: 0 }).withMessage(VALIDATION_MESSAGES.WEIGHT_INVALID),
   body('permanentStreet').optional().isString().withMessage(VALIDATION_MESSAGES.PERMANENT_ADDRESS_REQUIRED),
-  body('permanentBrgId').optional().isInt().withMessage(VALIDATION_MESSAGES.PERMANENT_BRG_ID_INVALID),
-  body('permanentCitymunId').optional().isInt().withMessage(VALIDATION_MESSAGES.PERMANENT_CITYMUN_ID_INVALID),
-  body('permanentProvinceId').optional().isInt().withMessage(VALIDATION_MESSAGES.PERMANENT_PROVINCE_ID_INVALID),
-  body('permanentRegionId').optional().isInt().withMessage(VALIDATION_MESSAGES.PERMANENT_REGION_ID_INVALID),
 
   // Current address fields
   body('currentStreet').optional().isString().withMessage(VALIDATION_MESSAGES.CURRENT_ADDRESS_REQUIRED),
-  body('currentBrgId').optional().isInt().withMessage(VALIDATION_MESSAGES.CURRENT_BRG_ID_INVALID),
-  body('currentCitymunId').optional().isInt().withMessage(VALIDATION_MESSAGES.CURRENT_CITYMUN_ID_INVALID),
-  body('currentProvinceId').optional().isInt().withMessage(VALIDATION_MESSAGES.CURRENT_PROVINCE_ID_INVALID),
-  body('currentRegionId').optional().isInt().withMessage(VALIDATION_MESSAGES.CURRENT_REGION_ID_INVALID),
 
   // Emergency contact fields
   body('emergencyContactName').optional().isString().withMessage(VALIDATION_MESSAGES.EMERGENCY_CONTACT_NAME_REQUIRED),
@@ -108,12 +101,10 @@ const commonValidationMiddleware = [
   body('g12AcademicStrand').optional().isString().withMessage(VALIDATION_MESSAGES.G12_ACADEMIC_STRAND_REQUIRED),
   body('g12ProgramName').optional().isString().withMessage(VALIDATION_MESSAGES.G12_PROGRAM_NAME_REQUIRED),
   body('g12YearOfGraduation').optional().isInt().withMessage(VALIDATION_MESSAGES.G12_YEAR_OF_GRADUATION_INVALID),
-  body('g12SchoolId').optional().isString().withMessage(VALIDATION_MESSAGES.G12_SCHOOL_ID_INVALID),
 
   // College Information
   body('collegeProgramName').optional().isString().withMessage(VALIDATION_MESSAGES.COLLEGE_PROGRAM_NAME_REQUIRED),
   body('collegeYearLevel').optional().isInt().withMessage(VALIDATION_MESSAGES.COLLEGE_YEAR_LEVEL_INVALID),
-  body('collegeSchoolId').optional().isString().withMessage(VALIDATION_MESSAGES.COLLEGE_SCHOOL_ID_INVALID),
 
   // Father details
   body('fatherFirstName').optional().isString().withMessage(VALIDATION_MESSAGES.FATHER_FIRST_NAME_REQUIRED),
@@ -164,14 +155,94 @@ export const validateUpdateStudent = [
   body("email")
   .notEmpty().withMessage(VALIDATION_MESSAGES.EMAIL_INVALID)
   .isEmail().withMessage(VALIDATION_MESSAGES.EMAIL_INVALID)
-  .custom(async (value, { req }) => {
+    .custom(async (value, { req }) => {
 
-    const studentId = req.params.studentId;
-    const exists = await isEmailTakenByAnotherStudent(value, studentId);
-    if (exists) {
-      return Promise.reject(VALIDATION_MESSAGES.EMAIL_IN_USE);
-    }
-  }),
+      const studentId = req.params.studentId;
+      const exists = await isEmailTakenByAnotherStudent(value, studentId);
+      if (exists) {
+        return Promise.reject(VALIDATION_MESSAGES.EMAIL_IN_USE);
+      }
+    }),
+  body('permanentBrgId').optional().isInt().withMessage(VALIDATION_MESSAGES.PERMANENT_BRG_ID_INVALID)
+    .custom(async ( value ) => {
+
+      const dontExist = await checkBarangayExist("", value);
+      if (dontExist) {
+        return Promise.reject(VALIDATION_MESSAGES.PERMANENT_BRG_ID_NOT_FOUND);
+      }
+    }),
+  body('permanentCitymunId').optional().isInt().withMessage(VALIDATION_MESSAGES.PERMANENT_CITYMUN_ID_INVALID)
+    .custom(async ( value ) => {
+
+      const dontExist = await checkCityMunExist("", value);
+      if (dontExist) {
+        return Promise.reject(VALIDATION_MESSAGES.PERMANENT_CITYMUN_ID_NOT_FOUND);
+      }
+    }),
+  body('permanentProvinceId').optional().isInt().withMessage(VALIDATION_MESSAGES.PERMANENT_PROVINCE_ID_INVALID)
+    .custom(async ( value ) => {
+
+      const dontExist = await checkProvinceExist("", value);
+      if (dontExist) {
+        return Promise.reject(VALIDATION_MESSAGES.PERMANENT_PROVINCE_ID_NOT_FOUND);
+      }
+    }),
+  body('permanentRegionId').optional().isInt().withMessage(VALIDATION_MESSAGES.PERMANENT_REGION_ID_INVALID)
+    .custom(async ( value ) => {
+
+      const dontExist = await checkRegionExist("", value);
+      if (dontExist) {
+        return Promise.reject(VALIDATION_MESSAGES.PERMANENT_REGION_ID_NOT_FOUND);
+      }
+    }),
+  body('currentBrgId').optional().isInt().withMessage(VALIDATION_MESSAGES.CURRENT_BRG_ID_INVALID)
+    .custom(async ( value ) => {
+
+      const dontExist = await checkBarangayExist("", value);
+      if (dontExist) {
+        return Promise.reject(VALIDATION_MESSAGES.CURRENT_BRG_ID_NOT_FOUND);
+      }
+    }),
+  body('currentCitymunId').optional().isInt().withMessage(VALIDATION_MESSAGES.CURRENT_CITYMUN_ID_INVALID)
+    .custom(async ( value ) => {
+
+      const dontExist = await checkCityMunExist("", value);
+      if (dontExist) {
+        return Promise.reject(VALIDATION_MESSAGES.CURRENT_CITYMUN_ID_NOT_FOUND);
+      }
+    }),
+  body('currentProvinceId').optional().isInt().withMessage(VALIDATION_MESSAGES.CURRENT_PROVINCE_ID_INVALID)
+    .custom(async ( value ) => {
+
+      const dontExist = await checkProvinceExist("", value);
+      if (dontExist) {
+        return Promise.reject(VALIDATION_MESSAGES.CURRENT_PROVINCE_ID_NOT_FOUND);
+      }
+    }),
+  body('currentRegionId').optional().isInt().withMessage(VALIDATION_MESSAGES.CURRENT_REGION_ID_INVALID)
+    .custom(async ( value ) => {
+
+      const dontExist = await checkRegionExist("", value);
+      if (dontExist) {
+        return Promise.reject(VALIDATION_MESSAGES.CURRENT_REGION_ID_NOT_FOUND);
+      }
+    }),
+  body('collegeSchoolId').optional().isString().withMessage(VALIDATION_MESSAGES.COLLEGE_SCHOOL_ID_INVALID)
+    .custom(async ( value ) => {
+
+      const dontExist = await checkSchoolExist(value);
+      if (dontExist) {
+        return Promise.reject(VALIDATION_MESSAGES.COLLEGE_SCHOOL_ID_NOT_FOUND);
+      }
+    }),
+  body('g12SchoolId').optional().isString().withMessage(VALIDATION_MESSAGES.G12_SCHOOL_ID_INVALID)
+    .custom(async ( value ) => {
+
+      const dontExist = await checkSchoolExist(value);
+      if (dontExist) {
+        return Promise.reject(VALIDATION_MESSAGES.G12_SCHOOL_ID_NOT_FOUND);
+      }
+    }),
   ...commonValidationMiddleware,
   validateErrors
 ];
@@ -204,7 +275,6 @@ export const validateRegionCode = [
     }),
   validateErrors
 ];
-
 
 export const validateProvinceCode = [
   query("provinceCode")
