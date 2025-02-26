@@ -126,7 +126,7 @@ export const getOneStudentRepo = async ( userId: string) : Promise<any> => {
 
 
 
-export const checkStudentRepo = async (userId: string): Promise<boolean> => {
+export const checkIfStudentRepo = async (userId: string): Promise<boolean> => {
   try {
     const user = await prisma.user.findUnique({
       where: {

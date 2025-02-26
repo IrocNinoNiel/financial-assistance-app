@@ -57,6 +57,36 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/InternalErrorResponse'
+  /user/student/register:
+    post:
+      tags:
+        - Authentication
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StudentRegisterPayload'
+      responses:
+        '201':
+          description: Resource successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegisterSuccessResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
   /user/login:
     post:
       tags:
@@ -788,6 +818,12 @@ paths:
       tags:
         - Role
       summary: Get all roles
+      parameters:
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: Search role name
       responses:
         '200':
           description: A list of roles
@@ -850,6 +886,34 @@ components:
         roleId:
           type: string
           example: fa8d0ba7-3bd8-4a30-8127-82ca571d1bd0
+        firstName:
+          type: string
+          example: John
+        lastName:
+          type: string
+          example: Doe
+        mobileNumber:
+          type: string
+          example: '09837162132'
+      required:
+        - username
+        - password
+        - repassword
+        - role
+        - name
+        - mobileNumber
+    StudentRegisterPayload:
+      type: object
+      properties:
+        username:
+          type: string
+          example: qwer2@gmail.com
+        password:
+          type: string
+          example: '123456'
+        repassword:
+          type: string
+          example: '123456'
         firstName:
           type: string
           example: John

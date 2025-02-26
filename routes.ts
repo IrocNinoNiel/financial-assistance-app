@@ -8,10 +8,12 @@ import roleController from './roles/controller';
 import schoolController from './schools/controller';
 import { authAdmin, authentication, authStudent } from "./middleware/authentication";
 import studentController from "./student/controller";
+import parameters from "./middleware/parameters";
 
 const routes = Router();
 
 routes.use(logger);
+routes.use(parameters);
 routes.use("/user", authController());
 routes.use("/roles", roleController());
 routes.use('/students', authentication, authStudent, studentController());

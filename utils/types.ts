@@ -16,7 +16,7 @@ export interface RegisterRequest {
     username: string;
     password: string;
     repassword: string;
-    roleId: string;
+    roleId?: string;
     mobileNumber: string;
     firstName: string;
     lastName: string;

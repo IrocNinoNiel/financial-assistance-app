@@ -70,15 +70,9 @@ export async function authStudent(req: Request, res: Response, next: NextFunctio
 
 async function auth(req: Request, res: Response ) {
 
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        ResponseHandler.forbidden(req, res, ERROR_MESSAGES.INVALID_HEADER );
-    } 
-    
-    const token = authHeader.split(' ')[1];
-
     try {
+        const authHeader = req.headers.authorization; 
+        const token = authHeader.split(' ')[1];
         jwt.verify(token, process.env.SECRET_KEY);
         return token;
     } catch (err) {

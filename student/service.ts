@@ -1,7 +1,7 @@
 import { binaryToUuid, extractUserFromToken, PartialStudentUser, StudentRequest, uuidToBinary } from "../utils";
 import { v4 as uuidv4 } from 'uuid';
 import { convertStudentResponseToStudent, convertToSiblingData, convertToStudentResponse, convertToStudentUser, toStudentResponse } from "../utils/converter";
-import { checkStudentRepo, doesStudentExistRepo, getAllStudentRepo, getOneStudentRepo, isEmailTakenByAnotherStudentRepo, registerSiblingsRepo, registerStudentRepo, updateSiblingsRepo, updateStudentRepo } from "./repository";
+import { checkIfStudentRepo, doesStudentExistRepo, getAllStudentRepo, getOneStudentRepo, isEmailTakenByAnotherStudentRepo, registerSiblingsRepo, registerStudentRepo, updateSiblingsRepo, updateStudentRepo } from "./repository";
 import { Prisma, students } from "@prisma/client";
 import { partialUpdateUserRepo } from "../user/repository";
 
@@ -64,7 +64,7 @@ export const getOneStudent = async ( userId: string ) => {
 }
 
 export const checkStudent = async (roleId: string): Promise<boolean> => {
-    return await checkStudentRepo(roleId);   
+    return await checkIfStudentRepo(roleId);   
 }
 
 export const isEmailTakenByAnotherStudent = async ( email: string, studentId: string): Promise<boolean> => {

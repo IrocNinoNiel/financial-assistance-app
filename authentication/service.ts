@@ -6,18 +6,21 @@ import { checkRoleRepo, checkUserExists, getPermission, registerRepo } from "./r
 import { convertToUser, toUserPermissionResponse } from "../utils/converter";
 import jwt from 'jsonwebtoken';
 import { Prisma, students } from "@prisma/client";
-import { checkStudentRepo, registerStudentRepo } from "../student/repository";
+import { checkIfStudentRepo, registerStudentRepo } from "../student/repository";
 
 export const registerService = async ( data: RegisterRequest ) => {
+
+    if(!data.roleId) {
+        
+    }
 
     const hashedPassword = await bcrypt.hash(data.password, 10);
 
     const user: User = convertToUser(data, hashedPassword);
-
     const result: any = await registerRepo(user);
     console.log("User data has been saved", result);
 
-    const student = await checkStudentRepo(binaryToUuid(result.id));
+    const student = await checkIfStudentRepo(binaryToUuid(result.id));
     console.log("Check if user is student", student);
 
     if(student) {
@@ -30,7 +33,6 @@ export const registerService = async ( data: RegisterRequest ) => {
             mobile_number: result.mobile_number
         };
        
-     
         const student: students = await registerStudentRepo(studentData);
         console.log("Student data has been saved", student);
     }
