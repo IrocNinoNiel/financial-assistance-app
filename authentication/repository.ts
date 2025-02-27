@@ -114,3 +114,15 @@ export const checkRoleRepo = async (roleId: string): Promise<boolean> => {
     throw new Error('Database error');
   }
 };
+
+export const changePasswordRepo = async (userId: string, password: string) => {
+  try {
+    await prisma.user.update({
+      where: { id: uuidToBinary(userId) },
+      data: { password }
+    });
+  } catch (error) {
+    console.error('Error in change password:', error);
+    throw new Error('Database error');
+  }
+}

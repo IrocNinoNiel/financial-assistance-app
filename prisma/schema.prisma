@@ -21,6 +21,7 @@ model user {
   created_by    Bytes?     @db.Binary(16)
   updated_by    Bytes?     @db.Binary(16)
   record_status Boolean?   @default(true)
+  profile       String?    @db.VarChar(255)
   students      students[]
   files         file[]
   role          roles      @relation(fields: [role_id], references: [id])

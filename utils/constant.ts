@@ -12,7 +12,8 @@ export const ERROR_MESSAGES = {
 
 
 export const SUCCESS_MESSAGES = {
-    FILE_SAVED: "File successfully saved"
+    FILE_SAVED: "File successfully saved",
+    IMAGE_SAVED: "Image Saved Successfully"
 }
 
 // validationMessages.ts
@@ -82,6 +83,7 @@ export const VALIDATION_MESSAGES = {
     INVALID_ROLE: "Invalid Role",
     INVALID_MOBILE_NUMBER: "Invalid Phone Number",
     INVALID_FILE_TYPE: "File must be pdf or docs",
+    INVALID_IMG_TYPE: "File must be png, jpeg or jpg",
     MISSING_FILE_TYPE_ID: "File type ID is required",
     INVALID_FILE_TYPE_ID: "File type ID is Invalid",
     INVALID_REGION: "Region code must be a string",

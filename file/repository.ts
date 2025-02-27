@@ -16,6 +16,21 @@ export const fileUploadRepo = async (data: any) => {
     }
 };
 
+export const imageUploadRepo = async (profile: string, userId: string) => {
+    try {
+        const file = await prisma.user.update({
+            data: {profile: profile}, 
+            where: {
+                id: uuidToBinary(userId), 
+            },
+        });
+        return file;
+    } catch (error) {
+        console.error('Error creating file:', error);
+        throw error;
+    }
+};
+
 export const findFileTypeIdRepo = async (fileTypeId: string): Promise<boolean> => {
     try {
         const fileType = await prisma.fileType.findUnique({

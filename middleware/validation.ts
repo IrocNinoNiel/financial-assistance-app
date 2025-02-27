@@ -34,7 +34,7 @@ export const validateLoginInput = async (req: Request, res: Response, next: Next
   }
 };
 
-export const validateRegisterInput = [
+const registerUserCommonValidation =  [
   body("username")
     .notEmpty().withMessage(VALIDATION_MESSAGES.EMAIL_INVALID)
     .isEmail().withMessage(VALIDATION_MESSAGES.EMAIL_INVALID)
@@ -55,6 +55,22 @@ export const validateRegisterInput = [
       }
       return true;
     }),
+  body("firstName").notEmpty().withMessage(VALIDATION_MESSAGES.FIRST_NAME_REQUIRED),
+  body("lastName").notEmpty().withMessage(VALIDATION_MESSAGES.LAST_NAME_REQUIRED),
+  body("mobileNumber").notEmpty().withMessage(VALIDATION_MESSAGES.INVALID_MOBILE_NUMBER),
+];
+
+const validateErrors = async (req: Request, res: Response, next: NextFunction) => {
+  const errors: any = validationResult(req);
+  if (!errors.isEmpty()) {
+    ResponseHandler.invalidRequest(req, res, errors);
+  } else {
+    next();
+  }
+};
+
+export const validateRegisterInput = [
+  ...registerUserCommonValidation,
   body('roleId')
     .notEmpty().withMessage(VALIDATION_MESSAGES.INVALID_ROLE)
     .custom(async value => {
@@ -66,19 +82,14 @@ export const validateRegisterInput = [
       }
       return true;
     }),
-  body("firstName").notEmpty().withMessage(VALIDATION_MESSAGES.FIRST_NAME_REQUIRED),
-  body("lastName").notEmpty().withMessage(VALIDATION_MESSAGES.LAST_NAME_REQUIRED),
-  body("mobileNumber").notEmpty().withMessage(VALIDATION_MESSAGES.INVALID_MOBILE_NUMBER),
-  // Validation result handler
-  async (req: Request, res: Response, next: NextFunction) => {
-    const errors: any = validationResult(req);
-    if (!errors.isEmpty()) {
-      ResponseHandler.invalidRequest(req, res, errors);
-    } else {
-      next();
-    }
-  },
+    validateErrors
 ];
+
+export const validateStudentRegisterInput = [
+  ...registerUserCommonValidation,
+    validateErrors
+];
+
 
 const commonValidationMiddleware = [
   body('firstName').isString().withMessage(VALIDATION_MESSAGES.FIRST_NAME_REQUIRED),
@@ -134,14 +145,6 @@ const commonValidationMiddleware = [
   body('siblings.*.ownHouse').optional().isBoolean().withMessage(VALIDATION_MESSAGES.SIBLING_OWN_HOUSE_INVALID)
 ]
 
-const validateErrors = async (req: Request, res: Response, next: NextFunction) => {
-  const errors: any = validationResult(req);
-  if (!errors.isEmpty()) {
-    ResponseHandler.invalidRequest(req, res, errors);
-  } else {
-    next();
-  }
-};
 
 export const validateUpdateStudent = [
   param("studentId")
@@ -336,3 +339,18 @@ export const validateUserId = [
   }),
   validateErrors
 ];
+
+export const validatePassword = [
+  body('password')
+    .notEmpty().withMessage(VALIDATION_MESSAGES.PASSWORD_REQUIRED)
+    .isLength({ min: 6 }).withMessage(VALIDATION_MESSAGES.PASSWORD_LENGTH),
+  body('repassword')
+    .notEmpty().withMessage(VALIDATION_MESSAGES.PASSWORD_REQUIRED)
+    .custom((value, { req }) => {
+      if (value !== req.body.password) {
+        throw new Error(VALIDATION_MESSAGES.PASSWORD_MISMATCH);
+      }
+      return true;
+    }),
+  validateErrors
+]

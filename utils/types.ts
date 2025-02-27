@@ -268,3 +268,8 @@ export type Sibling = {
   living_with_parents: boolean;
   own_house: boolean;
 };
+
+export type ChangePasswordRequest = {
+  password: string;
+  repassword: string;
+}

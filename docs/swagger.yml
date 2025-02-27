@@ -117,6 +117,36 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/InternalErrorResponse'
+  /user/change-password:
+    put:
+      tags:
+        - Authentication
+      summary: Change password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePassPayload'
+      responses:
+        '200':
+          description: Image upload successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChangePassSuccessResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
   /students:
     get:
       tags:
@@ -312,6 +342,48 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/FileSuccessResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileErrorResponse'
+        '403':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenErrorResponse'
+        '500':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
+  /file-upload/image:
+    put:
+      tags:
+      - File Upload
+      summary: Upload a image
+      description: Endpoint to upload a image.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: The image to upload.
+      responses:
+        '201':
+          description: File Succesfully saved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadImageFileSuccessResponse'
         '400':
           description: Invalid request
           content:
@@ -936,6 +1008,18 @@ components:
         username:
           type: string
           example: qwer9@gmail.com
+        password:
+          type: string
+          example: '123456'
+      required:
+        - username
+        - password
+    ChangePassPayload:
+      type: object
+      properties:
+        repassword:
+          type: string
+          example: '123456'
         password:
           type: string
           example: '123456'
@@ -1827,3 +1911,33 @@ components:
               name:
                 type: string
                 example: University of Science and Technology of Southern Philippines
+    ChangePassSuccessResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          example: 201
+        message:
+          type: string
+          example: Resource Successfully Created!
+        data:
+          type: string
+          example: "Password Successfully changed"
+        generatedAt:
+          type: integer
+          example: 1738335123028
+    UploadImageFileSuccessResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          example: 201
+        message:
+          type: string
+          example: Resource Successfully Created!
+        data:
+          type: string
+          example: Image successfully saved
+        generatedAt:
+          type: integer
+          example: 1738335123028
