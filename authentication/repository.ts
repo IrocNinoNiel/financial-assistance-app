@@ -1,16 +1,23 @@
 import { PrismaClient } from '@prisma/client';
 import { binaryToUuid, RecordStatus, uuidToBinary } from '../utils';
 import { User, UserRole } from './model';
+import { notEqual } from 'assert';
 
 const prisma = new PrismaClient();
 
-export const checkEmailExists = async (email: string) : Promise<boolean>  => {
+export const checkEmailExists = async (email: string, userId?: string): Promise<boolean> => {
   try {
+    const whereCondition: any = {
+      email: email,
+      record_status: RecordStatus.ACTIVE,
+    };
+
+    if (userId) {
+      whereCondition.NOT = { id: uuidToBinary(userId) };
+    }
+
     const user = await prisma.user.findFirst({
-      where: {
-        email: email,
-        record_status: RecordStatus.ACTIVE
-      },
+      where: whereCondition,
     });
 
     return user !== null;
@@ -18,7 +25,9 @@ export const checkEmailExists = async (email: string) : Promise<boolean>  => {
     console.error('Error checking email existence:', error);
     throw new Error('Database error');
   }
-}
+};
+
+
 
 
 export const checkUserExists = async (email: string) : Promise<any>  => {

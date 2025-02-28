@@ -26,7 +26,7 @@ export const registerService = async ( data: RegisterRequest, isStudent: boolean
 
     if(student) {
 
-        const studentData: Prisma.studentsUncheckedCreateInput = {
+        const studentData: Prisma.studentsUncheckedCreateInput = {  
             user_id: result.id,
             first_name: result.first_name,
             last_name: result.last_name,

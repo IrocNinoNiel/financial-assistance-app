@@ -1,5 +1,5 @@
 import { binaryToUuid, RecordStatus, uuidToBinary } from "../utils";
-import { Prisma, PrismaClient, students } from '@prisma/client';
+import { Prisma, PrismaClient, students, user } from '@prisma/client';
 
 const prisma = new PrismaClient({  });
 
@@ -107,7 +107,7 @@ export const getAllStudentRepo = async () : Promise<any> => {
 
 export const getOneStudentRepo = async ( userId: string) : Promise<any> => {
   try {
-    const users = await prisma.students.findFirst({
+    const user = await prisma.students.findFirst({
       where: {
         record_status: RecordStatus.ACTIVE,
         user_id: uuidToBinary(userId)
@@ -117,14 +117,12 @@ export const getOneStudentRepo = async ( userId: string) : Promise<any> => {
       }
     });
 
-    return users;
+    return user;
   } catch (error) {
     console.error('Error fetching users:', error);
     throw new Error('Database error');
   }
 }
-
-
 
 export const checkIfStudentRepo = async (userId: string): Promise<boolean> => {
   try {

@@ -14,7 +14,7 @@ const routes = Router();
 
 routes.use(logger);
 routes.use(parameters);
-routes.use("/user", authController());
+routes.use("/auth", authController());
 routes.use("/roles", roleController());
 routes.use('/students', authentication, authStudent, studentController());
 routes.use("/file-upload", authentication, fileController());

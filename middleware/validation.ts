@@ -85,6 +85,42 @@ export const validateRegisterInput = [
     validateErrors
 ];
 
+export const validateUpdateUserInput = [
+  param("userId")
+    .notEmpty().withMessage(VALIDATION_MESSAGES.STUDENT_ID_REQUIRED)
+    .custom(async (userId) => {
+      const userExist = await doesUserExist(userId);
+      if (!userExist) {
+        return Promise.reject(VALIDATION_MESSAGES.USER_NOT_FOUND);
+      }
+  }),
+  body("username")
+    .notEmpty().withMessage(VALIDATION_MESSAGES.EMAIL_INVALID)
+    .isEmail().withMessage(VALIDATION_MESSAGES.EMAIL_INVALID)
+    .custom(async (value, {req}) => {
+      const userId = req.params.userId
+      const exists = await checkEmailExists(value, userId);
+      if (exists) {
+        return Promise.reject(VALIDATION_MESSAGES.EMAIL_IN_USE);
+      }
+    }),
+  body("firstName").notEmpty().withMessage(VALIDATION_MESSAGES.FIRST_NAME_REQUIRED),
+  body("lastName").notEmpty().withMessage(VALIDATION_MESSAGES.LAST_NAME_REQUIRED),
+  body("mobileNumber").notEmpty().withMessage(VALIDATION_MESSAGES.INVALID_MOBILE_NUMBER),
+  body('roleId')
+    .notEmpty().withMessage(VALIDATION_MESSAGES.INVALID_ROLE)
+    .custom(async value => {
+
+      const validRoles = await checkRole(value);
+     
+      if (!validRoles) {
+        throw new Error(VALIDATION_MESSAGES.INVALID_ROLE);
+      }
+      return true;
+    }),
+    validateErrors
+];
+
 export const validateStudentRegisterInput = [
   ...registerUserCommonValidation,
     validateErrors

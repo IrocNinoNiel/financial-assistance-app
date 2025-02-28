@@ -27,7 +27,7 @@ tags:
   - name: School
     description: Endpoints for School
 paths:
-  /user/register:
+  /auth/register:
     post:
       tags:
         - Authentication
@@ -57,7 +57,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/InternalErrorResponse'
-  /user/student/register:
+  /auth/student/register:
     post:
       tags:
         - Authentication
@@ -87,7 +87,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/InternalErrorResponse'
-  /user/login:
+  /auth/login:
     post:
       tags:
         - Authentication
@@ -117,7 +117,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/InternalErrorResponse'
-  /user/change-password:
+  /auth/change-password:
     put:
       tags:
         - Authentication

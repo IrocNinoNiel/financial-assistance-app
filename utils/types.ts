@@ -23,6 +23,15 @@ export interface RegisterRequest {
     middleName: string;
 }
 
+export interface UpdateUserRequest {
+  username: string;
+  roleId?: string;
+  mobileNumber: string;
+  firstName: string;
+  lastName: string;
+  middleName: string;
+}
+
 export interface AddressResponse {
   psgcCode?: string;
   regDesc?: string;
