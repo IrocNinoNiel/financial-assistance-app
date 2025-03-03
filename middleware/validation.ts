@@ -9,7 +9,7 @@ import { query } from "express-validator";
 import { checkBarangayExist, checkCityMunExist, checkProvinceExist, checkRegionExist } from "../address/service";
 import { doesUserExist } from "../user/service";
 import { getOneStudentRepo } from "../student/repository";
-import { checkSchoolExist } from "../schools/service";
+import { checkSchoolExist, checkSchoolNameExist } from "../schools/service";
 
 export const validateLoginInput = async (req: Request, res: Response, next: NextFunction) => {
   const data: LoginRequest = req.body;
@@ -376,6 +376,19 @@ export const validateUserId = [
   validateErrors
 ];
 
+export const validateSchoolId = [
+  param("schoolId")
+    .notEmpty().withMessage(VALIDATION_MESSAGES.SCHOOL_ID_REQUIRED)
+    .custom(async (schoolId) => {
+      console.log("params", schoolId);
+      const dontExist = await checkSchoolExist(schoolId);
+      if (dontExist) {
+        return Promise.reject(VALIDATION_MESSAGES.SCHOOL_ID_NOT_FOUND);
+      }
+  }),
+  validateErrors
+];
+
 export const validatePassword = [
   body('password')
     .notEmpty().withMessage(VALIDATION_MESSAGES.PASSWORD_REQUIRED)
@@ -387,6 +400,49 @@ export const validatePassword = [
         throw new Error(VALIDATION_MESSAGES.PASSWORD_MISMATCH);
       }
       return true;
+    }),
+  validateErrors
+]
+
+export const validateSchool = [
+  body("name")
+    .notEmpty().withMessage(VALIDATION_MESSAGES.SCHOOL_NAME_INVALID)
+    .custom(async ( value, {req} ) => {
+      const schoolId  = req.params.schoolId || null;
+      const dontExist = await checkSchoolNameExist( value, schoolId );
+      if (!dontExist) {
+        return Promise.reject(VALIDATION_MESSAGES.SCHOOL_NAME_ALREADY_EXIST);
+      }
+    }),
+  body('schoolType')
+    .isString()
+    .trim()
+    .toLowerCase()
+    .isIn(['private', 'public'])
+    .withMessage(VALIDATION_MESSAGES.SCHOOL_TYPE_INVALID),
+  body('brgyId').isInt().withMessage(VALIDATION_MESSAGES.PERMANENT_BRG_ID_INVALID)
+    .custom(async ( value ) => {
+
+      const dontExist = await checkBarangayExist("", value);
+      if (dontExist) {
+        return Promise.reject(VALIDATION_MESSAGES.BRG_ID_NOT_FOUND);
+      }
+    }),
+  body('cityMunId').isInt().withMessage(VALIDATION_MESSAGES.CITYMUN_ID_INVALID)
+    .custom(async ( value ) => {
+
+      const dontExist = await checkCityMunExist("", value);
+      if (dontExist) {
+        return Promise.reject(VALIDATION_MESSAGES.CITYMUN_ID_NOT_FOUND);
+      }
+    }),
+  body('provinceId').isInt().withMessage(VALIDATION_MESSAGES.PROVINCE_ID_INVALID)
+    .custom(async ( value ) => {
+
+      const dontExist = await checkProvinceExist("", value);
+      if (dontExist) {
+        return Promise.reject(VALIDATION_MESSAGES.PROVINCE_ID_NOT_FOUND);
+      }
     }),
   validateErrors
 ]

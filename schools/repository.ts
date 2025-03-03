@@ -1,21 +1,31 @@
-import { PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 import { uuidToBinary } from "../utils";
 
 const prisma = new PrismaClient({
    log: ["query"],
  });
 
-
-export const getSchoolsRepo = async ( ): Promise<any> => {
-
+ export const getSchoolsRepo = async (): Promise<any> => {
    try {
-      return await prisma.schools.findMany();
+      return await prisma.schools.findMany({
+         include: {
+            province: {
+               select: { prov_desc: true }  
+            },
+            citymun: {
+               select: { citymun_desc: true }  
+            },
+            brgy: {
+               select: { brgy_desc: true }  
+            }
+         }
+      });
    } catch (error) {
-      console.error('Error getRegionsRepo:', error);
+      console.error('Error getSchoolsRepo:', error);
       throw new Error('Database error');
    }
+};
 
-}
 
 export const checkSchoolExistRepo = async ( id: string ): Promise<boolean> => {
    try {
@@ -35,3 +45,87 @@ export const checkSchoolExistRepo = async ( id: string ): Promise<boolean> => {
       throw new Error('Database error');
    }
 }
+
+export const checkSchoolNameExistRepo = async (name: string, schoolId: any): Promise<boolean> => {
+   try {
+      console.log("School Name:", name, "School ID:", schoolId);
+
+      const whereCondition: any = {
+         school_name: name,
+      };
+
+      if (schoolId) {
+         whereCondition.id = { not: uuidToBinary(schoolId) };
+      }
+
+    
+      const school = await prisma.schools.findFirst({
+         where: whereCondition,
+      });
+
+      console.log("School Data:", school);
+      return school === null; // Returns true if no matching school exists
+   } catch (error) {
+      console.error('Error in checkSchoolNameExistRepo:', error);
+      throw new Error('Database error');
+   }
+};
+
+
+
+export const getOneSchoolRepo = async ( id: string ): Promise<any> => {
+   try {
+
+      console.log("School ID", id);
+      const whereCondition: any = {};
+      if (id !== null) whereCondition.id = uuidToBinary(id);
+
+      const school = await prisma.schools.findFirst({
+         where: whereCondition,
+         include: {
+            province: {
+               select: { prov_desc: true }  
+            },
+            citymun: {
+               select: { citymun_desc: true }  
+            },
+            brgy: {
+               select: { brgy_desc: true }  
+            }
+         }
+      });
+      
+      console.log("School Data", school);
+      return school; 
+   } catch (error) {
+      console.error('Error getRegionsRepo:', error);
+      throw new Error('Database error');
+   }
+}
+
+export const createSchoolRepo = async ( school: Prisma.schoolsUncheckedCreateInput): Promise<any> => {
+   try {
+      const newSchool = await prisma.schools.create({
+         data: school,
+      });
+   
+      return newSchool;
+   } catch (error) {
+      console.error('Error createSchoolRepo:', error);
+      throw new Error('Database error');
+   }
+}
+
+export const updateSchoolRepo = async ( updatedData: Prisma.schoolsUncheckedUpdateInput, schoolId: string): Promise<any> => {
+   try {
+      const updatedSchool = await prisma.schools.update({
+         where: { id: uuidToBinary(schoolId) },
+         data: updatedData,
+      });
+
+      return updatedSchool;
+   } catch (error) {
+      console.error('Error updateSchoolRepo:', error);
+      throw new Error('Database error');
+   }
+};

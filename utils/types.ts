@@ -32,6 +32,14 @@ export interface UpdateUserRequest {
   middleName: string;
 }
 
+export interface SchoolPayload {
+  name: string
+  schoolType: string
+  provinceId: number
+  cityMunId: number
+  brgyId: number
+}
+
 export interface AddressResponse {
   psgcCode?: string;
   regDesc?: string;
@@ -53,6 +61,13 @@ export interface RoleResponse {
 export interface SchoolResponse {
   id: string;
   name: string;
+  provinceId: string;
+  provinceName?: string;
+  cityMunId: string;
+  cityMunName?: string;
+  brgyId: string;
+  brgyName?: string;
+  schoolType: string;
 }
 
 export const RecordStatus = {

@@ -1,7 +1,7 @@
 
 import { Prisma, user } from "@prisma/client";
 import { User } from "../authentication/model";
-import { AddressResponse, PartialStudentUser, RegisterRequest, RoleResponse, SchoolResponse, SiblingRequest, StudentListResponse, StudentRequest, UserDetailsResponse, UserListResponse, UserResponse } from "./types";
+import { AddressResponse, PartialStudentUser, RegisterRequest, RoleResponse, SchoolPayload, SchoolResponse, SiblingRequest, StudentListResponse, StudentRequest, UserDetailsResponse, UserListResponse, UserResponse } from "./types";
 import { binaryToUuid, uuidToBinary } from "./utils";
 
 export function toUserResponse(user: any,): UserResponse { 
@@ -364,9 +364,27 @@ export function toRolesResponse(data: any[]): RoleResponse[] {
   }));
 }
 
-export function toSchoolResponse(data: any[]): SchoolResponse[] {
-  return data.map((item) => ({
-    id: binaryToUuid(item.id),
-    name: item.school_name
-  }));
+export function toSchoolResponse(data: any): any {
+  console.log("Data here", data);
+  return {
+    id: binaryToUuid(data.id),
+    name: data.school_name,
+    provinceId: data.province_id,
+    provinceName: data.province.prov_desc,
+    cityMunId: data.citymun_id,
+    cityMunName: data.citymun.citymun_desc,
+    brgyId: data.brgy_id,
+    brgyName: data.brgy.brgy_desc,
+    schoolType: data.school_type
+  };
+}
+
+export function toSchoolModel( school: SchoolPayload): Prisma.schoolsUncheckedCreateInput {
+  return {
+    school_name: school.name,
+    school_type: school.schoolType,
+    citymun_id: school.cityMunId,
+    province_id: school.provinceId,
+    brgy_id: school.brgyId
+  }
 }

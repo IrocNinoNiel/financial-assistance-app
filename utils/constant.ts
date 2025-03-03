@@ -98,6 +98,17 @@ export const VALIDATION_MESSAGES = {
     STUDENT_ID_REQUIRED: "Student Id is Required",
     STUDENT_NOT_FOUND: "Student not found",
     USER_NOT_FOUND: " User not found",
-    USER_NO_STUDENT_INFO: "User don't have student information"
+    USER_NO_STUDENT_INFO: "User don't have student information",
+    SCHOOL_ID_REQUIRED: "School Id is Required",
+    SCHOOL_ID_NOT_FOUND: "School Id is not found in the system",
+    BRG_ID_INVALID: 'Permanent barangay ID must be an integer',
+    BRG_ID_NOT_FOUND: 'Permanent barangay ID not found in the system',
+    CITYMUN_ID_INVALID: 'Permanent city municipality ID must be an integer',
+    CITYMUN_ID_NOT_FOUND: 'Permanent city municipality ID not found in the system',
+    PROVINCE_ID_INVALID: 'Permanent province ID must be an integer',
+    PROVINCE_ID_NOT_FOUND: 'Permanent province ID not found in the system',
+    SCHOOL_NAME_INVALID: 'School name invalid',
+    SCHOOL_NAME_ALREADY_EXIST: 'School name already exist',
+    SCHOOL_TYPE_INVALID: 'schoolType must be either "private" or "public"'
 };
   

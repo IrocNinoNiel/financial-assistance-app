@@ -939,7 +939,104 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/InternalErrorResponse'
-
+    post:
+      tags:
+        - School
+      summary: Register a new school
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchoolPayload'
+      responses:
+        '201':
+          description: Resource successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetSchoolsSuccessResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
+                
+  /schools/{schoolId}:
+    get:
+      tags:
+        - School
+      parameters:
+        - name: schoolId
+          in: path
+          required: true
+          description: The ID of the school
+          schema:
+            type: string
+            example: fa8d0ba7-3bd8-4a30-8127-82ca571d1bd0
+      summary: Get all schools
+      responses:
+        '200':
+          description: A list of schools
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetSchoolsSuccessResponse'
+        '403':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenErrorResponse'
+        '500':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
+    put:
+      tags:
+        - School
+      parameters:
+        - name: schoolId
+          in: path
+          required: true
+          description: The ID of the school
+          schema:
+            type: string
+            example: fa8d0ba7-3bd8-4a30-8127-82ca571d1bd0
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SchoolPayload'
+      responses:
+        '201':
+          description: Resource successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetSchoolsSuccessResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
 
 components:
   schemas:
@@ -967,6 +1064,31 @@ components:
         mobileNumber:
           type: string
           example: '09837162132'
+      required:
+        - username
+        - password
+        - repassword
+        - role
+        - name
+        - mobileNumber
+    SchoolPayload:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "school 1"
+        schoolType:
+          type: string
+          example: 'private'
+        brgyId:
+          type: integer
+          example: 1
+        provinceId:
+          type: integer
+          example: 2
+        cityMunId:
+          type: integer
+          example: 3
       required:
         - username
         - password
@@ -1902,15 +2024,47 @@ components:
           example: Request Successfully Accepted!
         data:
           type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-                example: a2815764-f067-11ef-ae8c-f4b520508eb0
-              name:
-                type: string
-                example: University of Science and Technology of Southern Philippines
+          items: 
+            $ref: '#/components/schemas/SchoolResponse'
+    GetSchoolsSuccessResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: Request Successfully Accepted!
+        data:
+          $ref: '#/components/schemas/SchoolResponse'
+    SchoolResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          example: a2815764-f067-11ef-ae8c-f4b520508eb0
+        name:
+          type: string
+          example: University of Science and Technology of Southern Philippines
+        provinceId:
+          type: integer
+          example: 1
+        provinceName:
+          type: string
+          example: "Province 1"
+        brgyId:
+          type: integer
+          example: 1
+        brgyName:
+          type: string
+          example: "Brgy 1"
+        cityMunId:
+          type: integer
+          example: 1
+        cityMunName:
+          type: string
+          example: "City 1"
+              
     ChangePassSuccessResponse:
       type: object
       properties:
