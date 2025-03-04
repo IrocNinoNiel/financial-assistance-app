@@ -48,7 +48,7 @@ export const checkUserExists = async (email: string) : Promise<any>  => {
 
 export const getRoleRepo = async (name: string) : Promise<any>  => {
   try {
-    const user = await prisma.roles.findFirst({
+    const user = await prisma.role.findFirst({
       where: {
         name: name,
         record_status: RecordStatus.ACTIVE
@@ -111,7 +111,7 @@ export const getPermission = async (roleId: Buffer) : Promise<any> => {
 
 export const checkRoleRepo = async (roleId: string): Promise<boolean> => {
   try {
-    const role = await prisma.roles.findFirst({
+    const role = await prisma.role.findFirst({
       where: {
         id: uuidToBinary(roleId),
         record_status: RecordStatus.ACTIVE

@@ -4,38 +4,38 @@ const prisma = new PrismaClient({
    log: ["query"],
  });
 
-export const getRegionsRepo = async ( ): Promise<any> => {
+export const getregionRepo = async ( ): Promise<any> => {
 
    try {
-      return await prisma.regions.findMany();
+      return await prisma.region.findMany();
    } catch (error) {
-      console.error('Error getRegionsRepo:', error);
+      console.error('Error getregionRepo:', error);
       throw new Error('Database error');
    }
 
 }
 
-export const getProvincesRepo = async ( regCode: string ): Promise<any> => {
+export const getprovinceRepo = async ( regCode: string ): Promise<any> => {
 
    try {
-      return await prisma.provinces.findMany({
+      return await prisma.province.findMany({
          where: { reg_code: regCode },
       });
    } catch (error) {
-      console.error('Error getProvincesRepo:', error);
+      console.error('Error getprovinceRepo:', error);
       throw new Error('Database error');
    }
 
 }
 
-export const getCityMunsRepo = async ( provinceCode: string ): Promise<any> => {
+export const getcitymunRepo = async ( provinceCode: string ): Promise<any> => {
 
    try {
-      return await prisma.citymuns.findMany({
+      return await prisma.citymun.findMany({
          where: { prov_code: provinceCode },
       });
    } catch (error) {
-      console.error('Error getProvincesRepo:', error);
+      console.error('Error getprovinceRepo:', error);
       throw new Error('Database error');
    }
 
@@ -44,11 +44,11 @@ export const getCityMunsRepo = async ( provinceCode: string ): Promise<any> => {
 export const getBarangaysRepo = async ( citymunCode: string ): Promise<any> => {
 
    try {
-      return await prisma.barangays.findMany({
+      return await prisma.barangay.findMany({
          where: { citymun_code: citymunCode },
       });
    } catch (error) {
-      console.error('Error getProvincesRepo:', error);
+      console.error('Error getprovinceRepo:', error);
       throw new Error('Database error');
    }
 
@@ -61,13 +61,13 @@ export const checkRegionExistRepo = async ( regCode: string, id: number ): Promi
       if (regCode || regCode !== "") whereCondition.reg_code = regCode;
       if (id > 0) whereCondition.id = id;
 
-      const region = await prisma.regions.findFirst({
+      const region = await prisma.region.findFirst({
           where: whereCondition,
       });
       
       return region === null; 
    } catch (error) {
-      console.error('Error getRegionsRepo:', error);
+      console.error('Error getregionRepo:', error);
       throw new Error('Database error');
    }
 }
@@ -80,13 +80,13 @@ export const checkProvinceExistRepo = async ( provinceCode: string, id: number )
       if (provinceCode || provinceCode !== "") whereCondition.reg_code = provinceCode;
       if (id > 0) whereCondition.id = id;
 
-      const province = await prisma.provinces.findFirst({
+      const province = await prisma.province.findFirst({
          where: whereCondition,
       });
       
       return province === null; 
    } catch (error) {
-      console.error('Error getRegionsRepo:', error);
+      console.error('Error getregionRepo:', error);
       throw new Error('Database error');
    }
 }
@@ -99,13 +99,13 @@ export const checkCityMunExistRepo = async ( citymunCode: string, id: number ): 
       if (citymunCode || citymunCode !== "") whereCondition.reg_code = citymunCode;
       if (id > 0) whereCondition.id = id;
 
-      const cityMun = await prisma.citymuns.findFirst({
+      const cityMun = await prisma.citymun.findFirst({
          where: whereCondition,
       });
       
       return cityMun === null; 
    } catch (error) {
-      console.error('Error getRegionsRepo:', error);
+      console.error('Error getregionRepo:', error);
       throw new Error('Database error');
    }
 }
@@ -118,13 +118,13 @@ export const checkBarangayExistRepo = async ( brgCode: string, id: number ): Pro
       if (brgCode || brgCode !== "") whereCondition.brgy_code = brgCode;
       if (id > 0) whereCondition.id = id;
 
-      const barangay = await prisma.barangays.findFirst({
+      const barangay = await prisma.barangay.findFirst({
          where: whereCondition,
       });
       
       return barangay === null; 
    } catch (error) {
-      console.error('Error getRegionsRepo:', error);
+      console.error('Error getregionRepo:', error);
       throw new Error('Database error');
    }
 }

@@ -8,7 +8,7 @@ const prisma = new PrismaClient({
 export const getRolesRepo = async ( ): Promise<any> => {
 
    try {
-      return await prisma.roles.findMany();
+      return await prisma.role.findMany();
    } catch (error) {
       console.error('Error getRegionsRepo:', error);
       throw new Error('Database error');

@@ -7,7 +7,7 @@ const prisma = new PrismaClient({
 
  export const getSchoolsRepo = async (): Promise<any> => {
    try {
-      return await prisma.schools.findMany({
+      return await prisma.school.findMany({
          include: {
             province: {
                select: { prov_desc: true }  
@@ -34,7 +34,7 @@ export const checkSchoolExistRepo = async ( id: string ): Promise<boolean> => {
       const whereCondition: any = {};
       if (id !== null) whereCondition.id = uuidToBinary(id);
 
-      const school = await prisma.schools.findFirst({
+      const school = await prisma.school.findFirst({
          where: whereCondition,
       });
       
@@ -59,7 +59,7 @@ export const checkSchoolNameExistRepo = async (name: string, schoolId: any): Pro
       }
 
     
-      const school = await prisma.schools.findFirst({
+      const school = await prisma.school.findFirst({
          where: whereCondition,
       });
 
@@ -80,7 +80,7 @@ export const getOneSchoolRepo = async ( id: string ): Promise<any> => {
       const whereCondition: any = {};
       if (id !== null) whereCondition.id = uuidToBinary(id);
 
-      const school = await prisma.schools.findFirst({
+      const school = await prisma.school.findFirst({
          where: whereCondition,
          include: {
             province: {
@@ -103,9 +103,9 @@ export const getOneSchoolRepo = async ( id: string ): Promise<any> => {
    }
 }
 
-export const createSchoolRepo = async ( school: Prisma.schoolsUncheckedCreateInput): Promise<any> => {
+export const createSchoolRepo = async ( school: Prisma.schoolUncheckedCreateInput): Promise<any> => {
    try {
-      const newSchool = await prisma.schools.create({
+      const newSchool = await prisma.school.create({
          data: school,
       });
    
@@ -116,9 +116,9 @@ export const createSchoolRepo = async ( school: Prisma.schoolsUncheckedCreateInp
    }
 }
 
-export const updateSchoolRepo = async ( updatedData: Prisma.schoolsUncheckedUpdateInput, schoolId: string): Promise<any> => {
+export const updateSchoolRepo = async ( updatedData: Prisma.schoolUncheckedUpdateInput, schoolId: string): Promise<any> => {
    try {
-      const updatedSchool = await prisma.schools.update({
+      const updatedSchool = await prisma.school.update({
          where: { id: uuidToBinary(schoolId) },
          data: updatedData,
       });

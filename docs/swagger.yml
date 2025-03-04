@@ -26,6 +26,8 @@ tags:
     description: Endpoints for Role
   - name: School
     description: Endpoints for School
+  - name: Sponsorship
+    description: Endpoints for Sponsorship
 paths:
   /auth/register:
     post:
@@ -968,7 +970,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/InternalErrorResponse'
-                
   /schools/{schoolId}:
     get:
       tags:
@@ -1037,7 +1038,343 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/InternalErrorResponse'
-
+    delete:
+      tags:
+        - School
+      parameters:
+        - name: schoolId
+          in: path
+          required: true
+          description: The ID of the school
+          schema:
+            type: string
+            example: fa8d0ba7-3bd8-4a30-8127-82ca571d1bd0
+      summary: Delete a School
+      responses:
+        '201':
+          description: Resource successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessDeleteResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
+  /sponsorship:
+    get:
+      tags:
+        - Sponsorship
+      summary: Get all sponsorship
+      responses:
+        '200':
+          description: A list of sponsorship
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetAllSponsorshipSuccessResponse'
+        '403':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenErrorResponse'
+        '500':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
+    post:
+      tags:
+        - Sponsorship
+      summary: Register a new Sponsorship
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SponsorshipPayload'
+      responses:
+        '201':
+          description: Resource successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetSponsorshipSuccessResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
+  /sponsorship/{sponsorshipId}:
+    get:
+      tags:
+        - Sponsorship
+      parameters:
+        - name: sponsorshipId
+          in: path
+          required: true
+          description: The ID of the Sponsorship
+          schema:
+            type: string
+            example: fa8d0ba7-3bd8-4a30-8127-82ca571d1bd0
+      summary: Get one Sponsorship
+      responses:
+        '200':
+          description: A details of Sponsorship
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetSponsorshipSuccessResponse'
+        '403':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenErrorResponse'
+        '500':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
+    put:
+      tags:
+        - Sponsorship
+      parameters:
+        - name: sponsorshipId
+          in: path
+          required: true
+          description: The ID of the Sponsorship
+          schema:
+            type: string
+            example: fa8d0ba7-3bd8-4a30-8127-82ca571d1bd0
+      summary: Register a new Sponsorship
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SponsorshipPayload'
+      responses:
+        '201':
+          description: Resource successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetSponsorshipSuccessResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
+    delete:
+      tags:
+        - Sponsorship
+      parameters:
+        - name: sponsorshipId
+          in: path
+          required: true
+          description: The ID of the Sponsorship
+          schema:
+            type: string
+            example: fa8d0ba7-3bd8-4a30-8127-82ca571d1bd0
+      summary: Delete a Sponsorship
+      responses:
+        '201':
+          description: Resource successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessDeleteResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
+  /academic-year:
+    get:
+      tags:
+        - Academic Year
+      summary: Get all academic year
+      responses:
+        '200':
+          description: A list of academic year
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetAllAcademicYearSuccessResponse'
+        '403':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenErrorResponse'
+        '500':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
+    post:
+      tags:
+        - Academic Year
+      summary: Register a new Academic year
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AcademicYearPayload'
+      responses:
+        '201':
+          description: Resource successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetAcademicYearSuccessResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
+  /academic-year/{academicYearId}:
+    get:
+      tags:
+        - Academic Year
+      parameters:
+        - name: academicYearId
+          in: path
+          required: true
+          description: The ID of the academic year
+          schema:
+            type: string
+            example: fa8d0ba7-3bd8-4a30-8127-82ca571d1bd0
+      summary: Get one Academic year
+      responses:
+        '200':
+          description: A details of Academic year
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetAcademicYearSuccessResponse'
+        '403':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenErrorResponse'
+        '500':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
+    put:
+      tags:
+        - Academic Year
+      parameters:
+        - name: academicYearId
+          in: path
+          required: true
+          description: The ID of the Academic year
+          schema:
+            type: string
+            example: fa8d0ba7-3bd8-4a30-8127-82ca571d1bd0
+      summary: Register a new Sponsorship
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AcademicYearPayload'
+      responses:
+        '201':
+          description: Resource successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetAcademicYearSuccessResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
+    delete:
+      tags:
+        - Academic Year
+      parameters:
+        - name: academicYearId
+          in: path
+          required: true
+          description: The ID of the Academic Year
+          schema:
+            type: string
+            example: fa8d0ba7-3bd8-4a30-8127-82ca571d1bd0
+      summary: Delete a Academic Year
+      responses:
+        '201':
+          description: Resource successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessDeleteResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
 components:
   schemas:
     RegisterPayload:
@@ -1096,6 +1433,39 @@ components:
         - role
         - name
         - mobileNumber
+    SponsorshipPayload:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Sponsor number 1
+        sponsorId:
+          type: string
+          example: a2815764-f067-11ef-ae8c-f4b520508eb0
+        academicYearId:
+          type: string
+          example: a2815764-f067-11ef-ae8c-f4b520508eb0
+        durationFrom:
+          type: string
+          example: "2023-08-02 00:00:00"
+        durationTo:
+          type: string
+          example: "2023-09-02 00:00:00"
+        batchNumber:
+          type: integer
+          example: 1
+        limit:
+          type: integer
+          example: 1
+        slot:
+          type: integer
+          example: 1
+        fundAllocation:
+          type: number
+          example: 1000
+        status:
+          type: integer
+          example: 1
     StudentRegisterPayload:
       type: object
       properties:
@@ -2064,7 +2434,135 @@ components:
         cityMunName:
           type: string
           example: "City 1"
-              
+    GetAllSponsorshipSuccessResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: Request Successfully Accepted!
+        data:
+          type: array
+          items: 
+            $ref: '#/components/schemas/SponsorshipResponse'   
+    GetSponsorshipSuccessResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: Request Successfully Accepted!
+        data:
+          $ref: '#/components/schemas/SponsorshipResponse'   
+    SponsorshipResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          example: a2815764-f067-11ef-ae8c-f4b520508eb0
+        name:
+          type: string
+          example: University of Science and Technology of Southern Philippines
+        sponsorId:
+          type: string
+          example: a2815764-f067-11ef-ae8c-f4b520508eb0
+        sponsorName:
+          type: string
+          example: John Doe
+        academicYearId:
+          type: string
+          example: a2815764-f067-11ef-ae8c-f4b520508eb0
+        academicYearName:
+          type: string
+          example: 2024 - 2025
+        durationFrom:
+          type: string
+          example: "2023-08-02 00:00:00"
+        durationTo:
+          type: string
+          example: "2023-09-02 00:00:00"
+        batchNumber:
+          type: integer
+          example: 1
+        limit:
+          type: integer
+          example: 1
+        slot:
+          type: integer
+          example: 1
+        fundAllocation:
+          type: number
+          example: 1000
+        status:
+          type: integer
+          example: 1
+    GetAllAcademicYearSuccessResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: Request Successfully Accepted!
+        data:
+          type: array
+          items: 
+            $ref: '#/components/schemas/AcademicYearResponse'   
+    GetAcademicYearSuccessResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: Request Successfully Accepted!
+        data:
+          $ref: '#/components/schemas/AcademicYearResponse'     
+    AcademicYearResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          example: a2815764-f067-11ef-ae8c-f4b520508eb0
+        academicYearStart:
+          type: number
+          example: 2024
+        academicYearEnd:
+          type: number
+          example: 2025
+        schoolTerm:
+          type: number
+          example: 1
+        dateFrom:
+          type: string
+          example: "2023-08-02 00:00:00"
+        dateTo:
+          type: string
+          example: "2023-09-02 00:00:00"
+    AcademicYearPayload:
+      type: object
+      properties:
+        academicYearStart:
+          type: number
+          example: 2024
+        academicYearEnd:
+          type: number
+          example: 2025
+        schoolTerm:
+          type: number
+          example: 1
+        dateFrom:
+          type: string
+          example: "2023-08-02 00:00:00"
+        dateTo:
+          type: string
+          example: "2023-09-02 00:00:00"
     ChangePassSuccessResponse:
       type: object
       properties:

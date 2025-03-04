@@ -1,12 +1,12 @@
 import { binaryToUuid, RecordStatus, uuidToBinary } from "../utils";
-import { Prisma, PrismaClient, students, user } from '@prisma/client';
+import { Prisma, PrismaClient, student, user } from '@prisma/client';
 
 const prisma = new PrismaClient({  });
 
-export const registerStudentRepo = async ( student: Prisma.studentsUncheckedCreateInput ) : Promise<students> => {
+export const registerStudentRepo = async ( student: Prisma.studentUncheckedCreateInput ) : Promise<student> => {
 
     try {
-        const newStudent = await prisma.students.create({
+        const newStudent = await prisma.student.create({
             data: student
         });
         
@@ -19,11 +19,11 @@ export const registerStudentRepo = async ( student: Prisma.studentsUncheckedCrea
 }
 
 export const updateStudentRepo = async (
-  studentData: Prisma.studentsUncheckedUpdateInput,
+  studentData: Prisma.studentUncheckedUpdateInput,
   studentId: Buffer,
-): Promise<students> => {
+): Promise<student> => {
   try {
-    const updatedStudent = await prisma.students.update({
+    const updatedStudent = await prisma.student.update({
       where: { id: studentId },
       data: studentData
     });
@@ -36,9 +36,9 @@ export const updateStudentRepo = async (
 };
 
 
-export const registerSiblingsRepo = async (siblings: Prisma.siblingsUncheckedCreateInput[]): Promise<void> => {
+export const registerSiblingsRepo = async (siblings: Prisma.siblingUncheckedCreateInput[]): Promise<void> => {
     try {
-        await prisma.siblings.createMany({
+        await prisma.sibling.createMany({
             data: siblings
         });
     } catch (error) {
@@ -49,16 +49,16 @@ export const registerSiblingsRepo = async (siblings: Prisma.siblingsUncheckedCre
 
 export const updateSiblingsRepo = async (
   studentId: string,
-  siblings: Prisma.siblingsUncheckedCreateInput[]
+  siblings: Prisma.siblingUncheckedCreateInput[]
 ): Promise<void> => {
   try {
     await prisma.$transaction([
       // Delete all existing siblings linked to the student
-      prisma.siblings.deleteMany({
+      prisma.sibling.deleteMany({
         where: { student_id: uuidToBinary(studentId) }
       }),
 
-      prisma.siblings.createMany({
+      prisma.sibling.createMany({
             data: siblings
       })
     ]);
@@ -73,7 +73,7 @@ export const updateSiblingsRepo = async (
 
 export const checkStudentEmailExists = async (email: string) : Promise<boolean>  => {
   try {
-    const user = await prisma.students.findFirst({
+    const user = await prisma.student.findFirst({
       where: {
         email: email,
         record_status: RecordStatus.ACTIVE
@@ -89,7 +89,7 @@ export const checkStudentEmailExists = async (email: string) : Promise<boolean> 
 
 export const getAllStudentRepo = async () : Promise<any> => {
   try {
-    const users = await prisma.students.findMany({
+    const users = await prisma.student.findMany({
       where: {
         record_status: RecordStatus.ACTIVE
       },
@@ -107,7 +107,7 @@ export const getAllStudentRepo = async () : Promise<any> => {
 
 export const getOneStudentRepo = async ( userId: string) : Promise<any> => {
   try {
-    const user = await prisma.students.findFirst({
+    const user = await prisma.student.findFirst({
       where: {
         record_status: RecordStatus.ACTIVE,
         user_id: uuidToBinary(userId)
@@ -157,7 +157,7 @@ export const checkIfStudentRepo = async (userId: string): Promise<boolean> => {
 
 export const isEmailTakenByAnotherStudentRepo = async (email: string, studentId: string): Promise<boolean> => {
   try {
-    const existingUser = await prisma.students.findFirst({
+    const existingUser = await prisma.student.findFirst({
       where: {
         email,
         id: { not: uuidToBinary(studentId) },
@@ -172,7 +172,7 @@ export const isEmailTakenByAnotherStudentRepo = async (email: string, studentId:
 };
 
 export const doesStudentExistRepo = async (studentId: string): Promise<boolean> => {
-  const student = await prisma.students.findUnique({
+  const student = await prisma.student.findUnique({
     where: { id: uuidToBinary(studentId) }, 
   });
   return !!student;
