@@ -1,18 +1,10 @@
 
 import { Prisma, user } from "@prisma/client";
 import { User } from "../authentication/model";
-import { AddressResponse, PartialStudentUser, RegisterRequest, RoleResponse, SchoolPayload, SchoolResponse, SiblingRequest, StudentListResponse, StudentRequest, UserDetailsResponse, UserListResponse, UserResponse } from "./types";
+import { AddressResponse, PartialStudentUser, RegisterRequest, RoleResponse, SchoolPayload, SiblingRequest, StudentListResponse, StudentRequest, UserDetailsResponse, UserListResponse, UserResponse } from "./types";
 import { binaryToUuid, uuidToBinary } from "./utils";
 
-export function toUserResponse(user: any,): UserResponse { 
-
-    return {
-        user_id: binaryToUuid(user.user_id),
-        email: user.email
-    }
-}
-
-export function convertStudentResponseToStudent(response: StudentRequest, userId: string): Prisma.studentsUncheckedCreateInput  {
+export function convertStudentResponseToStudent(response: StudentRequest, userId: string): Prisma.studentUncheckedCreateInput  {
   return {
     user_id: uuidToBinary(userId),
     first_name: response.firstName,
@@ -100,21 +92,10 @@ export function convertToStudentUser(response: any): PartialStudentUser {
   }
 }
 
-export function toUserDetailResponse( data: user ): UserDetailsResponse {
-  return {
-    userId: binaryToUuid(data.id),
-    firstName: data.first_name,
-    middleName: data.middle_name,
-    lastName: data.last_name,
-    email: data.email,
-    roleId: binaryToUuid(data.role_id),
-    mobileNumber: data.mobile_number
-  }
-}
 
 export function convertToStudentResponse(
-  item: Prisma.studentsUncheckedCreateInput,
-  siblings: Prisma.siblingsUncheckedCreateInput[]
+  item: Prisma.studentUncheckedCreateInput,
+  siblings: Prisma.siblingUncheckedCreateInput[]
 ): StudentListResponse {
   const { user_id, created_at, created_by, updated_at, updated_by, ...rest } = item;
 
@@ -200,7 +181,7 @@ export function convertToStudentResponse(
   };
 }
 
-export function convertToSiblingData(studentId: string,  siblingRequests: SiblingRequest[]): Prisma.siblingsUncheckedCreateInput[] {
+export function convertToSiblingData(studentId: string,  siblingRequests: SiblingRequest[]): Prisma.siblingUncheckedCreateInput[] {
   return siblingRequests.map(sibling => ({
       student_id: uuidToBinary(studentId),
       sibling_name: sibling.name,
@@ -226,20 +207,21 @@ export function convertToUser(data: RegisterRequest, hashedPassword: any ): User
   }
 }
 
-export function toUserListResponse(data: any): UserListResponse[] {
-  return data.map((user) => ({
-    first_name: user.first_name,
-    middle_name: user.middle_name ?? null,
-    last_name: user.last_name,
-    mobile_number: user.mobile_number,
-    user_id: binaryToUuid(user.id),
+export function toUserResponse(user: any): UserListResponse {
+  return {
+    firstName: user.first_name,
+    middleName: user.middle_name ?? null,
+    lastName: user.last_name,
+    mobileNumber: user.mobile_number,
+    userId: binaryToUuid(user.id),
     email: user.email,
-    user_type: user.role?.name || 'Unknown' // Handle cases with missing role_user
-  }));
+    userTypeId: binaryToUuid(user.role_id),
+    userType: user.role?.name || 'Unknown'
+  };
 }
 
-export function toStudentResponse(data: any | any[]): StudentListResponse | StudentListResponse[] {
-  const mapStudent = (item: any): StudentListResponse => ({
+export function toStudentResponse(item: any ): StudentListResponse {
+  return {
     studentId: binaryToUuid(item.student_id || item.id),
     firstName: item.first_name,
     middleName: item.middle_name || undefined,
@@ -281,12 +263,12 @@ export function toStudentResponse(data: any | any[]): StudentListResponse | Stud
     g12AwardHonor: item.g12_award_honor,
     g12Organization: item.g12_organization,
     g12YearOfGraduation: item.g12_year_of_graduation,
-    g12SchoolId: binaryToUuid(item.g12_school_id),
+    g12SchoolId: item.g12_school_id ?  binaryToUuid(item.g12_school_id) : item.g12_school_id,
     collegeProgramName: item.college_program_name,
     collegeYearLevel: item.college_year_level,
     collegeAwardHonor: item.college_award_honor,
     collegeOrganization: item.college_organization,
-    collegeSchoolId: binaryToUuid(item.college_school_id),
+    collegeSchoolId: item.college_school_id ? binaryToUuid(item.college_school_id) : item.college_school_id,
     fatherLastName: item.father_last_name,
     fatherFirstName: item.father_first_name,
     fatherMiddleName: item.father_middle_name || undefined,
@@ -318,9 +300,7 @@ export function toStudentResponse(data: any | any[]): StudentListResponse | Stud
       livingWithParents: sibling.living_with_parents,
       ownHouse: sibling.own_house,
     })) || [],
-  });
-
-  return Array.isArray(data) ? data.map(mapStudent) : mapStudent(data);
+  }
 }
 
 export function toUserPermissionResponse(permissions: any[]): any[] {
@@ -379,7 +359,7 @@ export function toSchoolResponse(data: any): any {
   };
 }
 
-export function toSchoolModel( school: SchoolPayload): Prisma.schoolsUncheckedCreateInput {
+export function toSchoolModel( school: SchoolPayload): Prisma.schoolUncheckedCreateInput {
   return {
     school_name: school.name,
     school_type: school.schoolType,

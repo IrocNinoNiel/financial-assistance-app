@@ -5,7 +5,7 @@ import { User } from "./model";
 import { changePasswordRepo, checkRoleRepo, checkUserExists, getPermission, getRoleRepo, registerRepo } from "./repository";
 import { convertToUser, toUserPermissionResponse } from "../utils/converter";
 import jwt from 'jsonwebtoken';
-import { Prisma, students } from "@prisma/client";
+import { Prisma, student } from "@prisma/client";
 import { checkIfStudentRepo, registerStudentRepo } from "../student/repository";
 
 export const registerService = async ( data: RegisterRequest, isStudent: boolean = false ) => {
@@ -26,7 +26,7 @@ export const registerService = async ( data: RegisterRequest, isStudent: boolean
 
     if(student) {
 
-        const studentData: Prisma.studentsUncheckedCreateInput = {  
+        const studentData: Prisma.studentUncheckedCreateInput = {  
             user_id: result.id,
             first_name: result.first_name,
             last_name: result.last_name,
@@ -34,7 +34,7 @@ export const registerService = async ( data: RegisterRequest, isStudent: boolean
             mobile_number: result.mobile_number
         };
        
-        const student: students = await registerStudentRepo(studentData);
+        const student: student = await registerStudentRepo(studentData);
         console.log("Student data has been saved", student);
     }
 

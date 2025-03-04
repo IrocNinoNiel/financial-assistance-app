@@ -76,7 +76,7 @@ export const RecordStatus = {
 }
 
 export interface UserResponse {
-    user_id?: string,
+    userId?: string,
     email?: string,
     token?: string
 }
@@ -183,13 +183,14 @@ export interface SiblingRequest {
 }
 
 export interface UserListResponse {
-  first_name: string;
-  middle_name?: string | null;
-  last_name: string;
-  mobile_number: string;
-  user_id: string; 
+  firstName: string;
+  middleName?: string | null;
+  lastName: string;
+  mobileNumber: string;
+  userId: string; 
   email: string;
-  user_type: string;
+  userType: string;
+  userTypeId: string;
 }
 
 export interface GetAllUsersParams {

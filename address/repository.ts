@@ -4,7 +4,7 @@ const prisma = new PrismaClient({
    log: ["query"],
  });
 
-export const getregionRepo = async ( ): Promise<any> => {
+export const getRegionsRepo = async ( ): Promise<any> => {
 
    try {
       return await prisma.region.findMany();
@@ -15,7 +15,7 @@ export const getregionRepo = async ( ): Promise<any> => {
 
 }
 
-export const getprovinceRepo = async ( regCode: string ): Promise<any> => {
+export const getProvincesRepo = async ( regCode: string ): Promise<any> => {
 
    try {
       return await prisma.province.findMany({
@@ -28,7 +28,7 @@ export const getprovinceRepo = async ( regCode: string ): Promise<any> => {
 
 }
 
-export const getcitymunRepo = async ( provinceCode: string ): Promise<any> => {
+export const getCityMunsRepo = async ( provinceCode: string ): Promise<any> => {
 
    try {
       return await prisma.citymun.findMany({
@@ -77,7 +77,7 @@ export const checkProvinceExistRepo = async ( provinceCode: string, id: number )
 
       const whereCondition: any = {};
         
-      if (provinceCode || provinceCode !== "") whereCondition.reg_code = provinceCode;
+      if (provinceCode || provinceCode !== "") whereCondition.prov_code = provinceCode;
       if (id > 0) whereCondition.id = id;
 
       const province = await prisma.province.findFirst({
@@ -96,7 +96,7 @@ export const checkCityMunExistRepo = async ( citymunCode: string, id: number ): 
 
       const whereCondition: any = {};
         
-      if (citymunCode || citymunCode !== "") whereCondition.reg_code = citymunCode;
+      if (citymunCode || citymunCode !== "") whereCondition.citymun_code = citymunCode;
       if (id > 0) whereCondition.id = id;
 
       const cityMun = await prisma.citymun.findFirst({

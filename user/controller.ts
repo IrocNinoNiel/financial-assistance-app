@@ -2,7 +2,7 @@ import { Router } from "express";
 import { ResponseHandler } from "../response";
 import { deleteUserService, getAllUsers, getOneUser, updateUserService } from "./service";
 import { validateUpdateUserInput, validateUserId } from "../middleware/validation";
-import { RegisterRequest, UpdateUserRequest } from "../utils";
+import { RegisterRequest, SUCCESS_MESSAGES, UpdateUserRequest } from "../utils";
 
 
 
@@ -50,7 +50,7 @@ export default () => {
         try {
             const { userId } = req.params;
             await deleteUserService( userId );
-            ResponseHandler.deleted(req, res, "User Successfully deleted");
+            ResponseHandler.deleted(req, res, SUCCESS_MESSAGES.USER_DELETED);
         } catch (err) {
             ResponseHandler.invalidRequest(req, res , err.message);
         }

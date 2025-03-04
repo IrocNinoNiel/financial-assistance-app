@@ -354,12 +354,13 @@ export const validateGetOneStudent = [
       if (!studentExists) {
         return Promise.reject(VALIDATION_MESSAGES.USER_NOT_FOUND);
       }
-
+    })
+    .custom(async (userId) => {
       const haveData = await getOneStudent( userId );
       if( haveData === null ) {
         return Promise.reject(VALIDATION_MESSAGES.USER_NO_STUDENT_INFO); 
       }
-  }),
+    }),
   validateErrors
 ];
 

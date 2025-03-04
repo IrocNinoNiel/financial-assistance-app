@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { ResponseHandler } from "../response";
-import { createSchool, getOneSchool, getSchools, updateSchool } from "./service";
+import { createSchool, deleteSchool, getOneSchool, getSchools, updateSchool } from "./service";
 import { validateSchool, validateSchoolId } from "../middleware/validation";
-import { SchoolPayload } from "../utils";
+import { SchoolPayload, SUCCESS_MESSAGES } from "../utils";
 
 export default () => {
 
@@ -41,6 +41,13 @@ export default () => {
         const payload: SchoolPayload = req.body;
         const data = await updateSchool( payload, schoolId );
         ResponseHandler.ok(req, res, data);
+    })
+
+    schoolAPI.delete("/:schoolId", validateSchoolId, async ( req, res) => {
+
+        const { schoolId } = req.params;
+        await deleteSchool( schoolId );
+        ResponseHandler.ok(req, res, SUCCESS_MESSAGES.SCHOOL_DELETED);
     })
 
     return schoolAPI;

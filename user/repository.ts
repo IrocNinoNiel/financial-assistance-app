@@ -31,6 +31,7 @@ export const getAllUsersRepo = async () => {
             mobile_number: true,
             id: true,
             email: true,
+            role_id: true,
             role: {
               select: {
                 name: true
@@ -81,6 +82,11 @@ export const getOneUserRepo = async (userId: string): Promise<user> => {
   try{
     const data: user = await prisma.user.findFirst({
       where: { id: uuidToBinary(userId), record_status: RecordStatus.ACTIVE }, 
+      include: {
+        role: {
+           select: { name: true }  
+        }, 
+      }
     });
     return data;
   } catch (error) {

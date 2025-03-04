@@ -13,7 +13,9 @@ export const ERROR_MESSAGES = {
 
 export const SUCCESS_MESSAGES = {
     FILE_SAVED: "File successfully saved",
-    IMAGE_SAVED: "Image Saved Successfully"
+    IMAGE_SAVED: "Image Saved Successfully",
+    USER_DELETED: "User Successfully deleted",
+    SCHOOL_DELETED: "School Successfully deleted"
 }
 
 // validationMessages.ts

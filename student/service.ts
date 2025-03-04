@@ -1,8 +1,8 @@
-import { binaryToUuid, extractUserFromToken, PartialStudentUser, StudentRequest, uuidToBinary } from "../utils";
+import { binaryToUuid, extractUserFromToken, PartialStudentUser, StudentListResponse, StudentRequest, uuidToBinary } from "../utils";
 import { v4 as uuidv4 } from 'uuid';
 import { convertStudentResponseToStudent, convertToSiblingData, convertToStudentResponse, convertToStudentUser, toStudentResponse } from "../utils/converter";
 import { checkIfStudentRepo, doesStudentExistRepo, getAllStudentRepo, getOneStudentRepo, isEmailTakenByAnotherStudentRepo, registerSiblingsRepo, registerStudentRepo, updateSiblingsRepo, updateStudentRepo } from "./repository";
-import { Prisma, students } from "@prisma/client";
+import { Prisma, student } from "@prisma/client";
 import { partialUpdateUserRepo } from "../user/repository";
 
 
@@ -11,11 +11,11 @@ export const registerStudentService = async ( data: StudentRequest, authHeader: 
     const userDetails = extractUserFromToken(authHeader);
     const userId = userDetails.userId;
    
-    const studentData: Prisma.studentsUncheckedCreateInput = convertStudentResponseToStudent(data, userId);
+    const studentData: Prisma.studentUncheckedCreateInput = convertStudentResponseToStudent(data, userId);
     console.log("Student data to be saved", studentData);
-    const student: students = await registerStudentRepo(studentData);
+    const student: student = await registerStudentRepo(studentData);
 
-    const siblingData: Prisma.siblingsUncheckedCreateInput[] = convertToSiblingData(binaryToUuid(student.id), data.siblings);
+    const siblingData: Prisma.siblingUncheckedCreateInput[] = convertToSiblingData(binaryToUuid(student.id), data.siblings);
     console.log("Student sibling data to be saved", siblingData);
     await registerSiblingsRepo(siblingData)
 
@@ -30,14 +30,14 @@ export const updateStudentService = async ( data: StudentRequest, authHeader: an
     const userId = userDetails.userId;
     const convertedId = uuidToBinary(studentId);
 
-    const studentData: Prisma.studentsUncheckedCreateInput = convertStudentResponseToStudent(data, userId);
-    const student: students = await updateStudentRepo(studentData, convertedId);
+    const studentData: Prisma.studentUncheckedCreateInput = convertStudentResponseToStudent(data, userId);
+    const student: student = await updateStudentRepo(studentData, convertedId);
     console.log("Student data has been updated", studentData);
 
     const userData: PartialStudentUser = convertToStudentUser( data );
     await partialUpdateUserRepo( userData, userId);
 
-    const siblingData: Prisma.siblingsUncheckedCreateInput[] = convertToSiblingData(binaryToUuid(student.id), data.siblings);
+    const siblingData: Prisma.siblingUncheckedCreateInput[] = convertToSiblingData(binaryToUuid(student.id), data.siblings);
     await updateSiblingsRepo(binaryToUuid(student.id), siblingData)
     console.log("Student sibling has been saved", siblingData);
 
@@ -48,13 +48,14 @@ export const updateStudentService = async ( data: StudentRequest, authHeader: an
 
 export const getAllStudent = async () => {
     const data = await getAllStudentRepo();
-    const converted = toStudentResponse( data );
+    const converted: StudentListResponse[] = data.map(item => toStudentResponse(item));
     return converted;
 }
 
 export const getOneStudent = async ( userId: string ) => {
     const data = await getOneStudentRepo( userId );
 
+    console.log("get one student", data);
     if(data === null) {
         return null;
     }

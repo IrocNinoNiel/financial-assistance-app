@@ -1,5 +1,5 @@
 import { Prisma, PrismaClient } from "@prisma/client";
-import { uuidToBinary } from "../utils";
+import { RecordStatus, uuidToBinary } from "../utils";
 
 const prisma = new PrismaClient({
    log: ["query"],
@@ -8,6 +8,7 @@ const prisma = new PrismaClient({
  export const getSchoolsRepo = async (): Promise<any> => {
    try {
       return await prisma.school.findMany({
+         where: { record_status: RecordStatus.ACTIVE },
          include: {
             province: {
                select: { prov_desc: true }  
@@ -31,7 +32,7 @@ export const checkSchoolExistRepo = async ( id: string ): Promise<boolean> => {
    try {
 
       console.log("School ID", id);
-      const whereCondition: any = {};
+      const whereCondition: any = { record_status: RecordStatus.ACTIVE };
       if (id !== null) whereCondition.id = uuidToBinary(id);
 
       const school = await prisma.school.findFirst({
@@ -41,7 +42,7 @@ export const checkSchoolExistRepo = async ( id: string ): Promise<boolean> => {
       console.log("School Data", school);
       return school === null; 
    } catch (error) {
-      console.error('Error getRegionsRepo:', error);
+      console.error('Error checkSchoolExistRepo:', error);
       throw new Error('Database error');
    }
 }
@@ -51,7 +52,7 @@ export const checkSchoolNameExistRepo = async (name: string, schoolId: any): Pro
       console.log("School Name:", name, "School ID:", schoolId);
 
       const whereCondition: any = {
-         school_name: name,
+         school_name: name, record_status: RecordStatus.ACTIVE
       };
 
       if (schoolId) {
@@ -77,7 +78,7 @@ export const getOneSchoolRepo = async ( id: string ): Promise<any> => {
    try {
 
       console.log("School ID", id);
-      const whereCondition: any = {};
+      const whereCondition: any = { record_status: RecordStatus.ACTIVE };
       if (id !== null) whereCondition.id = uuidToBinary(id);
 
       const school = await prisma.school.findFirst({
@@ -124,6 +125,20 @@ export const updateSchoolRepo = async ( updatedData: Prisma.schoolUncheckedUpdat
       });
 
       return updatedSchool;
+   } catch (error) {
+      console.error('Error updateSchoolRepo:', error);
+      throw new Error('Database error');
+   }
+};
+
+
+export const deleteSchoolRepo = async ( schoolId: string): Promise<void> => {
+   try {
+      const updatedSchool = await prisma.school.update({
+         where: { id: uuidToBinary(schoolId) },
+         data: { record_status: false },
+      });
+
    } catch (error) {
       console.error('Error updateSchoolRepo:', error);
       throw new Error('Database error');

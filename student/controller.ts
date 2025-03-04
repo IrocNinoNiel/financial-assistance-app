@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { ResponseHandler } from "../response";
 import { StudentRequest } from "../utils";
-import { getOneStudent, updateStudentService } from "./service";
+import { getAllStudent, getOneStudent, updateStudentService } from "./service";
 import { validateStudentRegistration, validateUpdateStudent, validateGetOneStudent } from "../middleware/validation";
 
 
@@ -48,6 +48,18 @@ export default () => {
             ResponseHandler.internalServerError(req, res , err.message);
         }
     })
+
+    studentAPI.get('/', async (req, res) => { 
+        try {
+
+            const result = await getAllStudent();
+            ResponseHandler.ok(req, res, result);
+
+        } catch (err) {
+            ResponseHandler.internalServerError(req, res , err.message);
+        }
+    })
+
 
     return studentAPI;
 }

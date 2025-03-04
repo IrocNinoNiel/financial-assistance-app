@@ -1,6 +1,6 @@
 import { user } from "@prisma/client";
-import { binaryToUuid, GetAllUsersParams, UpdateUserRequest, UserDetailsResponse, UserResponse, uuidToBinary } from "../utils";
-import { toUserDetailResponse, toUserListResponse, toUserResponse } from "../utils/converter";
+import { UpdateUserRequest, UserDetailsResponse, UserResponse } from "../utils";
+import { toUserResponse } from "../utils/converter";
 import { deleteUserRepo, doesUserExistRepo, getAllUsersRepo, getOneUserRepo, isAdminRepo, updateUserRepo } from "./repository"
 import { checkIfStudentRepo, getOneStudentRepo, updateStudentRepo } from "../student/repository";
 
@@ -18,7 +18,7 @@ export const getAllUsers = async (  ) => {
 
     const data: any = await getAllUsersRepo();
     console.log(data);
-    const converted = toUserListResponse(data);
+    const converted = data.map( user => toUserResponse(user));
     return { count: converted.length, users: converted};
 }
 
@@ -27,9 +27,9 @@ export const doesUserExist = async ( userId: string ) : Promise<boolean> => {
 }
 
 
-export const getOneUser = async ( userId: string ) : Promise<UserDetailsResponse> => {
+export const getOneUser = async ( userId: string ) : Promise<UserResponse> => {
     const data: user = await getOneUserRepo( userId);
-    return toUserDetailResponse( data );
+    return toUserResponse( data );
 }
 
 export const updateUserService = async ( data: UpdateUserRequest, userId: string ) : Promise<any> => {
@@ -60,7 +60,7 @@ export const updateUserService = async ( data: UpdateUserRequest, userId: string
         await updateStudentRepo(student, student.id);
     }
 
-    return toUserDetailResponse(user);
+    return toUserResponse(user);
 }
 
 export const deleteUserService = async ( userId: string) => {
