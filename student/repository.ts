@@ -94,7 +94,17 @@ export const getAllStudentRepo = async () : Promise<any> => {
         record_status: RecordStatus.ACTIVE
       },
       include: {
-        siblings:true
+        siblings:true,
+        permanent_barangay: { select: { brgy_desc: true, brgy_code: true }  },
+        permanent_citynum: { select: { citymun_desc: true, citymun_code: true }  },
+        permanent_province: { select: { prov_desc: true, prov_code: true }  },
+        permanent_region: { select: { reg_desc: true, reg_code: true }  },
+        current_barangay: { select: { brgy_desc: true, brgy_code: true }  },
+        current_citynum: { select: { citymun_desc: true, citymun_code: true }  },
+        current_province: { select: { prov_desc: true, prov_code: true }  },
+        current_region: { select: { reg_desc: true, reg_code: true }  },
+        g12_school: { select: { school_name: true }  },
+        college_school: { select: { school_name: true }  }
       }
     });
 
@@ -113,7 +123,17 @@ export const getOneStudentRepo = async ( userId: string) : Promise<any> => {
         user_id: uuidToBinary(userId)
       },
       include: {
-        siblings:true
+        siblings:true,
+        permanent_barangay: { select: { brgy_desc: true, brgy_code: true }  },
+        permanent_citynum: { select: { citymun_desc: true, citymun_code: true }  },
+        permanent_province: { select: { prov_desc: true, prov_code: true }  },
+        permanent_region: { select: { reg_desc: true, reg_code: true }  },
+        current_barangay: { select: { brgy_desc: true, brgy_code: true }  },
+        current_citynum: { select: { citymun_desc: true, citymun_code: true }  },
+        current_province: { select: { prov_desc: true, prov_code: true }  },
+        current_region: { select: { reg_desc: true, reg_code: true }  },
+        g12_school: { select: { school_name: true }  },
+        college_school: { select: { school_name: true }  }
       }
     });
 

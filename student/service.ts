@@ -1,6 +1,6 @@
 import { binaryToUuid, extractUserFromToken, PartialStudentUser, StudentListResponse, StudentRequest, uuidToBinary } from "../utils";
 import { v4 as uuidv4 } from 'uuid';
-import { convertStudentResponseToStudent, convertToSiblingData, convertToStudentResponse, convertToStudentUser, toStudentResponse } from "../utils/converter";
+import { convertStudentResponseToStudent, convertToSiblingData, convertToStudentUser, toStudentResponse } from "../utils/converter";
 import { checkIfStudentRepo, doesStudentExistRepo, getAllStudentRepo, getOneStudentRepo, isEmailTakenByAnotherStudentRepo, registerSiblingsRepo, registerStudentRepo, updateSiblingsRepo, updateStudentRepo } from "./repository";
 import { Prisma, student } from "@prisma/client";
 import { partialUpdateUserRepo } from "../user/repository";
@@ -19,7 +19,7 @@ export const registerStudentService = async ( data: StudentRequest, authHeader: 
     console.log("Student sibling data to be saved", siblingData);
     await registerSiblingsRepo(siblingData)
 
-    const convertedResult = convertToStudentResponse(student, siblingData);
+    const convertedResult = toStudentResponse(student );
     console.log("Student Data Successfully created",convertedResult);
     return convertedResult;
 }
@@ -41,7 +41,8 @@ export const updateStudentService = async ( data: StudentRequest, authHeader: an
     await updateSiblingsRepo(binaryToUuid(student.id), siblingData)
     console.log("Student sibling has been saved", siblingData);
 
-    const convertedResult = convertToStudentResponse(student, siblingData);
+    const response = await getOneStudentRepo( userId );
+    const convertedResult = toStudentResponse( response );
     console.log("Student Data Successfully get",convertedResult);
     return convertedResult;
 }
