@@ -23,6 +23,14 @@ export interface RegisterRequest {
     middleName: string;
 }
 
+export interface AcademicYearRequest {
+  academicYearStart: number;
+  academicYearEnd: number;
+  schoolTerm: number;
+  dateFrom: string;
+  dateTo: string;
+}
+
 export interface UpdateUserRequest {
   username: string;
   roleId?: string;
