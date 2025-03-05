@@ -33,7 +33,7 @@ export const registerService = async ( data: RegisterRequest, isStudent: boolean
             email: result.email,
             mobile_number: result.mobile_number
         };
-       
+        
         const student: student = await registerStudentRepo(studentData);
         console.log("Student data has been saved", student);
     }

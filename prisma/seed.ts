@@ -20,7 +20,7 @@ async function roleSeed() {
       { name: 'Accounting', description: 'Oversees financial records and reporting.' }
     ];
     
-    await prisma.roles.createMany({
+    await prisma.role.createMany({
       data: roles,
       skipDuplicates: true,
     });
@@ -36,7 +36,7 @@ async function roleSeed() {
 async function adminUser() {
   try {
 
-    const role = await prisma.roles.findUnique({
+    const role = await prisma.role.findUnique({
       where: { name: "System Admin" }, // Adjust based on your schema
       select: { id: true },
     });
@@ -74,7 +74,7 @@ async function initialModuleAndPermission() {
     console.log("✅ Module table seeded successfully!");
 
     // Fetch role UUIDs
-    const roles = await prisma.roles.findMany({
+    const roles = await prisma.role.findMany({
       select: { id: true },
     });
 
@@ -139,7 +139,7 @@ async function fileType() {
 }
 
 
-roleSeed();
-initialModuleAndPermission();
-fileType();
+// roleSeed();
+// initialModuleAndPermission();
+// fileType();
 adminUser();
