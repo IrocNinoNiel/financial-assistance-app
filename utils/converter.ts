@@ -1,7 +1,7 @@
 
-import { Prisma, student, user } from "@prisma/client";
+import { Prisma, student, user, academicYear } from '@prisma/client';
 import { User } from "../authentication/model";
-import { AddressResponse, PartialStudentUser, RegisterRequest, RoleResponse, SchoolPayload, SiblingRequest, StudentListResponse, StudentRequest, UserDetailsResponse, UserListResponse, UserResponse } from "./types";
+import { AcademicYearRequest, AcademicYearResponse, AddressResponse, PartialStudentUser, RegisterRequest, RoleResponse, SchoolPayload, SiblingRequest, StudentListResponse, StudentRequest, UserDetailsResponse, UserListResponse, UserResponse } from './types';
 import { binaryToUuid, uuidToBinary } from "./utils";
 
 export function convertStudentResponseToStudent(response: StudentRequest, userId: string): Prisma.studentUncheckedCreateInput  {
@@ -297,5 +297,29 @@ export function toSchoolModel( school: SchoolPayload): Prisma.schoolUncheckedCre
     citymun_id: school.cityMunId,
     province_id: school.provinceId,
     brgy_id: school.brgyId
+  }
+}
+
+export function toAcadyearModel( academicYear: AcademicYearRequest,userId: string): Prisma.academicYearUncheckedCreateInput {
+  return {
+    academic_year_start: academicYear.academicYearStart,
+    academic_year_end: academicYear.academicYearEnd,
+    school_term: academicYear.schoolTerm,
+    date_from: academicYear.dateFrom,
+    date_to: academicYear.dateTo,
+    updated_at:  new Date,
+    created_by: uuidToBinary(userId),
+    updated_by: uuidToBinary(userId),
+  }
+}
+
+export function toAcadyearResponse( data: academicYear ): AcademicYearResponse {
+  return {
+    id: binaryToUuid( data.id),
+    academicYearStart: data.academic_year_start,
+    academicYearEnd: data.academic_year_end,
+    schoolTerm: data.school_term,
+    dateFrom: data.date_from.toISOString(),
+    dateTo: data.date_to.toISOString()
   }
 }

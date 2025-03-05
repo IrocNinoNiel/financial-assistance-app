@@ -15,7 +15,8 @@ export const SUCCESS_MESSAGES = {
     FILE_SAVED: "File successfully saved",
     IMAGE_SAVED: "Image Saved Successfully",
     USER_DELETED: "User Successfully deleted",
-    SCHOOL_DELETED: "School Successfully deleted"
+    SCHOOL_DELETED: "School Successfully deleted",
+    ACADEMIC_YEAR_DELETED: "Academic year Successfully deleted"
 }
 
 // validationMessages.ts
@@ -111,6 +112,14 @@ export const VALIDATION_MESSAGES = {
     PROVINCE_ID_NOT_FOUND: 'Permanent province ID not found in the system',
     SCHOOL_NAME_INVALID: 'School name invalid',
     SCHOOL_NAME_ALREADY_EXIST: 'School name already exist',
-    SCHOOL_TYPE_INVALID: 'schoolType must be either "private" or "public"'
+    SCHOOL_TYPE_INVALID: 'schoolType must be either "private" or "public"',
+    ACADEMIC_YEAR_START_REQUIRED: "academicYearStart is required",
+    ACADEMIC_YEAR_END_REQUIRED: "academicYearEnd is required",
+    ACADEMIC_YEAR_TERM_REQUIRED: "schoolTerm is required",
+    ACADEMIC_YEAR_DATE_FROM_REQUIRED: "dateFrom is required",
+    ACADEMIC_YEAR_DATE_TO_REQUIRED: "dateTo is required",
+    ACADEMIC_YEAR_ALREADY_EXISTS: "Academic year already exists",
+    ACADEMIC_YEAR_ID_REQUIRED: "AcademicYearId is required",
+    ACADEMIC_YEAR_ID_NOT_FOUND: "AcademicYearId not found"
 };
   

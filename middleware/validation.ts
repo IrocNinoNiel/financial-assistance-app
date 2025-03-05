@@ -10,6 +10,7 @@ import { checkBarangayExist, checkCityMunExist, checkProvinceExist, checkRegionE
 import { doesUserExist } from "../user/service";
 import { getOneStudentRepo } from "../student/repository";
 import { checkSchoolExist, checkSchoolNameExist } from "../schools/service";
+import { checkAcademicYearId, checkExistingAcademicYear } from "../academicYear/service";
 
 export const validateLoginInput = async (req: Request, res: Response, next: NextFunction) => {
   const data: LoginRequest = req.body;
@@ -447,3 +448,34 @@ export const validateSchool = [
     }),
   validateErrors
 ]
+
+export const validateAcademicYear = [
+  body("academicYearStart").isInt().withMessage(VALIDATION_MESSAGES.ACADEMIC_YEAR_START_REQUIRED),
+  body("academicYearEnd").isInt().withMessage(VALIDATION_MESSAGES.ACADEMIC_YEAR_END_REQUIRED),
+  body("schoolTerm").isInt().withMessage(VALIDATION_MESSAGES.ACADEMIC_YEAR_TERM_REQUIRED)
+    .custom(async (value, { req }) => {
+      const { academicYearStart, academicYearEnd } = req.body;
+      const academicYearId  = req.params.academicYearId || null;
+      const existingAcademicYear = await checkExistingAcademicYear( academicYearStart, academicYearEnd, value, academicYearId );
+
+      if (existingAcademicYear) {
+        throw new Error(VALIDATION_MESSAGES.ACADEMIC_YEAR_ALREADY_EXISTS);
+      }
+    }),
+  body("dateFrom").isISO8601().withMessage(VALIDATION_MESSAGES.ACADEMIC_YEAR_DATE_FROM_REQUIRED),
+  body("dateTo").isISO8601().withMessage(VALIDATION_MESSAGES.ACADEMIC_YEAR_DATE_TO_REQUIRED),
+  validateErrors
+];
+
+export const validateAcademicYearId = [
+  param("academicYearId")
+    .notEmpty().withMessage(VALIDATION_MESSAGES.ACADEMIC_YEAR_ID_REQUIRED)
+    .custom(async ( academicYearId ) => {
+      console.log("params", academicYearId);
+      const dontExist = await checkAcademicYearId( academicYearId );
+      if (dontExist) {
+        return Promise.reject(VALIDATION_MESSAGES.ACADEMIC_YEAR_ID_NOT_FOUND);
+      }
+  }),
+  validateErrors
+];

@@ -356,7 +356,7 @@ model academicYear {
   id                  Bytes    @id @default(dbgenerated("(UUID_TO_BIN(UUID()))")) @db.Binary(16)
   academic_year_start Int
   academic_year_end   Int
-  school_term         String
+  school_term         Int
   date_from           DateTime
   date_to             DateTime
   record_status       Boolean   @default(true)

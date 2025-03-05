@@ -31,6 +31,15 @@ export interface AcademicYearRequest {
   dateTo: string;
 }
 
+export interface AcademicYearResponse {
+  id: string,
+  academicYearStart: number;
+  academicYearEnd: number;
+  schoolTerm: number;
+  dateFrom: string;
+  dateTo: string;
+}
+
 export interface UpdateUserRequest {
   username: string;
   roleId?: string;
