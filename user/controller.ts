@@ -2,7 +2,7 @@ import { Router } from "express";
 import { ResponseHandler } from "../response";
 import { deleteUserService, getAllUsers, getOneUser, updateUserService } from "./service";
 import { validateUpdateUserInput, validateUserId } from "../middleware/validation";
-import { RegisterRequest, SUCCESS_MESSAGES, UpdateUserRequest } from "../utils";
+import { RegisterRequest, SUCCESS_MESSAGES, UpdateUserRequest, UserParameter } from "../utils";
 
 
 
@@ -13,8 +13,11 @@ export default () => {
     userAPI.get('/', async (req, res) => {
 
         try {
+            const parameter: UserParameter = {
+                sponsor: req.query.sponsor as string || "false",
+            };
             
-            const data = await getAllUsers();
+            const data = await getAllUsers( parameter );
             ResponseHandler.ok(req, res, data);
         } catch (err) {
             ResponseHandler.invalidRequest(req, res , err.message);

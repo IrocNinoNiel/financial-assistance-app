@@ -1,5 +1,5 @@
 import { Prisma, PrismaClient, user } from '@prisma/client';
-import { binaryToUuid, GetAllUsersParams, PartialStudentUser, RecordStatus, uuidToBinary } from '../utils';
+import { binaryToUuid, GetAllUsersParams, PartialStudentUser, RecordStatus, UserParameter, uuidToBinary } from '../utils';
 
 const prisma = new PrismaClient({
   log: ["query"],
@@ -24,8 +24,18 @@ export const isAdminRepo = async (userId: string) : Promise<boolean> => {
   }
 }
 
-export const getAllUsersRepo = async () => {
+export const getAllUsersRepo = async ( params: UserParameter ) => {
     try {
+
+      let whereCondition: any = { record_status: RecordStatus.ACTIVE }
+      const sponsor = params.sponsor.toLowerCase() === "true";
+
+      if(sponsor) {
+        const role = await prisma.role.findUnique({where: {name: "Sponsor"}})
+        whereCondition.role_id = role.id;
+      }
+
+
       const users = await prisma.user.findMany({
         select: {
             first_name: true,
@@ -41,9 +51,7 @@ export const getAllUsersRepo = async () => {
               },
             },
         },
-        where: {
-          record_status: RecordStatus.ACTIVE
-        }
+        where: whereCondition
       });
   
       return users;

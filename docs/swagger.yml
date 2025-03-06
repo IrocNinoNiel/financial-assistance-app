@@ -432,6 +432,12 @@ paths:
             type: integer
             minimum: 1
           description: Maximum number of records to return
+        - in: query
+          name: sponsor
+          schema:
+            type: string
+            example: true
+          description: If you want to return only sponsor user
       responses:
         '200':
           description: A list of users

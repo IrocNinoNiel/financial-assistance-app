@@ -54,6 +54,10 @@ export interface SponsorshipRequest {
   sponsorshipRequirements: string[],
 }
 
+export interface UserParameter {
+  sponsor: string
+}
+
 export interface SponsorshipResponse {
   id: string,
   name: string,

@@ -1,5 +1,5 @@
 import { user } from "@prisma/client";
-import { UpdateUserRequest, UserDetailsResponse, UserResponse } from "../utils";
+import { UpdateUserRequest, UserDetailsResponse, UserParameter, UserResponse } from "../utils";
 import { toUserResponse } from "../utils/converter";
 import { checkIfNotSponsorRepo, deleteUserRepo, doesUserExistRepo, getAllUsersRepo, getOneUserRepo, isAdminRepo, updateUserRepo } from "./repository"
 import { checkIfStudentRepo, getOneStudentRepo, updateStudentRepo } from "../student/repository";
@@ -14,10 +14,9 @@ export const getPermission = async (userId: string) : Promise<boolean> => {
 }
 
 
-export const getAllUsers = async (  ) => { 
+export const getAllUsers = async ( params: UserParameter ) => { 
 
-    const data: any = await getAllUsersRepo();
-    console.log(data);
+    const data: any = await getAllUsersRepo( params );
     const converted = data.map( user => toUserResponse(user));
     return { count: converted.length, users: converted};
 }
