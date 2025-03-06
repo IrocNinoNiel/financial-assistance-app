@@ -1,9 +1,9 @@
 import { Router } from "express";
 import multer from "multer";
 import { ResponseHandler } from "../response";
-import { extractUserFromToken, SUCCESS_MESSAGES, VALIDATION_MESSAGES } from "../utils";
+import { extractUserFromToken, FileTypeResponse, SUCCESS_MESSAGES, VALIDATION_MESSAGES } from "../utils";
 import path from "path";
-import { fileUpload, findFileTypeId, imageUpload } from "./service";
+import { fileUpload, findFileTypeId, getAllFileType, imageUpload } from "./service";
 
 
 
@@ -114,6 +114,15 @@ export default () => {
         }
       });
     });
+
+    fileAPI.get('/file-type', async ( req, res) => {
+       try {
+          const data: FileTypeResponse[] = await getAllFileType( );
+          ResponseHandler.ok(req, res, data);
+        } catch (err) {
+            ResponseHandler.invalidRequest(req,res , err.message);
+        }
+    })
 
     return fileAPI;
 }

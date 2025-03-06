@@ -1,7 +1,7 @@
 
 import { Prisma, student, user, academicYear, sponsorship } from '@prisma/client';
 import { User } from "../authentication/model";
-import { AcademicYearRequest, AcademicYearResponse, AddressResponse, PartialStudentUser, RecordStatus, RegisterRequest, RoleResponse, SchoolPayload, SiblingRequest, SponsorshipRequest, SponsorshipResponse, SponsorshipStatus, StudentListResponse, StudentRequest, UserDetailsResponse, UserListResponse, UserResponse } from './types';
+import { AcademicYearRequest, AcademicYearResponse, AddressResponse, FileTypeResponse, PartialStudentUser, RecordStatus, RegisterRequest, RoleResponse, SchoolPayload, SiblingRequest, SponsorshipRequest, SponsorshipResponse, SponsorshipStatus, StudentListResponse, StudentRequest, UserDetailsResponse, UserListResponse, UserResponse } from './types';
 import { binaryToUuid, uuidToBinary } from "./utils";
 
 export function convertStudentResponseToStudent(response: StudentRequest, userId: string): Prisma.studentUncheckedCreateInput  {
@@ -354,6 +354,13 @@ export function toSponsorReqModel(payload: string[], sponsorshipId: string): Pri
     sponsorship_id: uuidToBinary(sponsorshipId),
     file_type_id: uuidToBinary(data)
   }));
+}
+
+export function toFileTypeResponse( payload: any):FileTypeResponse {
+  return {
+    id: binaryToUuid( payload.id ),
+    name: payload.name
+  }
 }
 
 export function toSponsorshipResponse( payload: any, schools: any[], requirements: any[]): SponsorshipResponse {

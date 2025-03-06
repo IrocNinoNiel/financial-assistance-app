@@ -58,6 +58,11 @@ export interface UserParameter {
   sponsor: string
 }
 
+export interface FileTypeResponse {
+  id: string,
+  name: string
+}
+
 export interface SponsorshipResponse {
   id: string,
   name: string,
