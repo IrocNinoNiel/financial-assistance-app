@@ -1,5 +1,5 @@
 import { Prisma } from "@prisma/client";
-import { fileUploadRepo, findFileTypeIdRepo, imageUploadRepo } from "./repository"
+import { checkIfInvalidFileTypeIdRepo, fileUploadRepo, findFileTypeIdRepo, imageUploadRepo } from "./repository"
 import { binaryToUuid, uuidToBinary } from "../utils";
 
 export const fileUpload= async ( userId: string, uploadedFileName: string, mimetype: string,fileTypeId: string, path: string, userUUID: string ) => { 
@@ -22,4 +22,9 @@ export const imageUpload= async ( userId: string, uploadedImageName: string) => 
 
 export const findFileTypeId = async (fileTypeId: string): Promise<boolean>  => {
     return await findFileTypeIdRepo(fileTypeId)
+}
+
+export const checkIfInvalidFileTypeId = async ( fileTypeIds: string[]): Promise<boolean> => {
+    const convertedId: Buffer[] = fileTypeIds.map( item => uuidToBinary(item));
+    return await checkIfInvalidFileTypeIdRepo( convertedId );
 }

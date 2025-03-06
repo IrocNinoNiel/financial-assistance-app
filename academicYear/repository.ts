@@ -52,3 +52,4 @@ export const checkAcademicYearIdRepo = async ( academicYearId: string ): Promise
     });
     return data === null;
 }
+

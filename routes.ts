@@ -10,6 +10,7 @@ import { authAdmin, authentication, authStudent } from "./middleware/authenticat
 import studentController from "./student/controller";
 import parameters from "./middleware/parameters";
 import academicYearController from "./academicYear/controller";
+import sponsorshipController from "./sponsorship/controller";
 
 const routes = Router();
 
@@ -18,11 +19,12 @@ routes.use(parameters);
 routes.use("/auth", authController());
 routes.use("/roles", roleController());
 routes.use('/students', authentication, authStudent, studentController());
-routes.use("/file-upload", authentication, fileController());
+routes.use("/file-uploads", authentication, fileController());
 routes.use("/users", authentication, userController())
 routes.use("/address", authentication, addressController());
 routes.use("/schools", authentication, schoolController());
-routes.use("/academic-year", authentication, academicYearController())
+routes.use("/academic-years", authentication, academicYearController())
+routes.use("/sponsorships", authentication, sponsorshipController())
 
 routes.get("/verify", authentication, (req, res) => {
     res.json({ valid: true, message: "you have access to this api" });

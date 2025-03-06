@@ -1,7 +1,10 @@
 import { Prisma, PrismaClient, user } from '@prisma/client';
-import { GetAllUsersParams, PartialStudentUser, RecordStatus, uuidToBinary } from '../utils';
+import { binaryToUuid, GetAllUsersParams, PartialStudentUser, RecordStatus, uuidToBinary } from '../utils';
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({
+  log: ["query"],
+});
+
 
 export const isAdminRepo = async (userId: string) : Promise<boolean> => {
   try {
@@ -113,6 +116,32 @@ export const deleteUserRepo = async ( userId: string ) => {
       where: { id: uuidToBinary(userId) },
       data: {record_status: RecordStatus.DELETED},
     });
+  } catch (error) {
+    console.error('Error updating user:', error);
+  }
+}
+
+export const checkIfNotSponsorRepo = async ( userId: string ) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: uuidToBinary(userId), record_status: RecordStatus.ACTIVE },
+      select: { role_id: true }
+    });
+
+    if (!user) {
+      return true;
+    }
+
+    const sponsorRole = await prisma.role.findFirst({
+      where: { name: "Sponsor" },
+      select: { id: true },
+    });
+
+    if(!sponsorRole) {
+      return true
+    }
+    return binaryToUuid(user.role_id) !== binaryToUuid(sponsorRole.id);
+
   } catch (error) {
     console.error('Error updating user:', error);
   }

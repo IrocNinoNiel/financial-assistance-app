@@ -3,7 +3,9 @@ import { uuidToBinary } from '../utils';
 import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcryptjs';
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({
+  log: ["query"],
+});
 
 async function roleSeed() {
   try {

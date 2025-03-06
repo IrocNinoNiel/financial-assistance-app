@@ -1,7 +1,7 @@
 import { user } from "@prisma/client";
 import { UpdateUserRequest, UserDetailsResponse, UserResponse } from "../utils";
 import { toUserResponse } from "../utils/converter";
-import { deleteUserRepo, doesUserExistRepo, getAllUsersRepo, getOneUserRepo, isAdminRepo, updateUserRepo } from "./repository"
+import { checkIfNotSponsorRepo, deleteUserRepo, doesUserExistRepo, getAllUsersRepo, getOneUserRepo, isAdminRepo, updateUserRepo } from "./repository"
 import { checkIfStudentRepo, getOneStudentRepo, updateStudentRepo } from "../student/repository";
 
 export const isAdmin = async (userId: string) : Promise<boolean> => { 
@@ -65,4 +65,8 @@ export const updateUserService = async ( data: UpdateUserRequest, userId: string
 
 export const deleteUserService = async ( userId: string) => {
     await deleteUserRepo(userId);
+}
+
+export const checkIfNotSponsor = async ( userId: string): Promise<boolean> => {
+    return await checkIfNotSponsorRepo( userId );
 }

@@ -3,7 +3,9 @@ import { binaryToUuid, RecordStatus, uuidToBinary } from '../utils';
 import { User, UserRole } from './model';
 import { notEqual } from 'assert';
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({
+  log: ["query"],
+});
 
 export const checkEmailExists = async (email: string, userId?: string): Promise<boolean> => {
   try {

@@ -50,7 +50,6 @@ export interface SponsorshipRequest {
   limit: number,
   slot: number,
   fundAllocation: number,
-  status: string,
   sponsorshipSchool: string[],
   sponsorshipRequirements: string[],
 }
@@ -124,6 +123,12 @@ export interface SchoolResponse {
 export const RecordStatus = {
     DELETED: false,
     ACTIVE: true
+}
+
+export const SponsorshipStatus = {
+  ACTIVE: "active",
+  FULL: "full",
+  DELETED: "deleted"
 }
 
 export interface UserResponse {

@@ -1,7 +1,9 @@
 import { PrismaClient } from '@prisma/client';
 import { uuidToBinary } from '../utils';
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({
+    log: ["query"],
+  });
 
 
 export const fileUploadRepo = async (data: any) => {
@@ -45,3 +47,13 @@ export const findFileTypeIdRepo = async (fileTypeId: string): Promise<boolean> =
         throw error;
     }
 };
+
+export const checkIfInvalidFileTypeIdRepo = async ( fileTypeIds: Buffer[]) => {
+   const validFileTypessCount = await prisma.fileType.count({
+      where: {
+        id: { in: fileTypeIds }
+      },
+    });
+  
+    return validFileTypessCount !== fileTypeIds.length;
+}

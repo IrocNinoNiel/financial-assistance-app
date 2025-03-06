@@ -7,10 +7,12 @@ import { checkRole } from "../authentication/service";
 import { doesStudentExist, getOneStudent, isEmailTakenByAnotherStudent } from "../student/service";
 import { query } from "express-validator";
 import { checkBarangayExist, checkCityMunExist, checkProvinceExist, checkRegionExist } from "../address/service";
-import { doesUserExist } from "../user/service";
+import { checkIfNotSponsor, doesUserExist } from "../user/service";
 import { getOneStudentRepo } from "../student/repository";
-import { checkSchoolExist, checkSchoolNameExist } from "../schools/service";
+import { checkIfInvalidSchoolId, checkSchoolExist, checkSchoolNameExist } from "../schools/service";
 import { checkAcademicYearId, checkExistingAcademicYear } from "../academicYear/service";
+import { checkIfSponsorshipExist, checkSponsorshipId } from "../sponsorship/service";
+import { checkIfInvalidFileTypeId } from "../file/service";
 
 export const validateLoginInput = async (req: Request, res: Response, next: NextFunction) => {
   const data: LoginRequest = req.body;
@@ -479,3 +481,86 @@ export const validateAcademicYearId = [
   }),
   validateErrors
 ];
+
+export const validateSponsorshipId = [
+  param("sponsorshipId")
+    .notEmpty().withMessage(VALIDATION_MESSAGES.SPONSORSHIP_ID_REQUIRED)
+    .custom(async ( academicYearId ) => {
+      console.log("params", academicYearId);
+      const dontExist = await checkSponsorshipId( academicYearId );
+      if (dontExist) {
+        return Promise.reject(VALIDATION_MESSAGES.SPONSORSHIP_ID_NOT_FOUND);
+      }
+  }),
+  validateErrors
+];
+
+export const validateSponsorship =  [
+  body("batchNumber").isInt().withMessage(VALIDATION_MESSAGES.SPONSORSHIP_BATCH_NUMBER_REQUIRED),
+  body("durationFrom").isISO8601().withMessage(VALIDATION_MESSAGES.SPONSORSHIP_DURATION_FROM_REQUIRED),
+  body("limit").isInt({min: 1}).withMessage(VALIDATION_MESSAGES.SPONSORSHIP_LIMIT_REQUIRED),
+  body("slot").isInt({min: 1}).withMessage(VALIDATION_MESSAGES.SPONSORSHIP_SLOT_REQUIRED),
+  body("fundAllocation").isFloat({ min: 0.01 }).withMessage(VALIDATION_MESSAGES.SPONSORSHIP_FUND_ALLOCATION_INVALID),
+  body('name').isString().withMessage(VALIDATION_MESSAGES.SPONSORSHIP_NAME_REQUIRED)
+    .custom( async (value, {req}) => {
+      const batchNumber: number = req.body.batchNumber;
+      const sponsorshipId  = req.params.sponsorshipId || null;
+      const alreadyExist = await checkIfSponsorshipExist( value, batchNumber, sponsorshipId );
+
+      if(alreadyExist) {
+        throw new Error(VALIDATION_MESSAGES.SPONSORSHIP_NAME_INVALID);
+      }
+    }),
+  body('sponsorId').isString().withMessage(VALIDATION_MESSAGES.SPONSORSHIP_SPONSOR_ID_REQUIRED)
+    .custom( async (value) => {
+      const notSponsor:boolean = await checkIfNotSponsor( value );
+      if(notSponsor) {
+        throw new Error(VALIDATION_MESSAGES.SPONSORSHIP_SPONSOR_ID_INVALID);
+      }
+
+    }),
+  body('academicYearId').isString().withMessage(VALIDATION_MESSAGES.SPONSORSHIP_ACADEMIC_YEAR_ID_REQUIRED)
+    .custom( async (value) => {
+      const notAcademicYear = await checkAcademicYearId( value );
+
+        if(notAcademicYear) {
+          throw new Error(VALIDATION_MESSAGES.SPONSORSHIP_ACADEMIC_YEAR_ID_INVALID);
+        }
+
+    }),
+  body("durationTo").isISO8601().withMessage(VALIDATION_MESSAGES.SPONSORSHIP_DURATION_TO_REQUIRED)
+    .custom((value, { req }) => {
+      if (new Date(value) < new Date(req.body.durationFrom)) {
+        throw new Error(VALIDATION_MESSAGES.SPONSORSHIP_DURATION_INVALID);
+      }
+      return true;
+    }),
+  body("sponsorshipSchool")
+    .isArray({ min: 1 })
+    .withMessage(VALIDATION_MESSAGES.SPONSORSHIP_SCHOOL_REQUIRED)
+    .custom( async (value) => {
+      if (!value.every((item) => typeof item === "string" && item.trim() !== "")) {
+        throw new Error(VALIDATION_MESSAGES.SPONSORSHIP_SCHOOL_INVALID);
+      }
+      
+      const invalidSchoolId: boolean = await checkIfInvalidSchoolId( value ); 
+      if (invalidSchoolId) {
+        throw new Error(VALIDATION_MESSAGES.SPONSORSHIP_SCHOOL_INVALID);
+      }
+    }),
+
+  body("sponsorshipRequirements")
+    .isArray({ min: 1 })
+    .withMessage(VALIDATION_MESSAGES.SPONSORSHIP_REQUIREMENTS_REQUIRED)
+    .custom( async (value) => {
+      if (!value.every((item) => typeof item === "string" && item.trim() !== "")) {
+        throw new Error(VALIDATION_MESSAGES.SPONSORSHIP_REQUIREMENTS_INVALID);
+      }
+
+      const invalidFileTypeId: boolean = await checkIfInvalidFileTypeId( value ); 
+      if (invalidFileTypeId) {
+        throw new Error(VALIDATION_MESSAGES.SPONSORSHIP_REQUIREMENTS_INVALID);
+      }
+    }),
+  validateErrors
+]

@@ -1,7 +1,7 @@
 
 import { Prisma, student, user, academicYear, sponsorship } from '@prisma/client';
 import { User } from "../authentication/model";
-import { AcademicYearRequest, AcademicYearResponse, AddressResponse, PartialStudentUser, RegisterRequest, RoleResponse, SchoolPayload, SiblingRequest, SponsorshipRequest, SponsorshipResponse, StudentListResponse, StudentRequest, UserDetailsResponse, UserListResponse, UserResponse } from './types';
+import { AcademicYearRequest, AcademicYearResponse, AddressResponse, PartialStudentUser, RecordStatus, RegisterRequest, RoleResponse, SchoolPayload, SiblingRequest, SponsorshipRequest, SponsorshipResponse, SponsorshipStatus, StudentListResponse, StudentRequest, UserDetailsResponse, UserListResponse, UserResponse } from './types';
 import { binaryToUuid, uuidToBinary } from "./utils";
 
 export function convertStudentResponseToStudent(response: StudentRequest, userId: string): Prisma.studentUncheckedCreateInput  {
@@ -329,13 +329,13 @@ export function toSponsorshipModel( payload: SponsorshipRequest, userId:string):
     name: payload.name,
     sponsor_id: uuidToBinary(payload.sponsorId),
     academic_year_id: uuidToBinary(payload.academicYearId),
-    duration_from: payload.durationFrom,
-    duration_to: payload.durationTo,
+    duration_from: new Date(payload.durationFrom),
+    duration_to: new Date(payload.durationTo),
     batch_number: payload.batchNumber,
     limit: payload.limit,
     slot: payload.slot,
     fund_allocation: payload.fundAllocation,
-    status: payload.status,
+    status: SponsorshipStatus.ACTIVE,
     updated_at:  new Date,
     created_by: uuidToBinary(userId),
     updated_by: uuidToBinary(userId),
@@ -357,6 +357,7 @@ export function toSponsorReqModel(payload: string[], sponsorshipId: string): Pri
 }
 
 export function toSponsorshipResponse( payload: any, schools: any[], requirements: any[]): SponsorshipResponse {
+  console.log("data", schools, requirements);
   return {
     id: binaryToUuid(payload.id),
     name: payload.name,
@@ -374,11 +375,11 @@ export function toSponsorshipResponse( payload: any, schools: any[], requirement
     status: payload.status,
     sponsorshipSchool: (schools ?? []).map(item => ({
       schoolId: binaryToUuid(item.school_id),
-      schoolName: item.school_name
+      schoolName: item.school.school_name
     })),
     sponsorshipRequirements: (requirements ?? []).map(item => ({
       fileId: binaryToUuid(item.file_type_id),
-      fileName: item.name
+      fileName: item.fileType.name
     }))
   }
 }

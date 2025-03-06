@@ -16,7 +16,8 @@ export const SUCCESS_MESSAGES = {
     IMAGE_SAVED: "Image Saved Successfully",
     USER_DELETED: "User Successfully deleted",
     SCHOOL_DELETED: "School Successfully deleted",
-    ACADEMIC_YEAR_DELETED: "Academic year Successfully deleted"
+    ACADEMIC_YEAR_DELETED: "Academic year Successfully deleted",
+    SPONSORSHIP_DELETED: "Sponsorship Successfully deleted"
 }
 
 // validationMessages.ts
@@ -120,6 +121,27 @@ export const VALIDATION_MESSAGES = {
     ACADEMIC_YEAR_DATE_TO_REQUIRED: "dateTo is required",
     ACADEMIC_YEAR_ALREADY_EXISTS: "Academic year already exists",
     ACADEMIC_YEAR_ID_REQUIRED: "AcademicYearId is required",
-    ACADEMIC_YEAR_ID_NOT_FOUND: "AcademicYearId not found"
+    ACADEMIC_YEAR_ID_NOT_FOUND: "AcademicYearId not found",
+    SPONSORSHIP_ID_REQUIRED: "sponsorshipId is required",
+    SPONSORSHIP_ID_NOT_FOUND: "sponsorshipId not found",
+    SPONSORSHIP_NAME_REQUIRED: "name is required for sponsorship",
+    SPONSORSHIP_NAME_INVALID: "Sponsorship with the same name and batch number already exist",
+    SPONSORSHIP_DURATION_FROM_REQUIRED: "durationFrom is required and must be date",
+    SPONSORSHIP_DURATION_TO_REQUIRED: "durationTo is required and must be date",
+    SPONSORSHIP_DURATION_INVALID: "durationTo is less than durationFrom",
+    SPONSORSHIP_BATCH_NUMBER_REQUIRED: "batchNumber is required",
+    SPONSORSHIP_LIMIT_REQUIRED: "limit is required or must be greater then zero",
+    SPONSORSHIP_SLOT_REQUIRED: "slot is required or must be greater then zero",
+    SPONSORSHIP_FUND_ALLOCATION_REQUIRED: "fundAllocation is required",
+    SPONSORSHIP_SPONSOR_ID_REQUIRED: "sponsorId is required for sponsorship",
+    SPONSORSHIP_SPONSOR_ID_INVALID: "sponsorId is invalid or the user is not a sponsor",
+    SPONSORSHIP_ACADEMIC_YEAR_ID_REQUIRED: "academicYearId is required for sponsorship",
+    SPONSORSHIP_ACADEMIC_YEAR_ID_INVALID: "academicYearId is invalid",
+    SPONSORSHIP_SCHOOL_REQUIRED: "sponsorshipSchool is required",
+    SPONSORSHIP_SCHOOL_INVALID: "One of the school id given is invalid or does not exist in the system",
+    SPONSORSHIP_REQUIREMENTS_REQUIRED: "sponsorshipRequirements is required",
+    SPONSORSHIP_REQUIREMENTS_INVALID: "One of the file id in the requirements is invalid or does not exist in the system",
+    SPONSORSHIP_FUND_ALLOCATION_INVALID: "fundAllocation must be greater than 0",
+
 };
   

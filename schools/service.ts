@@ -1,7 +1,7 @@
 import { Prisma } from "@prisma/client";
-import { binaryToUuid, SchoolPayload, SchoolResponse } from "../utils";
+import { binaryToUuid, SchoolPayload, SchoolResponse, uuidToBinary } from "../utils";
 import { toSchoolModel, toSchoolResponse } from "../utils/converter";
-import { checkSchoolExistRepo, checkSchoolNameExistRepo, createSchoolRepo, deleteSchoolRepo, getOneSchoolRepo, getSchoolsRepo, updateSchoolRepo } from "./repository";
+import { checkIfInvalidSchoolIdRepo, checkSchoolExistRepo, checkSchoolNameExistRepo, createSchoolRepo, deleteSchoolRepo, getOneSchoolRepo, getSchoolsRepo, updateSchoolRepo } from "./repository";
 
 export const getSchools = async (): Promise<SchoolResponse[]> => {
 
@@ -41,4 +41,9 @@ export const deleteSchool = async ( schoolId: string ): Promise<void> => {
 
 export const checkSchoolNameExist = async ( name: string, schoolId: any ): Promise<boolean>  => {
     return await checkSchoolNameExistRepo( name, schoolId );
+}
+
+export const checkIfInvalidSchoolId = async ( schoolIds: string[] ): Promise<boolean>  => {
+    const convertedIds = schoolIds.map( item => uuidToBinary(item));
+    return await checkIfInvalidSchoolIdRepo( convertedIds );
 }
