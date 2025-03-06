@@ -1,7 +1,7 @@
 
-import { Prisma, student, user, academicYear } from '@prisma/client';
+import { Prisma, student, user, academicYear, sponsorship } from '@prisma/client';
 import { User } from "../authentication/model";
-import { AcademicYearRequest, AcademicYearResponse, AddressResponse, PartialStudentUser, RegisterRequest, RoleResponse, SchoolPayload, SiblingRequest, StudentListResponse, StudentRequest, UserDetailsResponse, UserListResponse, UserResponse } from './types';
+import { AcademicYearRequest, AcademicYearResponse, AddressResponse, PartialStudentUser, RegisterRequest, RoleResponse, SchoolPayload, SiblingRequest, SponsorshipRequest, SponsorshipResponse, StudentListResponse, StudentRequest, UserDetailsResponse, UserListResponse, UserResponse } from './types';
 import { binaryToUuid, uuidToBinary } from "./utils";
 
 export function convertStudentResponseToStudent(response: StudentRequest, userId: string): Prisma.studentUncheckedCreateInput  {
@@ -321,5 +321,64 @@ export function toAcadyearResponse( data: academicYear ): AcademicYearResponse {
     schoolTerm: data.school_term,
     dateFrom: data.date_from.toISOString(),
     dateTo: data.date_to.toISOString()
+  }
+}
+
+export function toSponsorshipModel( payload: SponsorshipRequest, userId:string): Prisma.sponsorshipUncheckedCreateInput {
+  return {
+    name: payload.name,
+    sponsor_id: uuidToBinary(payload.sponsorId),
+    academic_year_id: uuidToBinary(payload.academicYearId),
+    duration_from: payload.durationFrom,
+    duration_to: payload.durationTo,
+    batch_number: payload.batchNumber,
+    limit: payload.limit,
+    slot: payload.slot,
+    fund_allocation: payload.fundAllocation,
+    status: payload.status,
+    updated_at:  new Date,
+    created_by: uuidToBinary(userId),
+    updated_by: uuidToBinary(userId),
+  }
+}
+
+export function toSponsorSchoolModel(payload: string[], sponsorshipId: string): Prisma.sponsorshipSchoolUncheckedCreateInput[] {
+  return payload.map(data => ({
+    sponsorship_id: uuidToBinary(sponsorshipId),
+    school_id: uuidToBinary(data)
+  }));
+}
+
+export function toSponsorReqModel(payload: string[], sponsorshipId: string): Prisma.sponsorshipRequirementUncheckedCreateInput[] {
+  return payload.map(data => ({
+    sponsorship_id: uuidToBinary(sponsorshipId),
+    file_type_id: uuidToBinary(data)
+  }));
+}
+
+export function toSponsorshipResponse( payload: any, schools: any[], requirements: any[]): SponsorshipResponse {
+  return {
+    id: binaryToUuid(payload.id),
+    name: payload.name,
+    sponsorId: binaryToUuid(payload.sponsor_id),
+    sponsorName: payload.sponsor?.first_name + " " + payload.sponsor?.middle_name + " " + payload.sponsor?.last_name,
+    academicYearId: binaryToUuid(payload.academic_year_id),
+    academicYearEnd: payload.academicYear?.academic_year_end,
+    academicYearStart: payload.academicYear?.academic_year_start,
+    durationFrom: payload.duration_from.toISOString(),
+    durationTo: payload.duration_to.toISOString(),
+    batchNumber: payload.batch_number,
+    limit: payload.limit,
+    slot: payload.slot,
+    fundAllocation: payload.fund_allocation,
+    status: payload.status,
+    sponsorshipSchool: (schools ?? []).map(item => ({
+      schoolId: binaryToUuid(item.school_id),
+      schoolName: item.school_name
+    })),
+    sponsorshipRequirements: (requirements ?? []).map(item => ({
+      fileId: binaryToUuid(item.file_type_id),
+      fileName: item.name
+    }))
   }
 }

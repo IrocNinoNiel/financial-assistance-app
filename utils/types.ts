@@ -40,6 +40,40 @@ export interface AcademicYearResponse {
   dateTo: string;
 }
 
+export interface SponsorshipRequest {
+  name: string,
+  sponsorId: string,
+  academicYearId: string,
+  durationFrom: string,
+  durationTo: string,
+  batchNumber: number,
+  limit: number,
+  slot: number,
+  fundAllocation: number,
+  status: string,
+  sponsorshipSchool: string[],
+  sponsorshipRequirements: string[],
+}
+
+export interface SponsorshipResponse {
+  id: string,
+  name: string,
+  sponsorId: string,
+  sponsorName: string,
+  academicYearId: string,
+  academicYearStart: number;
+  academicYearEnd: number;
+  durationFrom: string,
+  durationTo: string,
+  batchNumber: number,
+  limit: number,
+  slot: number,
+  fundAllocation: number,
+  status: string,
+  sponsorshipSchool: any[],
+  sponsorshipRequirements: any[],
+}
+
 export interface UpdateUserRequest {
   username: string;
   roleId?: string;
