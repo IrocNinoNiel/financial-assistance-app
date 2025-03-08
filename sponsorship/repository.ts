@@ -57,8 +57,8 @@ export const getAllSponsorshipRequirements = async( sponsorshipId: string ) => {
     });
 }
 
-export const getAllSponsorshipRepo = async(): Promise<any> => {
-    return await prisma.sponsorship.findMany({ where: {record_status: RecordStatus.ACTIVE}, include:{
+export const getAllSponsorshipRepo = async( whereCondition: any): Promise<any> => {
+    return await prisma.sponsorship.findMany({ where: whereCondition, include:{
         academicYear: { select: { academic_year_start: true, academic_year_end: true}},
         sponsor: { select: { first_name: true, middle_name: true, last_name: true }}
     } });

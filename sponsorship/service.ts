@@ -2,7 +2,11 @@ import { Prisma, sponsorship } from "@prisma/client";
 import { binaryToUuid, extractUserFromToken, SponsorshipRequest, uuidToBinary } from "../utils";
 import { toSponsorReqModel, toSponsorSchoolModel, toSponsorshipModel, toSponsorshipResponse } from "../utils/converter";
 import { checkIfSponsorshipExistRepo, checkSponsorshipIdRepo, createSponsorshipRepo, createSponsorshipRequirementRepo, createSponsorshipSchoolRepo, deleteAllSponsorshipRequirements, deleteAllSponsorshipSchools, getAllSponsorshipRepo, getAllSponsorshipRequirements, getAllSponsorshipSchoolRepo, updateSponsorshipRepo, getOneSponsorshipRepo, deleteOneSponsorshipRepo } from './repository';
-import { SponsorshipResponse } from '../utils/types';
+import { RecordStatus, SponsorshipResponse } from '../utils/types';
+import { checkIfNotSponsor } from "../user/service";
+import { checkIfStudentRepo, getOneStudentRepo } from "../student/repository";
+import { checkIfNotSponsorRepo } from "../user/repository";
+import { getOneStudent } from "../student/service";
 
 
 export const createSponsorship = async ( payload: SponsorshipRequest, authHeader: any ): Promise<SponsorshipResponse> => {
@@ -59,8 +63,34 @@ export const updateSponsorship = async ( payload: SponsorshipRequest, authHeader
     return toSponsorshipResponse( sponsorship, schools, requirements );
 }
 
-export const getAllSponsorship = async (): Promise<SponsorshipResponse[]> => {
-    const data = await getAllSponsorshipRepo();
+export const getAllSponsorship = async ( authHeader: any ): Promise<SponsorshipResponse[]> => {
+    
+    // check if student or sponsor
+    const userDetails = extractUserFromToken(authHeader);
+    const userId = userDetails.userId;
+    let whereCondition: any = {};
+
+    const notSponor = await checkIfNotSponsorRepo( userId );
+    const ifStudent = await checkIfStudentRepo( userId );
+
+    //if sponsor pass the id, if student pass the school id
+    if(!notSponor) {
+        whereCondition.sponsor_id = uuidToBinary( userId );
+        whereCondition.record_status =  RecordStatus.ACTIVE
+    } else if ( ifStudent ) {
+        const student = await getOneStudentRepo( userId );
+        whereCondition = {
+            record_status: RecordStatus.ACTIVE,
+            sponsorshipSchools: {
+              some: {
+                schoolId: student.college_school_id
+              }
+            }
+        };
+    }
+
+    
+    const data = await getAllSponsorshipRepo( whereCondition );
 
     return Promise.all(
         data.map(async (item) => {
