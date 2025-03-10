@@ -177,6 +177,7 @@ model student {
   record_status      Boolean?  @default(true)
 
   siblings sibling[]
+  sponsorshipApplication sponsorshipApplication[]
   users    user       @relation(fields: [user_id], references: [id])
 
   permanent_barangay barangay? @relation("PermanentStudentAddress", fields: [permanent_brg_id], references: [id])
@@ -350,6 +351,7 @@ model sponsorship {
 
   requirements sponsorshipRequirement[]
   schools      sponsorshipSchool[]
+  sponsorshipApplication sponsorshipApplication[]
   sponsor      user                     @relation(fields: [sponsor_id], references: [id], name: "sponsorship_sponsor")
   coordinator  user                     @relation(fields: [coordinator_id], references: [id], name: "sponsorship_coordinator")
   academicYear academicYear             @relation(fields: [academic_year_id], references: [id])
@@ -397,6 +399,26 @@ model sponsorshipRequirement {
   @@map("sponsorshipRequirements")
 }
 
+model sponsorshipApplication {
+  id                 Bytes    @id @default(dbgenerated("(UUID_TO_BIN(UUID()))")) @db.Binary(16)
+  student_id          Bytes @db.Binary(16)
+  sponsorship_id      Bytes @db.Binary(16)
+  application_stage   application_stage
+  application_status  application_status
+  remarks            String?
+  record_status       Boolean   @default(true)
+  created_at          DateTime @default(now())
+  updated_at          DateTime @updatedAt
+  created_by          Bytes    @db.Binary(16)
+  updated_by          Bytes    @db.Binary(16)
+
+  student      student                     @relation(fields: [student_id], references: [id])
+  sponsorship  sponsorship                     @relation(fields: [sponsorship_id], references: [id])
+
+  @@map("sponsorship_applications")
+}
+
+
 enum siblings_sibling_status {
   Single
   Married
@@ -404,12 +426,37 @@ enum siblings_sibling_status {
   Divorced
 }
 
-enum students_g12_school_type {
-  Private
-  Public
+
+
+
+enum application_stage {
+  POOLING
+  INTERVIEW_EXAM
+  RANKING_SELECTION
+  FINAL_SELECTION
 }
 
-enum students_college_school_type {
-  Private
-  Public
+enum application_status {
+  // for pooling
+  PENDING_POOLING
+  INCOMPLETE_DOCUMENTS // add remarks
+  COMPLETE
+
+  // for interview stage
+  PENDING_INTERVIEW_EXAM
+  PASSED_INTERVIEW_EXAM
+  FAILED_INTERVIEW_EXAM
+  DENIED_INTERVIEW_EXAM
+
+  // for ranking selection
+  PENDING_RANKING_SELECTION
+  RANKED
+
+  // for final phase
+  NOT_SELECTED
+  PENDING_FINAL_SELECTION
+  APPROVED
+
+  // can be on use in multiple stage (pooling, final phase)
+  REJECTED
 }
