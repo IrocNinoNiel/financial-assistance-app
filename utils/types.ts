@@ -68,6 +68,8 @@ export interface SponsorshipResponse {
   name: string,
   sponsorId: string,
   sponsorName: string,
+  coordinatorId: string,
+  coordinatorName: string,
   academicYearId: string,
   academicYearStart: number;
   academicYearEnd: number;

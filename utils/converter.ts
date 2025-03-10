@@ -328,6 +328,7 @@ export function toSponsorshipModel( payload: SponsorshipRequest, userId:string):
   return {
     name: payload.name,
     sponsor_id: uuidToBinary(payload.sponsorId),
+    coordinator_id: uuidToBinary(userId),
     academic_year_id: uuidToBinary(payload.academicYearId),
     duration_from: new Date(payload.durationFrom),
     duration_to: new Date(payload.durationTo),
@@ -369,7 +370,9 @@ export function toSponsorshipResponse( payload: any, schools: any[], requirement
     id: binaryToUuid(payload.id),
     name: payload.name,
     sponsorId: binaryToUuid(payload.sponsor_id),
-    sponsorName: payload.sponsor?.first_name + " " + payload.sponsor?.middle_name + " " + payload.sponsor?.last_name,
+    sponsorName: payload.sponsor?.first_name + " " + payload.sponsor?.last_name,
+    coordinatorId: binaryToUuid(payload.sponsor_id),
+    coordinatorName: payload.coordinator?.first_name + " " + payload.coordinator?.last_name,
     academicYearId: binaryToUuid(payload.academic_year_id),
     academicYearEnd: payload.academicYear?.academic_year_end,
     academicYearStart: payload.academicYear?.academic_year_start,

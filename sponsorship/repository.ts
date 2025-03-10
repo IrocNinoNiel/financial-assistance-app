@@ -7,7 +7,8 @@ const prisma = new PrismaClient({  });
 export const createSponsorshipRepo = async(data: Prisma.sponsorshipUncheckedCreateInput): Promise<sponsorship> => {
     return await prisma.sponsorship.create({ data, include:{
         academicYear: { select: { academic_year_start: true, academic_year_end: true}},
-        sponsor: { select: { first_name: true, middle_name: true, last_name: true }}
+        sponsor: { select: { first_name: true, middle_name: true, last_name: true }},
+        coordinator: { select: { first_name: true, middle_name: true, last_name: true }}
     } });
 }
 
@@ -60,18 +61,24 @@ export const getAllSponsorshipRequirements = async( sponsorshipId: string ) => {
 export const getAllSponsorshipRepo = async( whereCondition: any): Promise<any> => {
     return await prisma.sponsorship.findMany({ where: whereCondition, include:{
         academicYear: { select: { academic_year_start: true, academic_year_end: true}},
-        sponsor: { select: { first_name: true, middle_name: true, last_name: true }}
+        sponsor: { select: { first_name: true, middle_name: true, last_name: true }},
+        coordinator: { select: { first_name: true, middle_name: true, last_name: true }}
     } });
 }
 
 export const getOneSponsorshipRepo = async (id: string): Promise<any> => {
-    return await prisma.sponsorship.findUnique({ where: { id: uuidToBinary(id) } });
+    return await prisma.sponsorship.findUnique({ where: { id: uuidToBinary(id) }, include:{
+        academicYear: { select: { academic_year_start: true, academic_year_end: true}},
+        sponsor: { select: { first_name: true, middle_name: true, last_name: true }},
+        coordinator: { select: { first_name: true, middle_name: true, last_name: true }}
+    } });
 }
 
 export const updateSponsorshipRepo = async (id: string, data: Prisma.sponsorshipUncheckedUpdateInput): Promise<any> => {
     return await prisma.sponsorship.update({ where: { id: uuidToBinary(id) }, data, include:{
         academicYear: { select: { academic_year_start: true, academic_year_end: true}},
-        sponsor: { select: { first_name: true, middle_name: true, last_name: true }}
+        sponsor: { select: { first_name: true, middle_name: true, last_name: true }},
+        coordinator: { select: { first_name: true, middle_name: true, last_name: true }}
     } });
 }
 
@@ -80,7 +87,7 @@ export const deleteOneSponsorshipRepo = async (id: string) => {
 }
 
 export const checkIfSponsorshipExistRepo = async (name: string, batchNumber: number,  sponsorshipId: any): Promise<boolean> => {
-   
+
     const whereCondition: any =  {
         name,
         batch_number: batchNumber,

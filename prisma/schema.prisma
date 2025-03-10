@@ -24,7 +24,10 @@ model user {
   profile       String?       @db.VarChar(255)
   students      student[]
   files         file[]
-  sponsorships  sponsorship[]
+
+  sponsors  sponsorship[] @relation(name: "sponsorship_sponsor")      // Sponsorships where the user is a sponsor
+  coordinators  sponsorship[] @relation(name: "sponsorship_coordinator")  // Sponsorships where the user is a coordinator
+  
   role          role          @relation(fields: [role_id], references: [id])
 
   @@map("users")
@@ -330,6 +333,7 @@ model sponsorship {
   id               Bytes    @id @default(dbgenerated("(UUID_TO_BIN(UUID()))")) @db.Binary(16)
   name             String
   sponsor_id       Bytes    @db.Binary(16)
+  coordinator_id   Bytes    @db.Binary(16)
   academic_year_id Bytes    @db.Binary(16)
   duration_from    DateTime
   duration_to      DateTime
@@ -346,7 +350,8 @@ model sponsorship {
 
   requirements sponsorshipRequirement[]
   schools      sponsorshipSchool[]
-  sponsor      user                     @relation(fields: [sponsor_id], references: [id])
+  sponsor      user                     @relation(fields: [sponsor_id], references: [id], name: "sponsorship_sponsor")
+  coordinator  user                     @relation(fields: [coordinator_id], references: [id], name: "sponsorship_coordinator")
   academicYear academicYear             @relation(fields: [academic_year_id], references: [id])
 
   @@map("sponsorships")
