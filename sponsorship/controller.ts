@@ -2,13 +2,15 @@ import { Router } from "express";
 import { validateSponsorship, validateSponsorshipId } from "../middleware/validation";
 import { ResponseHandler } from "../response";
 import { SponsorshipRequest, SponsorshipResponse, SUCCESS_MESSAGES } from "../utils";
-import { createSponsorship, deleteOneSponsorship, getAllSponsorship, getOneSponsorship, updateSponsorship } from "./service";
+import { createSponsorship, deleteOneSponsorship, getAllAvailableSponsorship, getAllSponsorship, getOneSponsorship, updateSponsorship } from "./service";
 
 export default () => {
 
+    // for coordinator
+
     const sponsorshipAPI = Router();
 
-    sponsorshipAPI.post('/', validateSponsorship, async (req, res) => {
+    sponsorshipAPI.post('/coordinator', validateSponsorship, async (req, res) => {
 
         try {
             const payload: SponsorshipRequest = req.body;
@@ -20,7 +22,7 @@ export default () => {
         }
     }); 
 
-    sponsorshipAPI.put('/:sponsorshipId', validateSponsorship, validateSponsorshipId, async (req, res) => {
+    sponsorshipAPI.put('/coordinator/:sponsorshipId', validateSponsorship, validateSponsorshipId, async (req, res) => {
 
         try {
             const { sponsorshipId } = req.params;
@@ -33,18 +35,7 @@ export default () => {
         }
     }); 
 
-    sponsorshipAPI.get('/', async (req, res) => {
-
-        try {
-            const authHeader = req.headers.authorization;
-            const data: SponsorshipResponse[] = await getAllSponsorship( authHeader );
-            ResponseHandler.ok(req, res, data);
-        } catch (err) {
-            ResponseHandler.invalidRequest(req,res , err.message);
-        }
-    }); 
-
-    sponsorshipAPI.get('/:sponsorshipId', validateSponsorshipId, async (req, res) => {
+    sponsorshipAPI.get('/coordinator/:sponsorshipId', validateSponsorshipId, async (req, res) => {
 
         try {
             const { sponsorshipId } = req.params;
@@ -55,7 +46,7 @@ export default () => {
         }
     }); 
 
-    sponsorshipAPI.delete('/:sponsorshipId', validateSponsorshipId, async (req, res) => {
+    sponsorshipAPI.delete('/coordinator/:sponsorshipId', validateSponsorshipId, async (req, res) => {
 
         try {
             const { sponsorshipId } = req.params;
@@ -65,6 +56,31 @@ export default () => {
             ResponseHandler.invalidRequest(req,res , err.message);
         }
     }); 
+
+    sponsorshipAPI.get('/coordinator', async (req, res) => {
+
+        try {
+            const authHeader = req.headers.authorization;
+            const data: SponsorshipResponse[] = await getAllSponsorship    ( authHeader );
+            ResponseHandler.ok(req, res, data);
+        } catch (err) {
+            ResponseHandler.invalidRequest(req,res , err.message);
+        }
+    }); 
+
+
+    // for students
+    sponsorshipAPI.get('/student/available', async (req, res) => {
+
+        try {
+            const authHeader = req.headers.authorization;
+            const data: SponsorshipResponse[] = await getAllAvailableSponsorship    ( authHeader );
+            ResponseHandler.ok(req, res, data);
+        } catch (err) {
+            ResponseHandler.invalidRequest(req,res , err.message);
+        }
+    }); 
+
 
 
     return sponsorshipAPI;

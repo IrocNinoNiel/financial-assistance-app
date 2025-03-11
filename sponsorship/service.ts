@@ -85,6 +85,43 @@ export const getAllSponsorship = async ( authHeader: any ): Promise<SponsorshipR
     );
 };
 
+export const getAllAvailableSponsorship = async ( authHeader: any ): Promise<SponsorshipResponse[]> => {
+    
+    // check if student or sponsor
+    const userDetails = extractUserFromToken(authHeader);
+    const userId = userDetails.userId;
+    let whereCondition: any = {};
+
+    const student = await getOneStudentRepo( userId );
+
+    if (!student || student.college_school_id === null) {
+        return [];
+    }
+
+    whereCondition = {
+        record_status: RecordStatus.ACTIVE,
+        schools: {
+            some: {
+                school_id: {
+                equals: student.college_school_id,
+                }
+            }
+        }
+    };
+    
+    const data = await getAllSponsorshipRepo( whereCondition );
+
+    return Promise.all(
+        data.map(async (item) => {
+            const sponsorshipId = binaryToUuid(item.id);
+            const schools = await getAllSponsorshipSchoolRepo(sponsorshipId);
+            const requirements = await getAllSponsorshipRequirements(sponsorshipId);
+            return toSponsorshipResponse(item, schools, requirements);
+        })
+    );
+};
+
+
 
 export const getOneSponsorship = async ( sponsorshipId: string): Promise<SponsorshipResponse> => {
     const data = await getOneSponsorshipRepo( sponsorshipId );

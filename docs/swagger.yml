@@ -26,8 +26,10 @@ tags:
     description: Endpoints for Role
   - name: School
     description: Endpoints for School
-  - name: Sponsorship
-    description: Endpoints for Sponsorship
+  - name: Coordinator Sponsorship
+    description: Endpoints for Coordinator Sponsorship
+  - name: Student Sponsorship
+    description: Endpoints for Student Sponsorship
 paths:
   /auth/register:
     post:
@@ -1122,10 +1124,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/InternalErrorResponse'
-  /sponsorships:
+  /sponsorships/coordinator:
     get:
       tags:
-        - Sponsorship
+        - Coordinator Sponsorship
       summary: Get all sponsorship
       responses:
         '200':
@@ -1148,7 +1150,7 @@ paths:
                 $ref: '#/components/schemas/InternalErrorResponse'
     post:
       tags:
-        - Sponsorship
+        - Coordinator Sponsorship
       summary: Register a new Sponsorship
       requestBody:
         required: true
@@ -1175,10 +1177,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/InternalErrorResponse'
-  /sponsorships/{sponsorshipId}:
+  /sponsorships/coordinator/{sponsorshipId}:
     get:
       tags:
-        - Sponsorship
+        - Coordinator Sponsorship
       parameters:
         - name: sponsorshipId
           in: path
@@ -1209,7 +1211,7 @@ paths:
                 $ref: '#/components/schemas/InternalErrorResponse'
     put:
       tags:
-        - Sponsorship
+        - Coordinator Sponsorship
       parameters:
         - name: sponsorshipId
           in: path
@@ -1246,7 +1248,7 @@ paths:
                 $ref: '#/components/schemas/InternalErrorResponse'
     delete:
       tags:
-        - Sponsorship
+        - Coordinator Sponsorship
       parameters:
         - name: sponsorshipId
           in: path
@@ -1269,6 +1271,115 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
+  /sponsorships/student/available:
+    get:
+      tags:
+        - Student Sponsorship
+      summary: Get all sponsorship available for the student
+      responses:
+        '200':
+          description: A list of sponsorship
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetAllSponsorshipSuccessResponse'
+        '403':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenErrorResponse'
+        '500':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
+  /sponsorships/student/:
+    get:
+      tags:
+        - Student Sponsorship
+      summary: Get all sponsorship of the student
+      responses:
+        '200':
+          description: A list of sponsorship
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetAllSponsorshipSuccessResponse'
+        '403':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenErrorResponse'
+        '500':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
+    post:
+      tags:
+        - Student Sponsorship
+      summary: Register student to a Sponsorship
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SponsorshipPayload'
+      responses:
+        '201':
+          description: Resource successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetSponsorshipSuccessResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
+  /student/sponsorships/{sponsorshipId}:
+    get:
+      tags:
+        - Student Sponsorship
+      parameters:
+        - name: sponsorshipId
+          in: path
+          required: true
+          description: The ID of the Sponsorship the student belongs
+          schema:
+            type: string
+            example: fa8d0ba7-3bd8-4a30-8127-82ca571d1bd0
+      summary: The ID of the Sponsorship the student belongs
+      responses:
+        '200':
+          description: A details of Sponsorship
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetSponsorshipSuccessResponse'
+        '403':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenErrorResponse'
         '500':
           description: Invalid request
           content:
