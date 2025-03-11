@@ -70,29 +70,9 @@ export const getAllSponsorship = async ( authHeader: any ): Promise<SponsorshipR
     const userId = userDetails.userId;
     let whereCondition: any = {};
 
-    const ifStudent = await checkIfStudentRepo( userId );
+    whereCondition.coordinator_id = uuidToBinary( userId );
+    whereCondition.record_status =  RecordStatus.ACTIVE
 
-    //if sponsor pass the id, if student pass the school id
-    if ( ifStudent ) {
-        const student = await getOneStudentRepo( userId );
-        whereCondition = {
-            record_status: RecordStatus.ACTIVE,
-            ...(student?.school_id ? {
-                schools: {
-                    some: {
-                        school_id: {
-                        equals: student.school_id, // Ensure it's converted to Bytes if necessary
-                        }
-                    }
-                }
-            } : {})
-        };
-    } else {
-        whereCondition.coordinator_id = uuidToBinary( userId );
-        whereCondition.record_status =  RecordStatus.ACTIVE
-    }
-
-    
     const data = await getAllSponsorshipRepo( whereCondition );
 
     return Promise.all(
