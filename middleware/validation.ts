@@ -545,6 +545,7 @@ export const validateSponsorship =  [
       
       const invalidSchoolId: boolean = await checkIfInvalidSchoolId( value ); 
       if (invalidSchoolId) {
+        console.log("Invalid school here");
         throw new Error(VALIDATION_MESSAGES.SPONSORSHIP_SCHOOL_INVALID);
       }
     }),

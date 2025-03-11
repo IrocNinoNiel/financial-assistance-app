@@ -148,10 +148,9 @@ export const deleteSchoolRepo = async ( schoolId: string): Promise<void> => {
 export const checkIfInvalidSchoolIdRepo = async ( schoolIds: Buffer[]) => {
    const validSchoolsCount = await prisma.school.count({
       where: {
-        id: { in: schoolIds },
-        record_status: RecordStatus.ACTIVE
+         id: { in: schoolIds },
+         record_status: RecordStatus.ACTIVE
       },
-    });
-  
-    return validSchoolsCount !== schoolIds.length;
+   });
+   return validSchoolsCount !== schoolIds.length;
 }
