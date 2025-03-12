@@ -86,6 +86,7 @@ export interface SponsorshipResponse {
 }
 
 export interface UpdateUserRequest {
+  email: string,
   username: string;
   roleId?: string;
   mobileNumber: string;

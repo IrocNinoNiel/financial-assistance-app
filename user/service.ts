@@ -1,5 +1,5 @@
 import { user } from "@prisma/client";
-import { UpdateUserRequest, UserDetailsResponse, UserParameter, UserResponse } from "../utils";
+import { UpdateUserRequest, UserDetailsResponse, UserParameter, UserResponse, uuidToBinary } from "../utils";
 import { toUserResponse } from "../utils/converter";
 import { checkIfNotSponsorRepo, deleteUserRepo, doesUserExistRepo, getAllUsersRepo, getOneUserRepo, isAdminRepo, updateUserRepo } from "./repository"
 import { checkIfStudentRepo, getOneStudentRepo, updateStudentRepo } from "../student/repository";
@@ -36,11 +36,13 @@ export const updateUserService = async ( data: UpdateUserRequest, userId: string
     // get user details
     const user: user = await getOneUserRepo( userId);
 
-    user.email = data.username;
+    user.email = data.email;
     user.first_name = data.firstName;
     user.last_name = data.lastName;
     user.middle_name = data.middleName;
     user.mobile_number = data.mobileNumber;
+    user.username = data.username;
+    user.role_id = uuidToBinary( data.roleId);
 
     await updateUserRepo( user, userId);
 
@@ -55,6 +57,7 @@ export const updateUserService = async ( data: UpdateUserRequest, userId: string
         student.last_name = data.lastName;
         student.middle_name = data.middleName;
         student.mobile_number = data.mobileNumber;
+        student.email = data.email;
 
         await updateStudentRepo(student, student.id);
     }
