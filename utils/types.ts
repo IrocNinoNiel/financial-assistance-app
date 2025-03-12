@@ -54,6 +54,10 @@ export interface SponsorshipRequest {
   sponsorshipSchool: string[],
   sponsorshipRequirements: string[],
 }
+export interface ApplySponsorshipRequest {
+  sponsorshipId: string,
+  studentId: string,
+}
 
 export interface UserParameter {
   sponsor: string
@@ -83,6 +87,27 @@ export interface SponsorshipResponse {
   status: string,
   sponsorshipSchool: any[],
   sponsorshipRequirements: any[],
+}
+
+export interface ApplySponsorshipResponse {
+  sponsorshipId: string,
+  sponsorshipName: string,
+  studentId: string,
+  studentName: string,
+  sponsorshipStatus: string,
+  sponsorshipStage: string,
+  sponsorshipRemarks: string,
+  sponsorshipRequirement?: SponReq[],
+  studentFiles?: StudentFile[]
+}
+export interface SponReq {
+  fileId: string,
+  fileName: string
+}
+
+export interface StudentFile {
+  fileName: string;
+  fileType: string;
 }
 
 export interface UpdateUserRequest {

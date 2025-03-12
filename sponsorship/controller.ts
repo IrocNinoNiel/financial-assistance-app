@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { validateSponsorship, validateSponsorshipId } from "../middleware/validation";
+import { validateApplyScholarship, validateSponsorship, validateSponsorshipId, validateStudentId } from "../middleware/validation";
 import { ResponseHandler } from "../response";
-import { SponsorshipRequest, SponsorshipResponse, SUCCESS_MESSAGES } from "../utils";
-import { createSponsorship, deleteOneSponsorship, getAllAvailableSponsorship, getAllSponsorship, getOneSponsorship, updateSponsorship } from "./service";
+import { ApplySponsorshipRequest, ApplySponsorshipResponse, SponsorshipRequest, SponsorshipResponse, SUCCESS_MESSAGES } from "../utils";
+import { applyToSponsorship, createSponsorship, deleteOneSponsorship, getAllAvailableSponsorship, getAllSponsorship, getAllStudentSponsorship, getOneSponsorship, getOneStudentSponsorship, updateSponsorship } from "./service";
 
 export default () => {
 
@@ -80,6 +80,45 @@ export default () => {
             ResponseHandler.invalidRequest(req,res , err.message);
         }
     }); 
+
+    sponsorshipAPI.post('/student/', validateApplyScholarship, async (req, res) => {
+
+        try {
+            const authHeader = req.headers.authorization;
+            const payload: ApplySponsorshipRequest = req.body;
+            const data: ApplySponsorshipResponse = await applyToSponsorship( payload, authHeader );
+            ResponseHandler.ok(req, res, data);
+        } catch (err) {
+            ResponseHandler.invalidRequest(req,res , err.message);
+        }
+    }); 
+
+    sponsorshipAPI.get('/student/my-sponsorships/:studentId', validateStudentId, async (req, res) => {
+
+        try {
+
+            const authHeader = req.headers.authorization;
+            const { studentId } = req.params;
+            const data: ApplySponsorshipResponse[] = await getAllStudentSponsorship( studentId, authHeader );
+            ResponseHandler.ok(req, res, data);
+        } catch (err) {
+            ResponseHandler.invalidRequest(req,res , err.message);
+        }
+    }); 
+
+    sponsorshipAPI.get('/student/:sponsorshipId', validateSponsorshipId, async (req, res) => {
+
+        try {
+
+            const authHeader = req.headers.authorization;
+            const { sponsorshipId } = req.params;
+            const data: ApplySponsorshipResponse = await getOneStudentSponsorship( sponsorshipId, authHeader );
+            ResponseHandler.ok(req, res, data);
+        } catch (err) {
+            ResponseHandler.invalidRequest(req,res , err.message);
+        }
+    }); 
+
 
 
 

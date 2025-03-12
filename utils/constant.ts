@@ -20,8 +20,32 @@ export const SUCCESS_MESSAGES = {
     SPONSORSHIP_DELETED: "Sponsorship Successfully deleted"
 }
 
-// validationMessages.ts
+export enum APPLICATION_STAGE {
+    POOLING = "POOLING",
+    INTERVIEW_EXAM = "INTERVIEW_EXAM",
+    RANKING_SELECTION = "RANKING_SELECTION",
+    FINAL_SELECTION = "FINAL_SELECTION"
+}
 
+export enum APPLICATION_STATUS {
+    PENDING_POOLING = "PENDING_POOLING",
+    INCOMPLETE_DOCUMENTS = "INCOMPLETE_DOCUMENTS",
+    COMPLETE = "COMPLETE",
+  
+    PENDING_INTERVIEW_EXAM = "PENDING_INTERVIEW_EXAM",
+    PASSED_INTERVIEW_EXAM = "PASSED_INTERVIEW_EXAM",
+    FAILED_INTERVIEW_EXAM = "FAILED_INTERVIEW_EXAM",
+    DENIED_INTERVIEW_EXAM = "DENIED_INTERVIEW_EXAM",
+  
+    PENDING_RANKING_SELECTION = "PENDING_RANKING_SELECTION",
+    RANKED = "RANKED",
+  
+    NOT_SELECTED = "NOT_SELECTED",
+    PENDING_FINAL_SELECTION = "PENDING_FINAL_SELECTION",
+    APPROVED = "APPROVED",
+    REJECTED = "REJECTED"
+}
+  
 export const VALIDATION_MESSAGES = {
     FIRST_NAME_REQUIRED: 'First name is required and should be a string',
     LAST_NAME_REQUIRED: 'Last name is required and should be a string',
@@ -103,6 +127,7 @@ export const VALIDATION_MESSAGES = {
     NOT_FOUND_CITYMUN: "City/Municipality does not exist in the system",
     STUDENT_ID_REQUIRED: "Student Id is Required",
     STUDENT_NOT_FOUND: "Student not found",
+    STUDENT_ALREADY_APPLIED: "Student already applied",
     USER_NOT_FOUND: " User not found",
     USER_NO_STUDENT_INFO: "User don't have student information",
     SCHOOL_ID_REQUIRED: "School Id is Required",

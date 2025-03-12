@@ -1312,7 +1312,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetAllSponsorshipSuccessResponse'
+                $ref: '#/components/schemas/GetAllApplySponsorshipSuccessResponse'
         '403':
           description: Invalid request
           content:
@@ -1334,14 +1334,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SponsorshipPayload'
+              $ref: '#/components/schemas/ApplySponsorshipPayload'
       responses:
         '201':
           description: Resource successfully created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetSponsorshipSuccessResponse'
+                $ref: '#/components/schemas/GetApplySponsorshipSuccessResponse'
         '400':
           description: Invalid request
           content:
@@ -1373,7 +1373,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetSponsorshipSuccessResponse'
+                $ref: '#/components/schemas/GetApplySponsorshipSuccessResponse'
         '403':
           description: Invalid request
           content:
@@ -1643,6 +1643,15 @@ components:
           items:
             type: string
             example: a2815764-f067-11ef-ae8c-f4b520508eb0
+    ApplySponsorshipPayload:
+      type: object
+      properties:
+        studentId:
+          type: string
+          example: a2815764-f067-11ef-ae8c-f4b520508eb0
+        sponsorshipId:
+          type: string
+          example: a2815764-f067-11ef-ae8c-f4b520508eb0
     StudentRegisterPayload:
       type: object
       properties:
@@ -2640,7 +2649,31 @@ components:
           type: string
           example: Request Successfully Accepted!
         data:
-          $ref: '#/components/schemas/SponsorshipResponse'   
+          $ref: '#/components/schemas/SponsorshipResponse' 
+    GetAllApplySponsorshipSuccessResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: Request Successfully Accepted!
+        data:
+          type: array
+          items: 
+            $ref: '#/components/schemas/ApplySponsorshipResponse'  
+    GetApplySponsorshipSuccessResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: Request Successfully Accepted!
+        data:
+          $ref: '#/components/schemas/ApplySponsorshipResponse'  
     SponsorshipResponse:
       type: object
       properties:
@@ -2708,6 +2741,28 @@ components:
               fileName:
                 type: string
                 example: Valid ID
+    ApplySponsorshipResponse:
+      type: object
+      properties:
+        sponsorshipId:
+          type: string
+          example: a2815764-f067-11ef-ae8c-f4b520508eb0
+        sponsorshipName:
+          type: string
+          example: Sponsor
+        studentId:
+          type: string
+          example: a2815764-f067-11ef-ae8c-f4b520508eb0
+        studentName:
+          type: string
+          example: Sponsor
+        sponsorshipStatus:
+          type: string
+          example: PENDING
+        sponsorshipRemarks:
+          type: string
+          example: remarks
+        
             
     GetAllAcademicYearSuccessResponse:
       type: object

@@ -1,12 +1,13 @@
-import { Prisma, sponsorship } from "@prisma/client";
+import { Prisma, sponsorship, sponsorshipApplication } from "@prisma/client";
 import { binaryToUuid, extractUserFromToken, SponsorshipRequest, uuidToBinary } from "../utils";
-import { toSponsorReqModel, toSponsorSchoolModel, toSponsorshipModel, toSponsorshipResponse } from "../utils/converter";
-import { checkIfSponsorshipExistRepo, checkSponsorshipIdRepo, createSponsorshipRepo, createSponsorshipRequirementRepo, createSponsorshipSchoolRepo, deleteAllSponsorshipRequirements, deleteAllSponsorshipSchools, getAllSponsorshipRepo, getAllSponsorshipRequirements, getAllSponsorshipSchoolRepo, updateSponsorshipRepo, getOneSponsorshipRepo, deleteOneSponsorshipRepo } from './repository';
-import { RecordStatus, SponsorshipResponse } from '../utils/types';
+import { toApplyScholarship, toApplyScholarshipResponse, toSponsorReqModel, toSponsorSchoolModel, toSponsorshipModel, toSponsorshipResponse } from "../utils/converter";
+import { checkIfSponsorshipExistRepo, checkSponsorshipIdRepo, createSponsorshipRepo, createSponsorshipRequirementRepo, createSponsorshipSchoolRepo, deleteAllSponsorshipRequirements, deleteAllSponsorshipSchools, getAllSponsorshipRepo, getAllSponsorshipRequirements, getAllSponsorshipSchoolRepo, updateSponsorshipRepo, getOneSponsorshipRepo, deleteOneSponsorshipRepo, applyToSponsorshipRepo, doesStudentAlreadyAppliedRepo, getAllStudentSponsorshipRepo, getOneStudentSponsorshipRepo } from './repository';
+import { ApplySponsorshipRequest, ApplySponsorshipResponse, RecordStatus, SponsorshipResponse } from '../utils/types';
 import { checkIfNotSponsor } from "../user/service";
 import { checkIfStudentRepo, getOneStudentRepo } from "../student/repository";
 import { checkIfNotSponsorRepo } from "../user/repository";
 import { getOneStudent } from "../student/service";
+import { getAllFileOfUser } from "../file/service";
 
 
 export const createSponsorship = async ( payload: SponsorshipRequest, authHeader: any ): Promise<SponsorshipResponse> => {
@@ -33,6 +34,35 @@ export const createSponsorship = async ( payload: SponsorshipRequest, authHeader
 
     return toSponsorshipResponse( sponsorship, schools, requirements );
 }
+
+export const applyToSponsorship = async ( payload: ApplySponsorshipRequest, authHeader: any): Promise<ApplySponsorshipResponse> => { 
+    const userDetails = extractUserFromToken(authHeader);
+    const userId = userDetails.userId;
+
+    const apply: Prisma.sponsorshipApplicationUncheckedCreateInput = toApplyScholarship( payload, userId );
+    const data: any = await applyToSponsorshipRepo( apply );
+    return toApplyScholarshipResponse( data );
+}
+
+export const getAllStudentSponsorship = async ( studentId: string, authHeader: any): Promise<ApplySponsorshipResponse[]> => { 
+    const userDetails = extractUserFromToken(authHeader);
+    const userId = userDetails.userId;
+    const data: any[] = await getAllStudentSponsorshipRepo( studentId );
+    const studentFiles: any[] = await getAllFileOfUser( binaryToUuid(data[0].student.user_id) );
+    
+    return data.map( e => toApplyScholarshipResponse ( e, studentFiles ));
+
+}
+
+export const getOneStudentSponsorship = async ( sponsorshipId: string, authHeader: any): Promise<ApplySponsorshipResponse> => { 
+    const userDetails = extractUserFromToken(authHeader);
+    const userId = userDetails.userId;
+    const data: any = await getOneStudentSponsorshipRepo( sponsorshipId );
+    const studentFiles: any[] = await getAllFileOfUser( binaryToUuid(data.student.user_id) );
+    
+    return toApplyScholarshipResponse ( data, studentFiles );
+}
+
 
 export const updateSponsorship = async ( payload: SponsorshipRequest, authHeader: any, sponsorshipId: string ) : Promise<SponsorshipResponse> => {
     
@@ -141,4 +171,8 @@ export const checkIfSponsorshipExist = async ( name: string, batchNumber: number
 
 export const checkSponsorshipId = async ( sponsorshipId: string ): Promise<boolean> => {
     return await checkSponsorshipIdRepo( sponsorshipId );
+}
+
+export const doesStudentAlreadyApplied = async ( studentId: string, sponsorshipId: string ): Promise<boolean> => {
+    return await doesStudentAlreadyAppliedRepo( studentId, sponsorshipId );
 }

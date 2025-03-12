@@ -416,7 +416,7 @@ model sponsorshipApplication {
   student      student                     @relation(fields: [student_id], references: [id])
   sponsorship  sponsorship                     @relation(fields: [sponsorship_id], references: [id])
 
-  @@map("sponsorship_applications")
+  @@map("sponsorshipapplications")
 }
 
 

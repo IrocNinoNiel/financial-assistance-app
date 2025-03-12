@@ -10,7 +10,7 @@ import { checkIfNotSponsor, doesUserExist } from "../user/service";
 import { getOneStudentRepo } from "../student/repository";
 import { checkIfInvalidSchoolId, checkSchoolExist, checkSchoolNameExist } from "../schools/service";
 import { checkAcademicYearId, checkExistingAcademicYear } from "../academicYear/service";
-import { checkIfSponsorshipExist, checkSponsorshipId } from "../sponsorship/service";
+import { checkIfSponsorshipExist, checkSponsorshipId, doesStudentAlreadyApplied } from "../sponsorship/service";
 import { checkIfInvalidFileTypeId } from "../file/service";
 
 export const validateLoginInput = async (req: Request, res: Response, next: NextFunction) => {
@@ -509,6 +509,48 @@ export const validateSponsorshipId = [
   }),
   validateErrors
 ];
+
+export const validateStudentId = [
+  param("studentId")
+    .notEmpty().withMessage(VALIDATION_MESSAGES.STUDENT_ID_REQUIRED)
+    .custom(async (studentId) => {
+      const studentExists = await doesStudentExist(studentId);
+      if (!studentExists) {
+        return Promise.reject(VALIDATION_MESSAGES.STUDENT_NOT_FOUND);
+      }
+  }),
+  validateErrors
+]
+
+export const validateApplyScholarship = [
+  body("studentId")
+    .notEmpty().withMessage(VALIDATION_MESSAGES.STUDENT_ID_REQUIRED)
+    .custom(async (studentId) => {
+      const studentExists = await doesStudentExist(studentId);
+      if (!studentExists) {
+        return Promise.reject(VALIDATION_MESSAGES.STUDENT_NOT_FOUND);
+      }
+  }),
+  body("sponsorshipId")
+    .notEmpty().withMessage(VALIDATION_MESSAGES.SPONSORSHIP_ID_REQUIRED)
+    .custom(async ( academicYearId ) => {
+      console.log("params", academicYearId);
+      const dontExist = await checkSponsorshipId( academicYearId );
+      if (dontExist) {
+        return Promise.reject(VALIDATION_MESSAGES.SPONSORSHIP_ID_NOT_FOUND);
+      }
+  }),
+  body("studentId")
+    .custom(async (studentId, { req }) => {
+
+      const { sponsorshipId } = req.body;
+      const studentAlreadyApplied = await doesStudentAlreadyApplied( studentId, sponsorshipId );
+      if (studentAlreadyApplied) {
+        return Promise.reject(VALIDATION_MESSAGES.STUDENT_ALREADY_APPLIED);
+      }
+  }),
+  validateErrors
+]
 
 export const validateSponsorship =  [
   body("batchNumber").isInt().withMessage(VALIDATION_MESSAGES.SPONSORSHIP_BATCH_NUMBER_REQUIRED),

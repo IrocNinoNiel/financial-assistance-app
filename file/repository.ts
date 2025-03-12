@@ -62,3 +62,7 @@ export const getAllFileTypeRepo = async () => {
     const data = await prisma.fileType.findMany({});
      return data;
 }
+
+export const getAllFileOfUserRepo = async ( userId: string ): Promise<any[]> => {
+    return await prisma.file.findMany( { where: { user_id: uuidToBinary(userId)}, include: { fileType: { select: { name: true } } } });
+}
