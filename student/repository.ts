@@ -168,7 +168,7 @@ export const checkIfStudentRepo = async (userId: string): Promise<boolean> => {
 
     console.log("user", userId, {id: binaryToUuid(user.role.id), role_name: user.role.name});
 
-    return user.role.name.toLowerCase() === "student";
+    return user.role.name.toLowerCase() === "student" || user.role.name.toLowerCase() === "system admin";
   } catch (error) {
     console.error('Error checking role existence:', error);
     throw new Error('Database error');
