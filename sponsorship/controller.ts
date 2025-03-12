@@ -61,7 +61,7 @@ export default () => {
 
         try {
             const authHeader = req.headers.authorization;
-            const data: SponsorshipResponse[] = await getAllSponsorship    ( authHeader );
+            const data: SponsorshipResponse[] = await getAllSponsorship( authHeader );
             ResponseHandler.ok(req, res, data);
         } catch (err) {
             ResponseHandler.invalidRequest(req,res , err.message);

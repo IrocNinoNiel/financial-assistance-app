@@ -85,8 +85,10 @@ export interface SponsorshipResponse {
   slot: number,
   fundAllocation: number,
   status: string,
+  studentCount: number,
   sponsorshipSchool: any[],
   sponsorshipRequirements: any[],
+  students: any[],
 }
 
 export interface ApplySponsorshipResponse {

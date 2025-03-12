@@ -1301,7 +1301,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/InternalErrorResponse'
-  /sponsorships/student/:
+  /sponsorships/student/my-applications:
     get:
       tags:
         - Student Sponsorship
@@ -1325,6 +1325,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/InternalErrorResponse'
+  /sponsorships/student/:
     post:
       tags:
         - Student Sponsorship
@@ -2719,6 +2720,9 @@ components:
         status:
           type: string
           example: active
+        studentCount:
+          type: integer
+          example: 0
         sponsorshipSchool:
           type: array
           items:

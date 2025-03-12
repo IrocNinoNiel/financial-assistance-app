@@ -404,25 +404,25 @@ export function toFileTypeResponse( payload: any):FileTypeResponse {
   }
 }
 
-export function toSponsorshipResponse( payload: any, schools: any[], requirements: any[]): SponsorshipResponse {
-  console.log("data", schools, requirements);
+export function toSponsorshipResponse( payload: any, schools: any[], requirements: any[], data: any[] = []): SponsorshipResponse {
   return {
     id: binaryToUuid(payload.id),
     name: payload.name,
     sponsorId: binaryToUuid(payload.sponsor_id),
     sponsorName: payload.sponsor?.first_name + " " + payload.sponsor?.last_name,
-    coordinatorId: binaryToUuid(payload.sponsor_id),
+    coordinatorId: binaryToUuid(payload.coordinator_id),
     coordinatorName: payload.coordinator?.first_name + " " + payload.coordinator?.last_name,
     academicYearId: binaryToUuid(payload.academic_year_id),
     academicYearEnd: payload.academicYear?.academic_year_end,
     academicYearStart: payload.academicYear?.academic_year_start,
-    durationFrom: payload.duration_from.toISOString(),
-    durationTo: payload.duration_to.toISOString(),
+    durationFrom: payload.duration_from ? payload.duration_from.toISOString() : null,
+    durationTo: payload.duration_to ? payload.duration_to.toISOString() : null,
     batchNumber: payload.batch_number,
     limit: payload.limit,
     slot: payload.slot,
     fundAllocation: payload.fund_allocation,
     status: payload.status,
+    studentCount: payload._count?.sponsorshipApplication ?? 0,
     sponsorshipSchool: (schools ?? []).map(item => ({
       schoolId: binaryToUuid(item.school_id),
       schoolName: item.school.school_name
@@ -430,6 +430,12 @@ export function toSponsorshipResponse( payload: any, schools: any[], requirement
     sponsorshipRequirements: (requirements ?? []).map(item => ({
       fileId: binaryToUuid(item.file_type_id),
       fileName: item.fileType.name
-    }))
+    })),
+    students: (data ?? []).map(item => (
+      {
+      studentId: item.student.id ? binaryToUuid(item.student.id) : null,
+      studentName: `${item.student.first_name} ${item.student.middle_name ? item.student.middle_name + " " : ""}${item.student.last_name}`,
+      files: item.student.files
+    })),
   }
 }
