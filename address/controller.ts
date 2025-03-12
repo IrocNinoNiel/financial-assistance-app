@@ -17,11 +17,10 @@ export default () => {
         }
     });
 
-    addressAPI.get('/provinces', validateRegionCode, async (req, res) => {
+    addressAPI.get('/provinces', async (req, res) => {
 
         try {
-            const { regCode } = req.query;
-            const data = await getProvinces( regCode );
+            const data = await getProvinces( );
             ResponseHandler.ok(req, res, data);
         } catch (err) {
             ResponseHandler.invalidRequest(req,res , err.message);

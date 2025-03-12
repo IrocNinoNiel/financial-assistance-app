@@ -38,6 +38,7 @@ export const getAllUsersRepo = async ( params: UserParameter ) => {
 
       const users = await prisma.user.findMany({
         select: {
+            username: true,
             first_name: true,
             middle_name: true,
             last_name: true,

@@ -13,6 +13,7 @@ model user {
   first_name    String        @db.VarChar(255)
   middle_name   String?       @db.VarChar(255)
   last_name     String        @db.VarChar(255)
+  username      String        @db.VarChar(255) @default("user")
   mobile_number String        @db.VarChar(15)
   email         String        @unique(map: "email") @db.VarChar(255)
   password      String        @db.VarChar(255)

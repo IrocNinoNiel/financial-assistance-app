@@ -108,10 +108,11 @@ export function convertToSiblingData(studentId: string,  siblingRequests: Siblin
   }));
 }
 
-export function convertToUser(data: RegisterRequest, hashedPassword: any ): User {
+export function convertToUser(data: RegisterRequest, hashedPassword: any ): Prisma.userUncheckedCreateInput {
    return {
-      email: data.username,
+      email: data.email,
       password: hashedPassword,
+      username: data.username,
       last_name:  data.lastName,
       first_name: data.firstName,
       middle_name: data.middleName,
@@ -122,6 +123,7 @@ export function convertToUser(data: RegisterRequest, hashedPassword: any ): User
 
 export function toUserResponse(user: any): UserListResponse {
   return {
+    username: user.username,
     firstName: user.first_name,
     middleName: user.middle_name ?? null,
     lastName: user.last_name,

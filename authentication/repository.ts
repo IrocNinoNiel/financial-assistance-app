@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
 import { binaryToUuid, RecordStatus, uuidToBinary } from '../utils';
 import { User, UserRole } from './model';
 import { notEqual } from 'assert';
@@ -7,7 +7,7 @@ const prisma = new PrismaClient({
   log: ["query"],
 });
 
-export const checkEmailExists = async (email: string, userId?: string): Promise<boolean> => {
+export const checkEmailExistsRepo = async (email: string, userId?: string): Promise<boolean> => {
   try {
     const whereCondition: any = {
       email: email,
@@ -29,14 +29,35 @@ export const checkEmailExists = async (email: string, userId?: string): Promise<
   }
 };
 
+export const checkUsernameExistsRepo = async (username: string, userId?: string): Promise<boolean> => {
+  try {
+    const whereCondition: any = {
+      username: username,
+      record_status: RecordStatus.ACTIVE,
+    };
+
+    if (userId) {
+      whereCondition.NOT = { id: uuidToBinary(userId) };
+    }
+
+    const user = await prisma.user.findFirst({
+      where: whereCondition,
+    });
+
+    return user !== null;
+  } catch (error) {
+    console.error('Error checking email existence:', error);
+    throw new Error('Database error');
+  }
+};
 
 
 
-export const checkUserExists = async (email: string) : Promise<any>  => {
+export const checkUserExists = async (username: string) : Promise<any>  => {
     try {
       const user = await prisma.user.findFirst({
         where: {
-          email: email,
+          username: username,
           record_status: RecordStatus.ACTIVE
         },
       });
@@ -64,7 +85,7 @@ export const getRoleRepo = async (name: string) : Promise<any>  => {
   }
 }
 
-export const registerRepo = async (user: User) : Promise<any> => {
+export const registerRepo = async (user: Prisma.userUncheckedCreateInput) : Promise<any> => {
     try {
         const newUser = await prisma.user.create({
             data: user,
@@ -77,11 +98,11 @@ export const registerRepo = async (user: User) : Promise<any> => {
     }
 }
 
-export const getPermission = async (roleId: Buffer) : Promise<any> => {
+export const getPermission = async (roleId: string ) : Promise<any> => {
   try {
     const permission = await prisma.modulePermission.findMany({
       where: {
-        role_id: roleId,
+        role_id: uuidToBinary(roleId),
       },
       select: {
         module_id: true,

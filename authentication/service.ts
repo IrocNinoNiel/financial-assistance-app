@@ -1,8 +1,8 @@
-import { binaryToUuid, ChangePasswordRequest, extractUserFromToken, LoginRequest, RegisterRequest } from "../utils";
+import { binaryToUuid, ChangePasswordRequest, extractUserFromToken, LoginRequest, RegisterRequest, uuidToBinary } from "../utils";
 import bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 import { User } from "./model";
-import { changePasswordRepo, checkRoleRepo, checkUserExists, getPermission, getRoleRepo, registerRepo } from "./repository";
+import { changePasswordRepo, checkEmailExistsRepo, checkRoleRepo, checkUserExists, checkUsernameExistsRepo, getPermission, getRoleRepo, registerRepo } from "./repository";
 import { convertToUser, toUserPermissionResponse } from "../utils/converter";
 import jwt from 'jsonwebtoken';
 import { Prisma, student } from "@prisma/client";
@@ -17,7 +17,7 @@ export const registerService = async ( data: RegisterRequest, isStudent: boolean
 
     const hashedPassword = await bcrypt.hash(data.password, 10);
 
-    const user: User = convertToUser(data, hashedPassword);
+    const user: Prisma.userUncheckedCreateInput = convertToUser(data, hashedPassword);
     const result: any = await registerRepo(user);
     console.log("User data has been saved", result);
 
@@ -41,19 +41,19 @@ export const registerService = async ( data: RegisterRequest, isStudent: boolean
 
 
     const token = jwt.sign(
-        { userId: binaryToUuid(result.id), email: result.email },
+        { userId: binaryToUuid(result.id), username: result.username },
         process.env.SECRET_KEY, 
         { expiresIn: '1h' }
     );
     console.log("jwt has been sign");
 
-    const permission: any[] = await getPermission(user.role_id);
+    const permission: any[] = await getPermission( binaryToUuid(user.role_id) );
     console.log("Get Role Permission", permission);
     const converted: any = toUserPermissionResponse(permission);
     console.log("Get Role Permission converted", converted);
 
     const userData =  {
-        "user": result.email,
+        "user": result.username,
         "userId": binaryToUuid(result.id),
         "token": token,
         "permissions": converted
@@ -77,16 +77,16 @@ export const loginService = async ( data: LoginRequest ) => {
     }  
 
     const token = jwt.sign(
-        { userId: binaryToUuid(user.id), email: user.email },
+        { userId: binaryToUuid(user.id), username: user.username },
         process.env.SECRET_KEY, 
         { expiresIn: '1h' }
     );
 
-    const permission: any[] = await getPermission(user.role_id);
+    const permission: any[] = await getPermission( binaryToUuid(user.role_id) );
     const converted: any = toUserPermissionResponse(permission);
 
     return {
-        "user": user.email,
+        "user": user.username,
         "userId": binaryToUuid(user.id),
         "token": token,
         "permissions": converted
@@ -104,4 +104,12 @@ export const changePasswordService = async ( data: ChangePasswordRequest, authHe
     const hashedPassword = await bcrypt.hash(data.password, 10);
 
     await changePasswordRepo( userId, hashedPassword );
+}
+
+export const checkEmailExists = async ( email: string, userId?: string ): Promise<Boolean> => {
+    return checkEmailExistsRepo( email, userId);
+}
+
+export const checkUsernameExists  = async ( username: string, userId?: string ): Promise<Boolean> => {
+    return checkUsernameExistsRepo( username, userId);
 }

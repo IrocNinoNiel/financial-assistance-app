@@ -1,9 +1,8 @@
 import { error, LoginRequest, RegisterRequest, VALIDATION_MESSAGES } from "../utils";
 import { NextFunction, Request, RequestHandler, Response } from "express";
 import ResponseHandler from "../response/response";
-import { checkEmailExists } from "../authentication/repository";
 import { validationResult, body, param } from "express-validator";
-import { checkRole } from "../authentication/service";
+import { checkEmailExists, checkRole, checkUsernameExists } from "../authentication/service";
 import { doesStudentExist, getOneStudent, isEmailTakenByAnotherStudent } from "../student/service";
 import { query } from "express-validator";
 import { checkBarangayExist, checkCityMunExist, checkProvinceExist, checkRegionExist } from "../address/service";
@@ -19,9 +18,8 @@ export const validateLoginInput = async (req: Request, res: Response, next: Next
   const errors: error[] = [];
 
   // Validate email
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!data.username || !emailRegex.test(data.username)) {
-    errors.push({ field: "username", message: VALIDATION_MESSAGES.EMAIL_INVALID });
+  if (!data.username) {
+    errors.push({ field: "username", message: VALIDATION_MESSAGES.USERNAME_INVALID });
   }
 
   // Validate password
@@ -39,6 +37,14 @@ export const validateLoginInput = async (req: Request, res: Response, next: Next
 
 const registerUserCommonValidation =  [
   body("username")
+    .notEmpty().withMessage(VALIDATION_MESSAGES.USERNAME_INVALID)
+    .custom(async value => {
+      const exists = await checkUsernameExists(value);
+      if (exists) {
+        return Promise.reject(VALIDATION_MESSAGES.USERNAME_IN_USE);
+      }
+    }),
+  body("email")
     .notEmpty().withMessage(VALIDATION_MESSAGES.EMAIL_INVALID)
     .isEmail().withMessage(VALIDATION_MESSAGES.EMAIL_INVALID)
     .custom(async value => {
@@ -98,6 +104,15 @@ export const validateUpdateUserInput = [
       }
   }),
   body("username")
+    .notEmpty().withMessage(VALIDATION_MESSAGES.USERNAME_INVALID)
+    .custom(async (value, {req}) => {
+      const userId = req.params.userId
+      const exists = await checkUsernameExists(value, userId);
+      if (exists) {
+        return Promise.reject(VALIDATION_MESSAGES.USERNAME_IN_USE);
+      }
+    }),
+  body("email")
     .notEmpty().withMessage(VALIDATION_MESSAGES.EMAIL_INVALID)
     .isEmail().withMessage(VALIDATION_MESSAGES.EMAIL_INVALID)
     .custom(async (value, {req}) => {

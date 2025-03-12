@@ -1546,6 +1546,9 @@ components:
       properties:
         username:
           type: string
+          example: qwer2
+        email:
+          type: string
           example: qwer2@gmail.com
         password:
           type: string
@@ -1645,6 +1648,9 @@ components:
       properties:
         username:
           type: string
+          example: qwer2
+        email:
+          type: string
           example: qwer2@gmail.com
         password:
           type: string
@@ -1673,7 +1679,7 @@ components:
       properties:
         username:
           type: string
-          example: qwer9@gmail.com
+          example: qwer9
         password:
           type: string
           example: '123456'
@@ -1690,7 +1696,7 @@ components:
           type: string
           example: '123456'
       required:
-        - username
+        - repassword
         - password
     ErrorResponse:
       type: object
@@ -2376,6 +2382,9 @@ components:
       type: object
       properties:
         username:
+          type: string
+          example: qwer2
+        email:
           type: string
           example: qwer2@gmail.com
         roleId:

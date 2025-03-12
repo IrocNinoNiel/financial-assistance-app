@@ -15,12 +15,10 @@ export const getRegionsRepo = async ( ): Promise<any> => {
 
 }
 
-export const getProvincesRepo = async ( regCode: string ): Promise<any> => {
+export const getProvincesRepo = async (  ): Promise<any> => {
 
    try {
-      return await prisma.province.findMany({
-         where: { reg_code: regCode },
-      });
+      return await prisma.province.findMany( {} );
    } catch (error) {
       console.error('Error getprovinceRepo:', error);
       throw new Error('Database error');

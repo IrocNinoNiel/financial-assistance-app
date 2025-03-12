@@ -14,6 +14,7 @@ export interface error{
 
 export interface RegisterRequest {
     username: string;
+    email: string;
     password: string;
     repassword: string;
     roleId?: string;
@@ -250,6 +251,7 @@ export interface SiblingRequest {
 }
 
 export interface UserListResponse {
+  username: string;
   firstName: string;
   middleName?: string | null;
   lastName: string;

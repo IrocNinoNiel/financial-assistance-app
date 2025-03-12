@@ -12,9 +12,9 @@ export const getRegions = async (): Promise<AddressResponse[]> => {
 
 }
 
-export const getProvinces = async ( regCode: string ): Promise<AddressResponse[]> => {
+export const getProvinces = async ( ): Promise<AddressResponse[]> => {
 
-    const data: any[] = await getProvincesRepo(regCode);
+    const data: any[] = await getProvincesRepo();
     const converted: AddressResponse[] = toAddressResponse(data);
    
     return converted;
