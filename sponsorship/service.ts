@@ -120,8 +120,9 @@ export const getAllSponsorship = async ( authHeader: any ): Promise<SponsorshipR
             const sponsorshipId = binaryToUuid(item.id);
             const schools = await getAllSponsorshipSchoolRepo(sponsorshipId, prisma);
             const requirements = await getAllSponsorshipRequirements(sponsorshipId, prisma);
+            const payload = await getAllSponsorshipStudent( sponsorshipId, prisma);
 
-            return toSponsorshipResponse(item, schools, requirements);
+            return toSponsorshipResponse(item, schools, requirements, payload);
         })
     );
 };
