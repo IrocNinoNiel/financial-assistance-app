@@ -196,6 +196,7 @@ export interface PartialStudentUser {
 }
 
 export interface StudentRequest {
+  userId: string;
   firstName: string;
   middleName?: string;
   lastName?: string;
@@ -299,6 +300,7 @@ export interface GetAllUsersParams {
 
 export interface StudentListResponse {
   studentId: string;
+  userId: string;
   firstName: string;
   middleName: string;
   lastName: string;

@@ -127,6 +127,7 @@ export const VALIDATION_MESSAGES = {
     NOT_FOUND_CITYMUN: "City/Municipality does not exist in the system",
     STUDENT_ID_REQUIRED: "Student Id is Required",
     STUDENT_NOT_FOUND: "Student not found",
+    USER_ID_REQUIRED: "userId is required",
     STUDENT_ALREADY_APPLIED: "Student already applied",
     USER_NOT_FOUND: " User not found",
     USER_NO_STUDENT_INFO: "User don't have student information",

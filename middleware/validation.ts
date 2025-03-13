@@ -209,6 +209,21 @@ export const validateUpdateStudent = [
         return Promise.reject(VALIDATION_MESSAGES.STUDENT_NOT_FOUND);
       }
   }),
+  body("userId")
+  .notEmpty().withMessage(VALIDATION_MESSAGES.USER_ID_REQUIRED)
+  .custom(async (userId) => {
+    console.log("params", userId);
+    const studentExists = await doesUserExist(userId);
+    if (!studentExists) {
+      return Promise.reject(VALIDATION_MESSAGES.USER_NOT_FOUND);
+    }
+  })
+  .custom(async (userId) => {
+    const haveData = await getOneStudent( userId );
+    if( haveData === null ) {
+      return Promise.reject(VALIDATION_MESSAGES.USER_NO_STUDENT_INFO); 
+    }
+  }),
   body("email")
   .notEmpty().withMessage(VALIDATION_MESSAGES.EMAIL_INVALID)
   .isEmail().withMessage(VALIDATION_MESSAGES.EMAIL_INVALID)

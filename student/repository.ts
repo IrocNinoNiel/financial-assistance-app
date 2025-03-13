@@ -1,31 +1,31 @@
 import { binaryToUuid, RecordStatus, uuidToBinary } from "../utils";
-import { Prisma, PrismaClient, student, user } from '@prisma/client';
+import { Prisma, PrismaClient, student, user } from "@prisma/client";
 
-const prisma = new PrismaClient({  });
+const prisma = new PrismaClient({});
 
-export const registerStudentRepo = async ( student: Prisma.studentUncheckedCreateInput ) : Promise<student> => {
+export const registerStudentRepo = async (
+  student: Prisma.studentUncheckedCreateInput
+): Promise<student> => {
+  try {
+    const newStudent = await prisma.student.create({
+      data: student,
+    });
 
-    try {
-        const newStudent = await prisma.student.create({
-            data: student
-        });
-        
-        return newStudent;
-
-    } catch (error) {
-        console.error('Error registration: ', error);
-        throw new Error('Database error: '+ error.message);
-    }
-}
+    return newStudent;
+  } catch (error) {
+    console.error("Error registration: ", error);
+    throw new Error("Database error: " + error.message);
+  }
+};
 
 export const updateStudentRepo = async (
   studentData: Prisma.studentUncheckedUpdateInput,
-  studentId: Buffer,
+  studentId: Buffer
 ): Promise<student> => {
   try {
     const updatedStudent = await prisma.student.update({
       where: { id: studentId },
-      data: studentData
+      data: studentData,
     });
 
     return updatedStudent;
@@ -35,17 +35,43 @@ export const updateStudentRepo = async (
   }
 };
 
+export const partialUpdateStudentRepo = async (
+  studentData: Prisma.studentUncheckedUpdateInput,
+  studentId: Buffer
+): Promise<student> => {
+  try {
+    const updatedStudent = await prisma.student.update({
+      where: { id: studentId },
+      data: {
+        id: studentId,
+        user_id: studentData.user_id,
+        first_name: studentData.first_name,
+        last_name: studentData.last_name,
+        middle_name: studentData.middle_name,
+        mobile_number: studentData.mobile_number,
+        email: studentData.email,
+      },
+    });
 
-export const registerSiblingsRepo = async (siblings: Prisma.siblingUncheckedCreateInput[]): Promise<void> => {
-    try {
-        await prisma.sibling.createMany({
-            data: siblings
-        });
-    } catch (error) {
-        console.error('Error registration: ', error);
-        throw new Error('Database error: ' + error.message);
-    }
-}
+    return updatedStudent;
+  } catch (error) {
+    console.error("Error updating student: ", error);
+    throw new Error("Database error: " + error.message);
+  }
+};
+
+export const registerSiblingsRepo = async (
+  siblings: Prisma.siblingUncheckedCreateInput[]
+): Promise<void> => {
+  try {
+    await prisma.sibling.createMany({
+      data: siblings,
+    });
+  } catch (error) {
+    console.error("Error registration: ", error);
+    throw new Error("Database error: " + error.message);
+  }
+};
 
 export const updateSiblingsRepo = async (
   studentId: string,
@@ -55,12 +81,12 @@ export const updateSiblingsRepo = async (
     await prisma.$transaction([
       // Delete all existing siblings linked to the student
       prisma.sibling.deleteMany({
-        where: { student_id: uuidToBinary(studentId) }
+        where: { student_id: uuidToBinary(studentId) },
       }),
 
       prisma.sibling.createMany({
-            data: siblings
-      })
+        data: siblings,
+      }),
     ]);
 
     console.log("Sibling data updated successfully.");
@@ -70,112 +96,130 @@ export const updateSiblingsRepo = async (
   }
 };
 
-
-export const checkStudentEmailExists = async (email: string) : Promise<boolean>  => {
+export const checkStudentEmailExists = async (
+  email: string
+): Promise<boolean> => {
   try {
     const user = await prisma.student.findFirst({
       where: {
         email: email,
-        record_status: RecordStatus.ACTIVE
+        record_status: RecordStatus.ACTIVE,
       },
     });
 
     return user !== null;
   } catch (error) {
-    console.error('Error checking email existence:', error);
-    throw new Error('Database error');
+    console.error("Error checking email existence:", error);
+    throw new Error("Database error");
   }
-}
+};
 
-export const getAllStudentRepo = async () : Promise<any> => {
+export const getAllStudentRepo = async (): Promise<any> => {
   try {
     const users = await prisma.student.findMany({
       where: {
-        record_status: RecordStatus.ACTIVE
+        record_status: RecordStatus.ACTIVE,
       },
       include: {
-        siblings:true,
-        permanent_barangay: { select: { brgy_desc: true, brgy_code: true }  },
-        permanent_citynum: { select: { citymun_desc: true, citymun_code: true }  },
-        permanent_province: { select: { prov_desc: true, prov_code: true }  },
-        permanent_region: { select: { reg_desc: true, reg_code: true }  },
-        current_barangay: { select: { brgy_desc: true, brgy_code: true }  },
-        current_citynum: { select: { citymun_desc: true, citymun_code: true }  },
-        current_province: { select: { prov_desc: true, prov_code: true }  },
-        current_region: { select: { reg_desc: true, reg_code: true }  },
-        g12_school: { select: { school_name: true }  },
-        college_school: { select: { school_name: true }  }
-      }
+        siblings: true,
+        permanent_barangay: { select: { brgy_desc: true, brgy_code: true } },
+        permanent_citynum: {
+          select: { citymun_desc: true, citymun_code: true },
+        },
+        permanent_province: { select: { prov_desc: true, prov_code: true } },
+        permanent_region: { select: { reg_desc: true, reg_code: true } },
+        current_barangay: { select: { brgy_desc: true, brgy_code: true } },
+        current_citynum: { select: { citymun_desc: true, citymun_code: true } },
+        current_province: { select: { prov_desc: true, prov_code: true } },
+        current_region: { select: { reg_desc: true, reg_code: true } },
+        g12_school: { select: { school_name: true } },
+        college_school: { select: { school_name: true } },
+      },
     });
 
     return users;
   } catch (error) {
-    console.error('Error fetching users:', error);
-    throw new Error('Database error');
+    console.error("Error fetching users:", error);
+    throw new Error("Database error");
   }
-}
+};
 
-export const getOneStudentRepo = async ( userId: string) : Promise<any> => {
+export const getOneStudentRepo = async (userId: string): Promise<any> => {
   try {
     const user = await prisma.student.findFirst({
       where: {
         record_status: RecordStatus.ACTIVE,
-        user_id: uuidToBinary(userId)
+        user_id: uuidToBinary(userId),
       },
       include: {
-        siblings:true,
-        permanent_barangay: { select: { brgy_desc: true, brgy_code: true }  },
-        permanent_citynum: { select: { citymun_desc: true, citymun_code: true }  },
-        permanent_province: { select: { prov_desc: true, prov_code: true }  },
-        permanent_region: { select: { reg_desc: true, reg_code: true }  },
-        current_barangay: { select: { brgy_desc: true, brgy_code: true }  },
-        current_citynum: { select: { citymun_desc: true, citymun_code: true }  },
-        current_province: { select: { prov_desc: true, prov_code: true }  },
-        current_region: { select: { reg_desc: true, reg_code: true }  },
-        g12_school: { select: { school_name: true }  },
-        college_school: { select: { school_name: true }  }
-      }
+        siblings: true,
+        permanent_barangay: { select: { brgy_desc: true, brgy_code: true } },
+        permanent_citynum: {
+          select: { citymun_desc: true, citymun_code: true },
+        },
+        permanent_province: { select: { prov_desc: true, prov_code: true } },
+        permanent_region: { select: { reg_desc: true, reg_code: true } },
+        current_barangay: { select: { brgy_desc: true, brgy_code: true } },
+        current_citynum: { select: { citymun_desc: true, citymun_code: true } },
+        current_province: { select: { prov_desc: true, prov_code: true } },
+        current_region: { select: { reg_desc: true, reg_code: true } },
+        g12_school: { select: { school_name: true } },
+        college_school: { select: { school_name: true } },
+      },
     });
 
     return user;
   } catch (error) {
-    console.error('Error fetching users:', error);
-    throw new Error('Database error');
+    console.error("Error fetching users:", error);
+    throw new Error("Database error");
   }
-}
+};
 
 export const checkIfStudentRepo = async (userId: string): Promise<boolean> => {
   try {
     const user = await prisma.user.findUnique({
       where: {
         id: uuidToBinary(userId),
-        record_status: RecordStatus.ACTIVE
+        record_status: RecordStatus.ACTIVE,
       },
       select: {
         role: {
           select: {
             id: true,
             name: true,
-            record_status: true
-          }
-        }
-      }
+            record_status: true,
+          },
+        },
+      },
     });
 
-    if (!user || !user.role || user.role.record_status !== RecordStatus.ACTIVE) {
+    if (
+      !user ||
+      !user.role ||
+      user.role.record_status !== RecordStatus.ACTIVE
+    ) {
       return false;
     }
 
-    console.log("user", userId, {id: binaryToUuid(user.role.id), role_name: user.role.name});
+    console.log("user", userId, {
+      id: binaryToUuid(user.role.id),
+      role_name: user.role.name,
+    });
 
-    return user.role.name.toLowerCase() === "student" || user.role.name.toLowerCase() === "system admin";
+    return (
+      user.role.name.toLowerCase() === "student" ||
+      user.role.name.toLowerCase() === "system admin"
+    );
   } catch (error) {
-    console.error('Error checking role existence:', error);
-    throw new Error('Database error');
+    console.error("Error checking role existence:", error);
+    throw new Error("Database error");
   }
 };
 
-export const isEmailTakenByAnotherStudentRepo = async (email: string, studentId: string): Promise<boolean> => {
+export const isEmailTakenByAnotherStudentRepo = async (
+  email: string,
+  studentId: string
+): Promise<boolean> => {
   try {
     const existingUser = await prisma.student.findFirst({
       where: {
@@ -186,14 +230,16 @@ export const isEmailTakenByAnotherStudentRepo = async (email: string, studentId:
 
     return !!existingUser;
   } catch (error) {
-    console.error('Error checking email existence:', error);
-    throw new Error('Database error');
+    console.error("Error checking email existence:", error);
+    throw new Error("Database error");
   }
 };
 
-export const doesStudentExistRepo = async (studentId: string): Promise<boolean> => {
+export const doesStudentExistRepo = async (
+  studentId: string
+): Promise<boolean> => {
   const student = await prisma.student.findUnique({
-    where: { id: uuidToBinary(studentId) }, 
+    where: { id: uuidToBinary(studentId) },
   });
   return !!student;
-}
+};

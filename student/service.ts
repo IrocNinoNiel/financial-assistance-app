@@ -27,10 +27,11 @@ export const registerStudentService = async ( data: StudentRequest, authHeader: 
 export const updateStudentService = async ( data: StudentRequest, authHeader: any, studentId: string ) => {
 
     const userDetails = extractUserFromToken(authHeader);
-    const userId = userDetails.userId;
+    const createdUserId = userDetails.userId;
+    const userId = data.userId;
     const convertedId = uuidToBinary(studentId);
 
-    const studentData: Prisma.studentUncheckedCreateInput = convertStudentResponseToStudent(data, userId);
+    const studentData: Prisma.studentUncheckedCreateInput = convertStudentResponseToStudent(data, createdUserId);
     const student: student = await updateStudentRepo(studentData, convertedId);
     console.log("Student data has been updated", studentData);
 

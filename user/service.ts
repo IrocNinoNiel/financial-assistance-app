@@ -2,7 +2,7 @@ import { user } from "@prisma/client";
 import { UpdateUserRequest, UserDetailsResponse, UserParameter, UserResponse, uuidToBinary } from "../utils";
 import { toUserResponse } from "../utils/converter";
 import { checkIfNotSponsorRepo, deleteUserRepo, doesUserExistRepo, getAllUsersRepo, getOneUserRepo, isAdminRepo, updateUserRepo } from "./repository"
-import { checkIfStudentRepo, getOneStudentRepo, updateStudentRepo } from "../student/repository";
+import { checkIfStudentRepo, getOneStudentRepo, partialUpdateStudentRepo, updateStudentRepo } from "../student/repository";
 
 export const isAdmin = async (userId: string) : Promise<boolean> => { 
     return isAdminRepo(userId);
@@ -58,8 +58,8 @@ export const updateUserService = async ( data: UpdateUserRequest, userId: string
         student.middle_name = data.middleName;
         student.mobile_number = data.mobileNumber;
         student.email = data.email;
-
-        await updateStudentRepo(student, student.id);
+        
+        await partialUpdateStudentRepo(student, student.id);
     }
 
     return toUserResponse(user);

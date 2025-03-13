@@ -7,7 +7,7 @@ import { APPLICATION_STAGE, APPLICATION_STATUS } from './constant';
 
 export function convertStudentResponseToStudent(response: StudentRequest, userId: string): Prisma.studentUncheckedCreateInput  {
   return {
-    user_id: uuidToBinary(userId),
+    user_id: uuidToBinary(response.userId),
     first_name: response.firstName,
     middle_name: response.middleName,
     last_name: response.lastName,
@@ -139,6 +139,7 @@ export function toUserResponse(user: any): UserListResponse {
 export function toStudentResponse(item: any ): StudentListResponse {
   return {
     studentId: binaryToUuid(item.student_id || item.id),
+    userId: binaryToUuid(item.user_id),
     firstName: item.first_name,
     middleName: item.middle_name || undefined,
     lastName: item.last_name,
