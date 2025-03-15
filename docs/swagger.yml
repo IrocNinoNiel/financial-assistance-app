@@ -198,16 +198,17 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/InternalErrorResponse'
-  /students/{userId}:
+    
+  /students/{studentId}:
     get:
       tags:
         - Student
       summary: Get a student
       parameters:
-        - name: userId
+        - name: studentId
           in: path
           required: true
-          description: The ID of the user with student details
+          description: The ID of the student
           schema:
             type: string
             example: fa8d0ba7-3bd8-4a30-8127-82ca571d1bd0
@@ -230,7 +231,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/InternalErrorResponse'
-  /students/{studentId}:
     put:
       tags:
         - Student
@@ -319,12 +319,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/InternalErrorResponse'
-  /file-uploads:
+  /file-uploads/{studentId}:
     post:
       tags:
       - File Upload
       summary: Upload a file
       description: Endpoint to upload a file.
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          description: The ID of the student that the file belongs to
+          schema:
+            type: string
+            example: fa8d0ba7-3bd8-4a30-8127-82ca571d1bd0
       requestBody:
         required: true
         content:

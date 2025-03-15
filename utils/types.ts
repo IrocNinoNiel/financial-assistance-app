@@ -8,6 +8,15 @@ export interface ErrorValidationResult {
     errors: error[];
 }
 
+export interface AuthResponse {
+  user: string;
+  studentId: string;
+  userId: string;
+  token: string;
+  permissions: any[];
+
+}
+
 export interface error{ 
     field: string; message: string 
 }

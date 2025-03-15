@@ -48,6 +48,7 @@ async function adminUser() {
       data: {
         role_id: role.id,                
         email: "admin@gmail.com",
+        username: "admin123",
         first_name: "John",
         last_name: "Doe",
         mobile_number: "09382716281",     
@@ -142,6 +143,6 @@ async function fileType() {
 
 
 // roleSeed();
-// initialModuleAndPermission();
+initialModuleAndPermission();
 // fileType();
-adminUser();
+// adminUser();

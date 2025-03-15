@@ -24,7 +24,6 @@ model user {
   record_status Boolean?      @default(true)
   profile       String?       @db.VarChar(255)
   students      student[]
-  files         file[]
 
   sponsors  sponsorship[] @relation(name: "sponsorship_sponsor")      // Sponsorships where the user is a sponsor
   coordinators  sponsorship[] @relation(name: "sponsorship_coordinator")  // Sponsorships where the user is a coordinator
@@ -193,6 +192,7 @@ model student {
 
   g12_school     school? @relation("G12School", fields: [g12_school_id], references: [id])
   college_school school? @relation("CollegeSchool", fields: [college_school_id], references: [id])
+  files         file[]
 
   @@index([user_id], map: "user_id")
   @@map("students")
@@ -321,10 +321,10 @@ model file {
   path          String
   mime_type     String
   file_type_id  Bytes     @db.Binary(16)
-  user_id       Bytes     @db.Binary(16)
+  student_id    Bytes     @db.Binary(16)
   record_status Boolean   @default(true)
   fileType      fileType  @relation(fields: [file_type_id], references: [id], onDelete: Cascade)
-  user          user      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  student       student      @relation(fields: [student_id], references: [id], onDelete: Cascade)
   created_at    DateTime? @default(now())
   updated_at    DateTime?
   created_by    Bytes?    @db.Binary(16)

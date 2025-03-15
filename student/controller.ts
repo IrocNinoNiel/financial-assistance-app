@@ -2,7 +2,7 @@ import { Router } from "express";
 import { ResponseHandler } from "../response";
 import { StudentRequest } from "../utils";
 import { getAllStudent, getOneStudent, updateStudentService } from "./service";
-import { validateStudentRegistration, validateUpdateStudent, validateGetOneStudent } from "../middleware/validation";
+import { validateStudentRegistration, validateUpdateStudent, validateGetOneStudent, validateStudentId } from "../middleware/validation";
 
 
 export default () => {
@@ -37,11 +37,11 @@ export default () => {
         }
     });
 
-    studentAPI.get('/:userId', validateGetOneStudent, async (req, res) => { 
+    studentAPI.get('/:studentId', validateStudentId, async (req, res) => { 
         try {
 
-            const { userId } = req.params;
-            const result = await getOneStudent( userId );
+            const { studentId } = req.params;
+            const result = await getOneStudent( studentId );
             ResponseHandler.ok(req, res, result);
 
         } catch (err) {

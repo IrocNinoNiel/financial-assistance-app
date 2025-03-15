@@ -42,7 +42,7 @@ export const updateStudentService = async ( data: StudentRequest, authHeader: an
     await updateSiblingsRepo(binaryToUuid(student.id), siblingData)
     console.log("Student sibling has been saved", siblingData);
 
-    const response = await getOneStudentRepo( userId );
+    const response = await getOneStudentRepo( studentId );
     const convertedResult = toStudentResponse( response );
     console.log("Student Data Successfully get",convertedResult);
     return convertedResult;
@@ -54,8 +54,8 @@ export const getAllStudent = async () => {
     return converted;
 }
 
-export const getOneStudent = async ( userId: string ) => {
-    const data = await getOneStudentRepo( userId );
+export const getOneStudent = async ( studentId: string ) => {
+    const data = await getOneStudentRepo( studentId );
 
     console.log("get one student", data);
     if(data === null) {

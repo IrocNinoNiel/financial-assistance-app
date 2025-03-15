@@ -1,5 +1,3 @@
-
-
 INSERT INTO `barangays` (`id`, `brgy_code`, `brgy_desc`, `reg_code`, `prov_code`, `citymun_code`) VALUES
 (1, '012801001', 'Adams (Pob.)', '01', '0128', '012801'),
 (2, '012802001', 'Bani', '01', '0128', '012802'),

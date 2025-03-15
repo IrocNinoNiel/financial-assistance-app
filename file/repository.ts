@@ -63,6 +63,6 @@ export const getAllFileTypeRepo = async () => {
      return data;
 }
 
-export const getAllFileOfUserRepo = async ( userId: string ): Promise<any[]> => {
-    return await prisma.file.findMany( { where: { user_id: uuidToBinary(userId)}, include: { fileType: { select: { name: true } } } });
+export const getAllFileOfUserRepo = async ( studentId: string ): Promise<any[]> => {
+    return await prisma.file.findMany( { where: { student_id: uuidToBinary(studentId)}, include: { fileType: { select: { name: true } } } });
 }

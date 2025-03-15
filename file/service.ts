@@ -4,13 +4,13 @@ import { binaryToUuid, uuidToBinary } from "../utils";
 import { FileTypeResponse } from '../utils/types';
 import { toFileTypeResponse } from "../utils/converter";
 
-export const fileUpload= async ( userId: string, uploadedFileName: string, mimetype: string,fileTypeId: string, path: string, userUUID: string ) => { 
+export const fileUpload= async ( studentId: string, uploadedFileName: string, mimetype: string,fileTypeId: string, path: string, userUUID: string ) => { 
     const data: Prisma.fileUncheckedCreateInput = {
         file_name: uploadedFileName,
         path,
         mime_type: mimetype,
         file_type_id: uuidToBinary(fileTypeId),
-        user_id: uuidToBinary(userId),
+        student_id: uuidToBinary(studentId),
         created_by: uuidToBinary(userUUID),
         updated_by: uuidToBinary(userUUID),
         updated_at: new Date()

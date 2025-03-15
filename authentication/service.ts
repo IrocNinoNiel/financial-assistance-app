@@ -1,12 +1,10 @@
-import { binaryToUuid, ChangePasswordRequest, extractUserFromToken, LoginRequest, RegisterRequest, uuidToBinary } from "../utils";
+import { binaryToUuid, ChangePasswordRequest, extractUserFromToken, LoginRequest, RegisterRequest, AuthResponse, uuidToBinary } from "../utils";
 import bcrypt from 'bcryptjs';
-import { v4 as uuidv4 } from 'uuid';
-import { User } from "./model";
 import { changePasswordRepo, checkEmailExistsRepo, checkRoleRepo, checkUserExists, checkUsernameExistsRepo, getPermission, getRoleRepo, registerRepo } from "./repository";
 import { convertToUser, toUserPermissionResponse } from "../utils/converter";
 import jwt from 'jsonwebtoken';
 import { Prisma, student } from "@prisma/client";
-import { checkIfStudentRepo, registerStudentRepo } from "../student/repository";
+import { checkIfStudentRepo, getOneStudentUsingUserIdRepo, registerStudentRepo } from "../student/repository";
 
 export const registerService = async ( data: RegisterRequest, isStudent: boolean = false ) => {
 
@@ -21,6 +19,7 @@ export const registerService = async ( data: RegisterRequest, isStudent: boolean
     const result: any = await registerRepo(user);
     console.log("User data has been saved", result);
 
+    let studentId = null;
     const student = await checkIfStudentRepo(binaryToUuid(result.id));
     console.log("Check if user is student", student);
 
@@ -35,6 +34,7 @@ export const registerService = async ( data: RegisterRequest, isStudent: boolean
         };
         
         const student: student = await registerStudentRepo(studentData);
+        studentId = binaryToUuid(student.id);
         console.log("Student data has been saved", student);
     }
 
@@ -52,8 +52,9 @@ export const registerService = async ( data: RegisterRequest, isStudent: boolean
     const converted: any = toUserPermissionResponse(permission);
     console.log("Get Role Permission converted", converted);
 
-    const userData =  {
+    const userData: AuthResponse =  {
         "user": result.username,
+        "studentId": studentId,
         "userId": binaryToUuid(result.id),
         "token": token,
         "permissions": converted
@@ -82,15 +83,28 @@ export const loginService = async ( data: LoginRequest ) => {
         { expiresIn: '1h' }
     );
 
+    let studentId = null;
+    const student = await checkIfStudentRepo(binaryToUuid(user.id));
+    if(student) {
+        const studentDetails: any = await getOneStudentUsingUserIdRepo(binaryToUuid(user.id));
+
+        // another if to ensure that it is a student not a admin
+        if( studentDetails ) {
+            studentId = binaryToUuid(studentDetails.id);
+        }
+    }
+
     const permission: any[] = await getPermission( binaryToUuid(user.role_id) );
     const converted: any = toUserPermissionResponse(permission);
 
     return {
-        "user": user.username,
-        "userId": binaryToUuid(user.id),
-        "token": token,
-        "permissions": converted
-    };
+        user: user.username,
+        userId: binaryToUuid(user.id),
+        studentId: studentId,
+        token: token,
+        permissions: converted
+    } as AuthResponse;
+    
 }
 
 export const checkRole = async ( roleId: string) => {

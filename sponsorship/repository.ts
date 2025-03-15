@@ -5,7 +5,6 @@ import {
   sponsorshipSchool,
 } from "@prisma/client";
 import { RecordStatus, uuidToBinary } from "../utils";
-import { getAllSponsorship } from "./service";
 
 export const createSponsorshipRepo = async (
   data: Prisma.sponsorshipUncheckedCreateInput,

@@ -4,6 +4,7 @@ import { ResponseHandler } from "../response";
 import { extractUserFromToken, FileTypeResponse, SUCCESS_MESSAGES, VALIDATION_MESSAGES } from "../utils";
 import path from "path";
 import { fileUpload, findFileTypeId, getAllFileType, imageUpload } from "./service";
+import { validateStudentId } from "../middleware/validation";
 
 
 
@@ -67,7 +68,7 @@ export default () => {
 
     const fileAPI = Router();
 
-    fileAPI.post('/', async (req, res) => {
+    fileAPI.post('/:studentId', validateStudentId, async (req, res) => {
       upload(req, res, async (err: any) => {
         if (err) {
           console.error("File upload error:", err);
@@ -76,9 +77,11 @@ export default () => {
         } else if (!req.file) {
           ResponseHandler.invalidRequest(req, res, { message: "No file uploaded" });
         } else {
-          
+
           const authHeader = req.headers.authorization;
           const userDetails = extractUserFromToken(authHeader);
+          
+          const { studentId } = req.params;
           const { fileTypeId } = req.body;
 
           if(!fileTypeId) {
@@ -90,7 +93,7 @@ export default () => {
             ResponseHandler.invalidRequest(req, res, {"errors": [ {"type": "field", "value": fileTypeId, "msg": VALIDATION_MESSAGES.INVALID_FILE_TYPE_ID, "path": "fileTypeId", "location": "body"}]})
           }
         
-          await fileUpload(userDetails.userId, req.file.filename, req.file.mimetype, fileTypeId,  req.file.path, userDetails.userId);
+          await fileUpload(studentId, req.file.filename, req.file.mimetype, fileTypeId,  req.file.path, userDetails.userId);
           ResponseHandler.created(req, res, SUCCESS_MESSAGES.FILE_SAVED);
         }
       });
@@ -115,7 +118,7 @@ export default () => {
       });
     });
 
-    fileAPI.get('/file-type', async ( req, res) => {
+    fileAPI.get('/file-type',async ( req, res) => {
        try {
           const data: FileTypeResponse[] = await getAllFileType( );
           ResponseHandler.ok(req, res, data);

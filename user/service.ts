@@ -2,7 +2,7 @@ import { user } from "@prisma/client";
 import { UpdateUserRequest, UserDetailsResponse, UserParameter, UserResponse, uuidToBinary } from "../utils";
 import { toUserResponse } from "../utils/converter";
 import { checkIfNotSponsorRepo, deleteUserRepo, doesUserExistRepo, getAllUsersRepo, getOneUserRepo, isAdminRepo, updateUserRepo } from "./repository"
-import { checkIfStudentRepo, getOneStudentRepo, partialUpdateStudentRepo, updateStudentRepo } from "../student/repository";
+import { checkIfStudentRepo, getOneStudentUsingUserIdRepo, partialUpdateStudentRepo, updateStudentRepo } from "../student/repository";
 
 export const isAdmin = async (userId: string) : Promise<boolean> => { 
     return isAdminRepo(userId);
@@ -51,15 +51,17 @@ export const updateUserService = async ( data: UpdateUserRequest, userId: string
     console.log("Check if user is student", checkStudent);
 
     if(checkStudent) {
-        const student = await getOneStudentRepo(userId);
+        const student = await getOneStudentUsingUserIdRepo(userId);
 
-        student.first_name = data.firstName;
-        student.last_name = data.lastName;
-        student.middle_name = data.middleName;
-        student.mobile_number = data.mobileNumber;
-        student.email = data.email;
-        
-        await partialUpdateStudentRepo(student, student.id);
+        if(student) {
+            student.first_name = data.firstName;
+            student.last_name = data.lastName;
+            student.middle_name = data.middleName;
+            student.mobile_number = data.mobileNumber;
+            student.email = data.email;
+            
+            await partialUpdateStudentRepo(student, student.id);
+        }
     }
 
     return toUserResponse(user);

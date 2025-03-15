@@ -144,12 +144,28 @@ export const getAllStudentRepo = async (): Promise<any> => {
   }
 };
 
-export const getOneStudentRepo = async (userId: string): Promise<any> => {
+export const getOneStudentUsingUserIdRepo = async (userId: string): Promise<any> => {
   try {
     const user = await prisma.student.findFirst({
       where: {
         record_status: RecordStatus.ACTIVE,
         user_id: uuidToBinary(userId),
+      }
+    });
+
+    return user;
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    throw new Error("Database error");
+  }
+};
+
+export const getOneStudentRepo = async (studentId: string): Promise<any> => {
+  try {
+    const user = await prisma.student.findFirst({
+      where: {
+        record_status: RecordStatus.ACTIVE,
+        id: uuidToBinary(studentId),
       },
       include: {
         siblings: true,

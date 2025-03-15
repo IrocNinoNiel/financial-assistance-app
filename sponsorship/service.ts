@@ -1,12 +1,9 @@
-import { Prisma, PrismaClient, sponsorship, sponsorshipApplication } from "@prisma/client";
+import { Prisma, PrismaClient, sponsorship } from "@prisma/client";
 import { binaryToUuid, extractUserFromToken, SponsorshipRequest, uuidToBinary } from "../utils";
 import { toApplyScholarship, toApplyScholarshipResponse, toSponsorReqModel, toSponsorSchoolModel, toSponsorshipModel, toSponsorshipResponse } from "../utils/converter";
 import { checkIfSponsorshipExistRepo, checkSponsorshipIdRepo, createSponsorshipRepo, createSponsorshipRequirementRepo, createSponsorshipSchoolRepo, deleteAllSponsorshipRequirements, deleteAllSponsorshipSchools, getAllSponsorshipRepo, getAllSponsorshipRequirements, getAllSponsorshipSchoolRepo, updateSponsorshipRepo, getOneSponsorshipRepo, deleteOneSponsorshipRepo, applyToSponsorshipRepo, doesStudentAlreadyAppliedRepo, getAllStudentSponsorshipRepo, getOneStudentSponsorshipRepo, getAllSponsorshipStudent } from './repository';
 import { ApplySponsorshipRequest, ApplySponsorshipResponse, RecordStatus, SponsorshipResponse } from '../utils/types';
-import { checkIfNotSponsor } from "../user/service";
-import { checkIfStudentRepo, getOneStudentRepo } from "../student/repository";
-import { checkIfNotSponsorRepo } from "../user/repository";
-import { getOneStudent } from "../student/service";
+import { getOneStudentRepo } from "../student/repository";;
 import { getAllFileOfUser } from "../file/service";
 const prisma = new PrismaClient({});
 
