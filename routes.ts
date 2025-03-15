@@ -18,7 +18,7 @@ routes.use(logger);
 routes.use(parameters);
 routes.use("/auth", authController());
 routes.use("/roles", roleController());
-routes.use('/students', authentication, authStudent, studentController());
+routes.use('/students', authentication, studentController());
 routes.use("/file-uploads", authentication, fileController());
 routes.use("/users", authentication, userController())
 routes.use("/address", authentication, addressController());

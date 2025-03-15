@@ -3,7 +3,7 @@ import { NextFunction, Request, RequestHandler, Response } from "express";
 import ResponseHandler from "../response/response";
 import { validationResult, body, param } from "express-validator";
 import { checkEmailExists, checkRole, checkUsernameExists } from "../authentication/service";
-import { doesStudentExist, getOneStudent, isEmailTakenByAnotherStudent } from "../student/service";
+import { doesStudentExist, getOneStudent, getOneStudentUsingUserId, isEmailTakenByAnotherStudent } from "../student/service";
 import { query } from "express-validator";
 import { checkBarangayExist, checkCityMunExist, checkProvinceExist, checkRegionExist } from "../address/service";
 import { checkIfNotSponsor, doesUserExist } from "../user/service";
@@ -218,7 +218,7 @@ export const validateUpdateStudent = [
     }
   })
   .custom(async (userId) => {
-    const haveData = await getOneStudent( userId );
+    const haveData = await getOneStudentUsingUserId( userId );
     if( haveData === null ) {
       return Promise.reject(VALIDATION_MESSAGES.USER_NO_STUDENT_INFO); 
     }

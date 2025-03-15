@@ -1,7 +1,7 @@
 import { binaryToUuid, extractUserFromToken, PartialStudentUser, StudentListResponse, StudentRequest, uuidToBinary } from "../utils";
 import { v4 as uuidv4 } from 'uuid';
 import { convertStudentResponseToStudent, convertToSiblingData, convertToStudentUser, toStudentResponse } from "../utils/converter";
-import { checkIfStudentRepo, doesStudentExistRepo, getAllStudentRepo, getOneStudentRepo, isEmailTakenByAnotherStudentRepo, registerSiblingsRepo, registerStudentRepo, updateSiblingsRepo, updateStudentRepo } from "./repository";
+import { checkIfStudentRepo, doesStudentExistRepo, getAllStudentRepo, getOneStudentRepo, isEmailTakenByAnotherStudentRepo, registerSiblingsRepo, registerStudentRepo, updateSiblingsRepo, updateStudentRepo, getOneStudentUsingUserIdRepo } from './repository';
 import { Prisma, student } from "@prisma/client";
 import { partialUpdateUserRepo } from "../user/repository";
 
@@ -58,12 +58,23 @@ export const getOneStudent = async ( studentId: string ) => {
     const data = await getOneStudentRepo( studentId );
 
     console.log("get one student", data);
-    if(data === null) {
+    if(data === null) { 
         return null;
     }
 
     const converted = toStudentResponse( data );
     return converted;
+}
+
+export const getOneStudentUsingUserId = async ( userId: string ) => {
+    const data = await getOneStudentUsingUserIdRepo( userId );
+
+    console.log("get one student", data);
+    if(data === null) { 
+        return null;
+    }
+
+    return data;
 }
 
 export const checkStudent = async (roleId: string): Promise<boolean> => {

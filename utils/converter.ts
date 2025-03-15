@@ -424,15 +424,15 @@ export function toSponsorshipResponse( payload: any, schools: any[], requirement
     fundAllocation: payload.fund_allocation,
     status: payload.status,
     studentCount: payload._count?.sponsorshipApplication ?? 0,
-    sponsorshipSchool: (schools ?? []).map(item => ({
+    sponsorshipSchool: (payload.schools ?? []).map(item => ({
       schoolId: binaryToUuid(item.school_id),
       schoolName: item.school.school_name
     })),
-    sponsorshipRequirements: (requirements ?? []).map(item => ({
+    sponsorshipRequirements: (payload.requirements ?? []).map(item => ({
       fileId: binaryToUuid(item.file_type_id),
       fileName: item.fileType.name
     })),
-    students: (data ?? []).map(item => (
+    students: (payload.sponsorshipApplication ?? []).map(item => (
       {
       studentId: item.student.id ? binaryToUuid(item.student.id) : null,
       studentName: `${item.student.first_name} ${item.student.middle_name ? item.student.middle_name + " " : ""}${item.student.last_name}`,

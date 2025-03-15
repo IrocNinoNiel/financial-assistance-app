@@ -3,6 +3,7 @@ import { UpdateUserRequest, UserDetailsResponse, UserParameter, UserResponse, uu
 import { toUserResponse } from "../utils/converter";
 import { checkIfNotSponsorRepo, deleteUserRepo, doesUserExistRepo, getAllUsersRepo, getOneUserRepo, isAdminRepo, updateUserRepo } from "./repository"
 import { checkIfStudentRepo, getOneStudentUsingUserIdRepo, partialUpdateStudentRepo, updateStudentRepo } from "../student/repository";
+import { getOneStudentUsingUserId } from "../student/service";
 
 export const isAdmin = async (userId: string) : Promise<boolean> => { 
     return isAdminRepo(userId);
@@ -51,7 +52,7 @@ export const updateUserService = async ( data: UpdateUserRequest, userId: string
     console.log("Check if user is student", checkStudent);
 
     if(checkStudent) {
-        const student = await getOneStudentUsingUserIdRepo(userId);
+        const student = await getOneStudentUsingUserId(userId);
 
         if(student) {
             student.first_name = data.firstName;

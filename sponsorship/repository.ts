@@ -202,6 +202,17 @@ export const getAllSponsorshipRepo = async (
       coordinator: {
         select: { first_name: true, middle_name: true, last_name: true },
       },
+      schools: {
+        include: { school: { select: { id: true, school_name: true } }}
+      },
+      requirements: {
+        include: { fileType: { select: { id: true, name: true } }}
+      },
+      sponsorshipApplication: {
+        include: { student: {
+          include: { files: { select: { file_name: true } } }
+        }},
+      },
       _count: {
         select: {
           sponsorshipApplication: true,

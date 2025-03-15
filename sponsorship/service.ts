@@ -112,16 +112,9 @@ export const getAllSponsorship = async ( authHeader: any ): Promise<SponsorshipR
 
     const data = await getAllSponsorshipRepo( whereCondition, prisma );
 
-    return Promise.all(
-        data.map(async (item) => {
-            const sponsorshipId = binaryToUuid(item.id);
-            const schools = await getAllSponsorshipSchoolRepo(sponsorshipId, prisma);
-            const requirements = await getAllSponsorshipRequirements(sponsorshipId, prisma);
-            const payload = await getAllSponsorshipStudent( sponsorshipId, prisma);
+    console.log( data );
 
-            return toSponsorshipResponse(item, schools, requirements, payload);
-        })
-    );
+    return data.map( item => toSponsorshipResponse(item, [], [], []));
 };
 
 export const getAllAvailableSponsorship = async ( authHeader: any ): Promise<SponsorshipResponse[]> => {

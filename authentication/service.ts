@@ -4,7 +4,8 @@ import { changePasswordRepo, checkEmailExistsRepo, checkRoleRepo, checkUserExist
 import { convertToUser, toUserPermissionResponse } from "../utils/converter";
 import jwt from 'jsonwebtoken';
 import { Prisma, student } from "@prisma/client";
-import { checkIfStudentRepo, getOneStudentUsingUserIdRepo, registerStudentRepo } from "../student/repository";
+import { checkIfStudentRepo, registerStudentRepo } from "../student/repository";
+import { getOneStudentUsingUserId } from "../student/service";
 
 export const registerService = async ( data: RegisterRequest, isStudent: boolean = false ) => {
 
@@ -86,7 +87,7 @@ export const loginService = async ( data: LoginRequest ) => {
     let studentId = null;
     const student = await checkIfStudentRepo(binaryToUuid(user.id));
     if(student) {
-        const studentDetails: any = await getOneStudentUsingUserIdRepo(binaryToUuid(user.id));
+        const studentDetails: any = await getOneStudentUsingUserId(binaryToUuid(user.id));
 
         // another if to ensure that it is a student not a admin
         if( studentDetails ) {
