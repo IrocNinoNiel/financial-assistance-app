@@ -142,7 +142,25 @@ async function fileType() {
 }
 
 
-// roleSeed();
-initialModuleAndPermission();
-// fileType();
-// adminUser();
+async function seedAll() {
+  try {
+    await roleSeed();
+    console.log("Role seeding done");
+
+    await fileType();
+    console.log("File type seeding done");
+
+    await initialModuleAndPermission();
+    console.log("Module & permission seeding done");
+
+    await adminUser();
+    console.log("Admin user seeding done");
+
+    console.log("All seeding completed!");
+  } catch (error) {
+    console.error("Error during seeding:", error);
+  }
+}
+
+// Run the function
+seedAll();
