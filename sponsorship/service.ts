@@ -2,8 +2,8 @@ import { Prisma, PrismaClient, sponsorship } from "@prisma/client";
 import { binaryToUuid, extractUserFromToken, SponsorshipRequest, uuidToBinary } from "../utils";
 import { toApplyScholarship, toApplyScholarshipResponse, toSponsorReqModel, toSponsorSchoolModel, toSponsorshipModel, toSponsorshipResponse } from "../utils/converter";
 import { checkIfSponsorshipExistRepo, checkSponsorshipIdRepo, createSponsorshipRepo, createSponsorshipRequirementRepo, createSponsorshipSchoolRepo, deleteAllSponsorshipRequirements, deleteAllSponsorshipSchools, getAllSponsorshipRepo, getAllSponsorshipRequirements, getAllSponsorshipSchoolRepo, updateSponsorshipRepo, getOneSponsorshipRepo, deleteOneSponsorshipRepo, applyToSponsorshipRepo, doesStudentAlreadyAppliedRepo, getAllStudentSponsorshipRepo, getOneStudentSponsorshipRepo, getAllSponsorshipStudent } from './repository';
-import { ApplySponsorshipRequest, ApplySponsorshipResponse, GetAllSponsorshipType, RecordStatus, SponsorshipResponse } from '../utils/types';
-import { getOneStudentRepo } from "../student/repository";;
+import { ApplySponsorshipRequest, ApplySponsorshipResponse, AuthPayload, GetAllSponsorshipType, RecordStatus, SponsorshipResponse } from '../utils/types';
+import { getOneStudentRepo, getStudentCollegeSchoolRepo } from "../student/repository";;
 import { getAllFileOfStudent, getBulkFileOfStudents } from "../file/service";
 const prisma = new PrismaClient({
   log: ['query', 'info', 'warn', 'error'],
@@ -147,16 +147,13 @@ export const getAllSponsorship = async ( authHeader: string ): Promise<Sponsorsh
     return result;
 };
 
-export const getAllAvailableSponsorship = async ( authHeader: any ): Promise<SponsorshipResponse[]> => {
+export const getAllAvailableSponsorship = async ( studentId: string ): Promise<SponsorshipResponse[]> => {
     
-    // check if student or sponsor
-    const userDetails = extractUserFromToken(authHeader);
-    const userId = userDetails.userId;
     let whereCondition: any = {};
 
-    const student = await getOneStudentRepo( userId );
+    const studentCollegeSchoolID = await getStudentCollegeSchoolRepo( studentId );
 
-    if (!student || student.college_school_id === null) {
+    if (!studentCollegeSchoolID || studentCollegeSchoolID === null) {
         return [];
     }
 
@@ -165,7 +162,7 @@ export const getAllAvailableSponsorship = async ( authHeader: any ): Promise<Spo
         schools: {
             some: {
                 school_id: {
-                equals: student.college_school_id,
+                equals: uuidToBinary(studentCollegeSchoolID),
                 }
             }
         }

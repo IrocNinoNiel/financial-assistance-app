@@ -158,3 +158,26 @@ export const changePasswordRepo = async (userId: string, password: string) => {
     throw new Error('Database error');
   }
 }
+
+export const getUserRoleRepo = async ( userId: string ): Promise<string> => {
+  try {
+    const userRole = await prisma.user.findUnique({
+      where: {
+        id: uuidToBinary(userId)
+      },
+      select: {
+        role: { select: { name: true}}
+      }
+    })
+
+    if (!userRole || !userRole.role) {
+      console.warn(`Role not found for user with ID: ${userId}`);
+      return null;
+    }
+
+    return userRole.role.name.toLowerCase();
+  } catch (error) {
+    console.error('Error in change password:', error);
+    throw new Error('Database error in getUserRoleRepo');
+  }
+}

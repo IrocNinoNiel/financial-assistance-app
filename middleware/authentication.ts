@@ -1,9 +1,10 @@
 import { NextFunction, Request, Response } from "express";
 import ResponseHandler from "../response/response";
-import { ERROR_MESSAGES, extractUserFromToken } from "../utils";
+import { AuthPayload, ERROR_MESSAGES, extractUserFromToken } from "../utils";
 import jwt from 'jsonwebtoken';
 import { getPermission, isAdmin } from "../user/service";
 import { checkStudent } from "../student/service";
+import { getUserRole } from "../authentication/service";
 
 export async function authentication(req: Request, res: Response, next:NextFunction ) {
 
@@ -17,53 +18,29 @@ export async function authentication(req: Request, res: Response, next:NextFunct
     }
 }
 
-export async function authAdmin(req: Request, res: Response, next: NextFunction) {
-    try {
-    const authenticated = await auth(req, res);
+export const allowRoles = (...allowedRoles: string[]) => {
+    return async (req: Request, res: Response, next: NextFunction) => {
+      try {
 
-    if (authenticated) {
-        const authHeader = req.headers.authorization;
-        const userDetails = extractUserFromToken(authHeader);
-        const admin = await isAdmin(userDetails.userId);
+        const authHeader: string = req.headers.authorization;
+        const userDetails: AuthPayload = extractUserFromToken(authHeader);
+        const userRole: string = await getUserRole(userDetails.userId);
 
-        if (admin) {
-            next();
-        } else {
+        if (userRole === null) {
             ResponseHandler.forbidden(req, res, ERROR_MESSAGES.UNAUTHORIZED);
-        }
-    } else {
-        ResponseHandler.forbidden(req, res, ERROR_MESSAGES.INVALID_TOKEN);
-    }
-    } catch (error) {
-        console.error('Error in authAdmin middleware:', error);
-        ResponseHandler.forbidden(req, res, ERROR_MESSAGES.SERVER_ERROR);
-    }
-}
-
-export async function authStudent(req: Request, res: Response, next: NextFunction) {
-    try {
-    const authenticated = await auth(req, res);
-
-    if (authenticated) {
-        const authHeader = req.headers.authorization;
-        const userDetails = extractUserFromToken(authHeader);
-        const student = await checkStudent(userDetails.userId);
-
-        if (student) {
-            console.log('Student authentication passed, proceeding to next middleware')
-            next();
+        } else if (!allowedRoles.includes(userRole)) {
+            ResponseHandler.forbidden(req, res, ERROR_MESSAGES.UNAUTHORIZED);
         } else {
-            ResponseHandler.forbidden(req, res, ERROR_MESSAGES.NON_STUDENT_UNAUTHORIZED);
+            console.log("User is Allowed to access the API");
+            next();
         }
-    } else {
-        ResponseHandler.forbidden(req, res, ERROR_MESSAGES.INVALID_TOKEN);
-    }
-    } catch (error) {
-        console.error('Error in authAdmin middleware:', error);
-        ResponseHandler.forbidden(req, res, ERROR_MESSAGES.SERVER_ERROR);
-    }
-}
-
+      } catch (error) {
+        console.error("Error in allowRoles middleware:", error);
+        ResponseHandler.internalServerError(req, res, ERROR_MESSAGES.SERVER_ERROR);
+      }
+    };
+};
+  
 
 
 

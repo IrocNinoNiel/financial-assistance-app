@@ -1,6 +1,6 @@
 import { binaryToUuid, ChangePasswordRequest, extractUserFromToken, LoginRequest, RegisterRequest, AuthResponse, uuidToBinary } from "../utils";
 import bcrypt from 'bcryptjs';
-import { changePasswordRepo, checkEmailExistsRepo, checkRoleRepo, checkUserExists, checkUsernameExistsRepo, getPermission, getRoleRepo, registerRepo } from "./repository";
+import { changePasswordRepo, checkEmailExistsRepo, checkRoleRepo, checkUserExists, checkUsernameExistsRepo, getPermission, getRoleRepo, getUserRoleRepo, registerRepo } from "./repository";
 import { convertToUser, toUserPermissionResponse } from "../utils/converter";
 import jwt from 'jsonwebtoken';
 import { Prisma, student } from "@prisma/client";
@@ -127,4 +127,8 @@ export const checkEmailExists = async ( email: string, userId?: string ): Promis
 
 export const checkUsernameExists  = async ( username: string, userId?: string ): Promise<Boolean> => {
     return checkUsernameExistsRepo( username, userId);
+}
+
+export const getUserRole = async ( userId: string ) => {
+    return getUserRoleRepo( userId );
 }

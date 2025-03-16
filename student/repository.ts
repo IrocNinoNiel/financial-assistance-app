@@ -163,6 +163,30 @@ export const getOneStudentUsingUserIdRepo = async (userId: string): Promise<any>
   }
 };
 
+export const getStudentCollegeSchoolRepo = async ( studentId: string ): Promise<string> => {
+  try {
+    const student = await prisma.student.findFirst({
+      where: {
+        record_status: RecordStatus.ACTIVE,
+        id: uuidToBinary(studentId),
+      },
+      select: {
+        college_school_id: true
+      },
+    });
+
+    if (!student || !student.college_school_id) {
+      console.warn(`Student dont have college school details: ${studentId}`);
+      return null;
+    }
+
+    return binaryToUuid(student.college_school_id);
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    throw new Error("Database error");
+  }
+}
+
 export const getOneStudentRepo = async (studentId: string): Promise<any> => {
   try {
     const user = await prisma.student.findFirst({

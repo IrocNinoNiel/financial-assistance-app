@@ -1,8 +1,9 @@
 import { Router } from "express";
 import { validateApplyScholarship, validateSponsorship, validateSponsorshipId, validateStudentId } from "../middleware/validation";
 import { ResponseHandler } from "../response";
-import { ApplySponsorshipRequest, ApplySponsorshipResponse, SponsorshipRequest, SponsorshipResponse, SUCCESS_MESSAGES } from "../utils";
+import { ApplySponsorshipRequest, ApplySponsorshipResponse, ERROR_MESSAGES, SponsorshipRequest, SponsorshipResponse, SUCCESS_MESSAGES, VALIDATION_MESSAGES } from "../utils";
 import { applyToSponsorship, createSponsorship, deleteOneSponsorship, getAllAvailableSponsorship, getAllSponsorship, getAllStudentSponsorship, getOneSponsorship, getOneStudentSponsorship, updateSponsorship } from "./service";
+import { allowRoles } from "../middleware/authentication";
 
 export default () => {
 
@@ -10,7 +11,7 @@ export default () => {
 
     const sponsorshipAPI = Router();
 
-    sponsorshipAPI.post('/coordinator', validateSponsorship, async (req, res) => {
+    sponsorshipAPI.post('/coordinator', allowRoles('system admin', 'financial assistance coordinator' ), validateSponsorship, async (req, res) => {
 
         try {
             const payload: SponsorshipRequest = req.body;
@@ -22,7 +23,7 @@ export default () => {
         }
     }); 
 
-    sponsorshipAPI.put('/coordinator/:sponsorshipId', validateSponsorship, validateSponsorshipId, async (req, res) => {
+    sponsorshipAPI.put('/coordinator/:sponsorshipId', allowRoles('system admin', 'financial assistance coordinator' ), validateSponsorship, validateSponsorshipId, async (req, res) => {
 
         try {
             const { sponsorshipId } = req.params;
@@ -35,7 +36,7 @@ export default () => {
         }
     }); 
 
-    sponsorshipAPI.get('/coordinator/:sponsorshipId', validateSponsorshipId, async (req, res) => {
+    sponsorshipAPI.get('/coordinator/:sponsorshipId', allowRoles('system admin', 'financial assistance coordinator', ), validateSponsorshipId, async (req, res) => {
 
         try {
             const { sponsorshipId } = req.params;
@@ -46,7 +47,7 @@ export default () => {
         }
     }); 
 
-    sponsorshipAPI.delete('/coordinator/:sponsorshipId', validateSponsorshipId, async (req, res) => {
+    sponsorshipAPI.delete('/coordinator/:sponsorshipId', allowRoles('system admin', 'financial assistance coordinator', ), validateSponsorshipId, async (req, res) => {
 
         try {
             const { sponsorshipId } = req.params;
@@ -57,7 +58,7 @@ export default () => {
         }
     }); 
 
-    sponsorshipAPI.get('/coordinator', async (req, res) => {
+    sponsorshipAPI.get('/coordinator', allowRoles('system admin', 'financial assistance coordinator', ), async (req, res) => {
 
         try {
             const authHeader: string = req.headers.authorization;
@@ -70,43 +71,22 @@ export default () => {
 
 
     // for students
-    sponsorshipAPI.get('/student/available', async (req, res) => {
+
+    sponsorshipAPI.get('/student/available', (req, res) => {
+        ResponseHandler.internalServerError( req, res, VALIDATION_MESSAGES.STUDENT_ID_REQUIRED);
+    });
+    sponsorshipAPI.get('/student/available/:studentId', allowRoles('system admin', 'student' ), validateStudentId, async (req, res) => {
 
         try {
-            const authHeader = req.headers.authorization;
-            const data: SponsorshipResponse[] = await getAllAvailableSponsorship    ( authHeader );
-            ResponseHandler.ok(req, res, data);
-        } catch (err) {
-            ResponseHandler.invalidRequest(req,res , err.message);
-        }
-    }); 
-
-    sponsorshipAPI.post('/student/', validateApplyScholarship, async (req, res) => {
-
-        try {
-            const authHeader = req.headers.authorization;
-            const payload: ApplySponsorshipRequest = req.body;
-            const data: ApplySponsorshipResponse = await applyToSponsorship( payload, authHeader );
-            ResponseHandler.ok(req, res, data);
-        } catch (err) {
-            ResponseHandler.invalidRequest(req,res , err.message);
-        }
-    }); 
-
-    sponsorshipAPI.get('/student/my-sponsorships/:studentId', validateStudentId, async (req, res) => {
-
-        try {
-
-            const authHeader = req.headers.authorization;
             const { studentId } = req.params;
-            const data: ApplySponsorshipResponse[] = await getAllStudentSponsorship( studentId, authHeader );
+            const data: SponsorshipResponse[] = await getAllAvailableSponsorship( studentId );
             ResponseHandler.ok(req, res, data);
         } catch (err) {
             ResponseHandler.invalidRequest(req,res , err.message);
         }
     }); 
 
-    sponsorshipAPI.get('/student/:sponsorshipId', validateSponsorshipId, async (req, res) => {
+    sponsorshipAPI.get('/student/:sponsorshipId', allowRoles('system admin', 'student' ), validateSponsorshipId, async (req, res) => {
 
         try {
 
@@ -119,8 +99,29 @@ export default () => {
         }
     }); 
 
+    sponsorshipAPI.post('/student/', allowRoles('system admin', 'student'),  validateApplyScholarship, async (req, res) => {
 
+        try {
+            const authHeader = req.headers.authorization;
+            const payload: ApplySponsorshipRequest = req.body;
+            const data: ApplySponsorshipResponse = await applyToSponsorship( payload, authHeader );
+            ResponseHandler.ok(req, res, data);
+        } catch (err) {
+            ResponseHandler.invalidRequest(req,res , err.message);
+        }
+    }); 
 
+    sponsorshipAPI.get('/student/my-sponsorships/:studentId', allowRoles('system admin', 'student'), validateStudentId, async (req, res) => {
 
+        try {
+
+            const authHeader = req.headers.authorization;
+            const { studentId } = req.params;
+            const data: ApplySponsorshipResponse[] = await getAllStudentSponsorship( studentId, authHeader );
+            ResponseHandler.ok(req, res, data);
+        } catch (err) {
+            ResponseHandler.invalidRequest(req,res , err.message);
+        }
+    }); 
     return sponsorshipAPI;
 }

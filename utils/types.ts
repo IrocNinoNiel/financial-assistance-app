@@ -459,3 +459,6 @@ export type GetAllSponsorshipType = Prisma.sponsorshipGetPayload<{
     };
   };
 }>;
+
+
+export type AuthPayload = { email: string, userId: string }
