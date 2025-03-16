@@ -60,7 +60,7 @@ export default () => {
     sponsorshipAPI.get('/coordinator', async (req, res) => {
 
         try {
-            const authHeader = req.headers.authorization;
+            const authHeader: string = req.headers.authorization;
             const data: SponsorshipResponse[] = await getAllSponsorship( authHeader );
             ResponseHandler.ok(req, res, data);
         } catch (err) {

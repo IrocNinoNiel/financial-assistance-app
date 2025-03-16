@@ -1,3 +1,5 @@
+import { Prisma } from "@prisma/client";
+
 export interface LoginRequest {
     username: string;
     password: string;
@@ -424,3 +426,36 @@ export type ChangePasswordRequest = {
   password: string;
   repassword: string;
 }
+
+export type GetAllSponsorshipType = Prisma.sponsorshipGetPayload<{
+  include: {
+    _count: { select: { sponsorshipApplication: true } },
+    academicYear: { select: { academic_year_start: true; academic_year_end: true } },
+    sponsor: { select: { id: true; first_name: true; middle_name: true; last_name: true } },
+    coordinator: { select: { id: true; first_name: true; middle_name: true; last_name: true } },
+    schools: {
+      include: {
+        school: { select: { id: true; school_name: true } };
+      };
+    };
+    requirements: {
+      include: {
+        fileType: { select: { id: true; name: true } };
+      };
+    };
+    sponsorshipApplication: {
+      include: {
+        student: {
+          select: {
+            id: true;
+            first_name: true;
+            middle_name: true;
+            last_name: true;
+            user_id: true;
+            files?
+          };
+        };
+      };
+    };
+  };
+}>;

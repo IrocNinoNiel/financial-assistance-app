@@ -4,42 +4,22 @@ import {
   sponsorship,
   sponsorshipSchool,
 } from "@prisma/client";
-import { RecordStatus, uuidToBinary } from "../utils";
+import { GetAllSponsorshipType, RecordStatus, uuidToBinary } from "../utils";
 
 export const createSponsorshipRepo = async (
   data: Prisma.sponsorshipUncheckedCreateInput,
   prisma: any
-): Promise<sponsorship> => {
+): Promise<Prisma.sponsorshipUncheckedCreateInput> => {
   return await prisma.sponsorship.create({
-    data,
-    include: {
-      academicYear: {
-        select: { academic_year_start: true, academic_year_end: true },
-      },
-      sponsor: {
-        select: { first_name: true, middle_name: true, last_name: true },
-      },
-      coordinator: {
-        select: { first_name: true, middle_name: true, last_name: true },
-      },
-    },
+    data
   });
 };
 
 export const createSponsorshipSchoolRepo = async (
   data: Prisma.sponsorshipSchoolUncheckedCreateInput[],
-  sponsorshipId: string,
   prisma: any
-): Promise<any> => {
+): Promise<void> => {
   await prisma.sponsorshipSchool.createMany({ data, skipDuplicates: true });
-  return prisma.sponsorshipSchool.findMany({
-    where: {
-      sponsorship_id: uuidToBinary(sponsorshipId),
-    },
-    include: {
-      school: { select: { school_name: true } },
-    },
-  });
 };
 
 export const getAllSponsorshipSchoolRepo = async (
@@ -58,20 +38,11 @@ export const getAllSponsorshipSchoolRepo = async (
 
 export const createSponsorshipRequirementRepo = async (
   data: Prisma.sponsorshipRequirementUncheckedCreateInput[],
-  sponsorshipId: string,
   prisma: any
-): Promise<any> => {
+): Promise<void> => {
   await prisma.sponsorshipRequirement.createMany({
     data,
     skipDuplicates: true,
-  });
-  return prisma.sponsorshipRequirement.findMany({
-    where: {
-      sponsorship_id: uuidToBinary(sponsorshipId),
-    },
-    include: {
-      fileType: { select: { name: true } },
-    },
   });
 };
 
@@ -189,61 +160,88 @@ export const getAllSponsorshipStudent = async (
 export const getAllSponsorshipRepo = async (
   whereCondition: any,
   prisma: any
-): Promise<any> => {
+): Promise<GetAllSponsorshipType[]> => {
   return await prisma.sponsorship.findMany({
     where: whereCondition,
     include: {
+      _count: { select: { sponsorshipApplication: true } },
       academicYear: {
-        select: { academic_year_start: true, academic_year_end: true },
+        select: { academic_year_start: true, academic_year_end: true }
       },
       sponsor: {
-        select: { first_name: true, middle_name: true, last_name: true },
+        select: { id: true, first_name: true, middle_name: true, last_name: true }
       },
       coordinator: {
-        select: { first_name: true, middle_name: true, last_name: true },
+        select: { id: true, first_name: true, middle_name: true, last_name: true }
       },
       schools: {
-        include: { school: { select: { id: true, school_name: true } }}
+        include: {
+          school: { select: { id: true, school_name: true } }
+        }
       },
       requirements: {
-        include: { fileType: { select: { id: true, name: true } }}
+        include: {
+          fileType: { select: { id: true, name: true } }
+        }
       },
       sponsorshipApplication: {
-        include: { student: {
-          include: { files: { select: { file_name: true } } }
-        }},
-      },
-      _count: {
-        select: {
-          sponsorshipApplication: true,
-        },
-      },
-    },
+        include: {
+          student: {
+            select: {
+              id: true,
+              first_name: true,
+              middle_name: true,
+              last_name: true,
+              user_id: true
+            }
+          }
+        }
+      }
+    }
   });
 };
 
 export const getOneSponsorshipRepo = async (
   id: string,
   prisma: any
-): Promise<any> => {
+): Promise<GetAllSponsorshipType> => {
   return await prisma.sponsorship.findUnique({
     where: { id: uuidToBinary(id) },
     include: {
+      _count: { select: { sponsorshipApplication: true } },
       academicYear: {
-        select: { academic_year_start: true, academic_year_end: true },
+        select: { academic_year_start: true, academic_year_end: true }
       },
       sponsor: {
-        select: { first_name: true, middle_name: true, last_name: true },
+        select: { id: true, first_name: true, middle_name: true, last_name: true }
       },
       coordinator: {
-        select: { first_name: true, middle_name: true, last_name: true },
+        select: { id: true, first_name: true, middle_name: true, last_name: true }
       },
-      _count: {
-        select: {
-          sponsorshipApplication: true,
-        },
+      schools: {
+        include: {
+          school: { select: { id: true, school_name: true } }
+        }
       },
-    },
+      requirements: {
+        include: {
+          fileType: { select: { id: true, name: true } }
+        }
+      },
+      sponsorshipApplication: {
+        include: {
+          student: {
+            select: {
+              id: true,
+              first_name: true,
+              middle_name: true,
+              last_name: true,
+              user_id: true
+            }
+          }
+        }
+      }
+    }
   });
 };
 
@@ -251,21 +249,10 @@ export const updateSponsorshipRepo = async (
   id: string,
   data: Prisma.sponsorshipUncheckedUpdateInput,
   prisma: any
-): Promise<any> => {
-  return await prisma.sponsorship.update({
+): Promise<void> => {
+  return prisma.sponsorship.update({
     where: { id: uuidToBinary(id) },
-    data,
-    include: {
-      academicYear: {
-        select: { academic_year_start: true, academic_year_end: true },
-      },
-      sponsor: {
-        select: { first_name: true, middle_name: true, last_name: true },
-      },
-      coordinator: {
-        select: { first_name: true, middle_name: true, last_name: true },
-      },
-    },
+    data
   });
 };
 

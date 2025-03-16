@@ -2,10 +2,13 @@ import { Prisma, PrismaClient, sponsorship } from "@prisma/client";
 import { binaryToUuid, extractUserFromToken, SponsorshipRequest, uuidToBinary } from "../utils";
 import { toApplyScholarship, toApplyScholarshipResponse, toSponsorReqModel, toSponsorSchoolModel, toSponsorshipModel, toSponsorshipResponse } from "../utils/converter";
 import { checkIfSponsorshipExistRepo, checkSponsorshipIdRepo, createSponsorshipRepo, createSponsorshipRequirementRepo, createSponsorshipSchoolRepo, deleteAllSponsorshipRequirements, deleteAllSponsorshipSchools, getAllSponsorshipRepo, getAllSponsorshipRequirements, getAllSponsorshipSchoolRepo, updateSponsorshipRepo, getOneSponsorshipRepo, deleteOneSponsorshipRepo, applyToSponsorshipRepo, doesStudentAlreadyAppliedRepo, getAllStudentSponsorshipRepo, getOneStudentSponsorshipRepo, getAllSponsorshipStudent } from './repository';
-import { ApplySponsorshipRequest, ApplySponsorshipResponse, RecordStatus, SponsorshipResponse } from '../utils/types';
+import { ApplySponsorshipRequest, ApplySponsorshipResponse, GetAllSponsorshipType, RecordStatus, SponsorshipResponse } from '../utils/types';
 import { getOneStudentRepo } from "../student/repository";;
-import { getAllFileOfUser } from "../file/service";
-const prisma = new PrismaClient({});
+import { getAllFileOfStudent, getBulkFileOfStudents } from "../file/service";
+const prisma = new PrismaClient({
+  log: ['query', 'info', 'warn', 'error'],
+});
+
 
 
 export const createSponsorship = async (payload: SponsorshipRequest, authHeader: any): Promise<SponsorshipResponse> => {
@@ -14,24 +17,23 @@ export const createSponsorship = async (payload: SponsorshipRequest, authHeader:
     
     return await prisma.$transaction(async (prisma) => {
         const data: Prisma.sponsorshipUncheckedCreateInput = toSponsorshipModel(payload, userId);
-        const sponsorship: sponsorship = await createSponsorshipRepo(data, prisma); // Pass `prisma` to use transaction
-
-        let schools: string[] = [];
-        let requirements: string[] = [];
+        const sponsorship: Prisma.sponsorshipUncheckedCreateInput = await createSponsorshipRepo(data, prisma); // Pass `prisma` to use transaction
+        const sponsorshipId = binaryToUuid(sponsorship.id);
 
         // Create Sponsorship School data
-        if (payload.sponsorshipSchool && payload.sponsorshipSchool.length > 0) {
+        if (payload.sponsorshipSchool?.length) {
             const convertedSponSchool: Prisma.sponsorshipSchoolUncheckedCreateInput[] = toSponsorSchoolModel(payload.sponsorshipSchool, binaryToUuid(sponsorship.id));
-            schools = await createSponsorshipSchoolRepo(convertedSponSchool, binaryToUuid(sponsorship.id), prisma);
+            await createSponsorshipSchoolRepo(convertedSponSchool, prisma);
         }
 
         // Create Sponsorship Requirements data
-        if (payload.sponsorshipRequirements && payload.sponsorshipRequirements.length > 0) {
+        if (payload.sponsorshipRequirements?.length) {
             const convertedSponReq: Prisma.sponsorshipRequirementUncheckedCreateInput[] = toSponsorReqModel(payload.sponsorshipRequirements, binaryToUuid(sponsorship.id));
-            requirements = await createSponsorshipRequirementRepo(convertedSponReq, binaryToUuid(sponsorship.id), prisma);
+            await createSponsorshipRequirementRepo(convertedSponReq, prisma);
         }
 
-        return toSponsorshipResponse(sponsorship, schools, requirements);
+        const sponsorshipData = await getOneSponsorshipRepo( sponsorshipId, prisma );
+        return toSponsorshipResponse(sponsorshipData);
     });
 };
 
@@ -51,7 +53,7 @@ export const getAllStudentSponsorship = async ( studentId: string, authHeader: a
     const userDetails = extractUserFromToken(authHeader);
     const userId = userDetails.userId;
     const data: any[] = await getAllStudentSponsorshipRepo( studentId, prisma );
-    const studentFiles: any[] = await getAllFileOfUser( binaryToUuid(data[0].student.user_id) );
+    const studentFiles: any[] = await getAllFileOfStudent( binaryToUuid(data[0].student.user_id) );
     
     return data.map( e => toApplyScholarshipResponse ( e, studentFiles ));
 
@@ -61,7 +63,7 @@ export const getOneStudentSponsorship = async ( sponsorshipId: string, authHeade
     const userDetails = extractUserFromToken(authHeader);
     const userId = userDetails.userId;
     const data: any = await getOneStudentSponsorshipRepo( sponsorshipId, prisma);
-    const studentFiles: any[] = await getAllFileOfUser( binaryToUuid(data.student.user_id) );
+    const studentFiles: any[] = await getAllFileOfStudent( binaryToUuid(data.student.user_id) );
     
     return toApplyScholarshipResponse ( data, studentFiles );
 }
@@ -75,10 +77,7 @@ export const updateSponsorship = async ( payload: SponsorshipRequest, authHeader
     return await prisma.$transaction(async (prisma) => {  
 
         const data: Prisma.sponsorshipUncheckedCreateInput = toSponsorshipModel( payload, userId);
-        const sponsorship: sponsorship = await updateSponsorshipRepo( sponsorshipId, data, prisma );
-
-        let schools: string[];
-        let requirements: string[];
+        await updateSponsorshipRepo( sponsorshipId, data, prisma );
 
         // delete school and requirements inside that sponsor
         await deleteAllSponsorshipSchools( sponsorshipId, prisma );
@@ -86,35 +85,66 @@ export const updateSponsorship = async ( payload: SponsorshipRequest, authHeader
 
         // create SponsorshipSchool data
         if(payload.sponsorshipSchool && payload.sponsorshipSchool.length > 0) {
-            const convertedSponSchool: Prisma.sponsorshipSchoolUncheckedCreateInput[] = toSponsorSchoolModel( payload.sponsorshipSchool, binaryToUuid(sponsorship.id))
-            schools = await createSponsorshipSchoolRepo( convertedSponSchool, sponsorshipId, prisma );
+            const convertedSponSchool: Prisma.sponsorshipSchoolUncheckedCreateInput[] = toSponsorSchoolModel( payload.sponsorshipSchool, sponsorshipId)
+            await createSponsorshipSchoolRepo( convertedSponSchool, prisma );
         }
 
         // create Sponsorship Requirements data
         if(payload.sponsorshipRequirements && payload.sponsorshipRequirements.length > 0) {
-            const convertedSponReq: Prisma.sponsorshipRequirementUncheckedCreateInput[] = toSponsorReqModel( payload.sponsorshipRequirements, binaryToUuid(sponsorship.id))
-            requirements = await createSponsorshipRequirementRepo( convertedSponReq, sponsorshipId, prisma )
+            const convertedSponReq: Prisma.sponsorshipRequirementUncheckedCreateInput[] = toSponsorReqModel( payload.sponsorshipRequirements, sponsorshipId )
+            await createSponsorshipRequirementRepo( convertedSponReq, prisma )
         }
 
-        return toSponsorshipResponse( sponsorship, schools, requirements );
+        const sponsorshipData = await getOneSponsorshipRepo( sponsorshipId, prisma );
+        return toSponsorshipResponse( sponsorshipData );
     });
 }
 
-export const getAllSponsorship = async ( authHeader: any ): Promise<SponsorshipResponse[]> => {
+export const getAllSponsorship = async ( authHeader: string ): Promise<SponsorshipResponse[]> => {
     
     // check if student or sponsor
-    const userDetails = extractUserFromToken(authHeader);
-    const userId = userDetails.userId;
-    let whereCondition: any = {};
+    const userDetails: { email: string, userId: string } = extractUserFromToken(authHeader);
+    const userId: string = userDetails.userId;
 
-    whereCondition.coordinator_id = uuidToBinary( userId );
-    whereCondition.record_status =  RecordStatus.ACTIVE
+    const whereCondition = {
+        coordinator_id: uuidToBinary(userId),
+        record_status: RecordStatus.ACTIVE,
+      };
+      
 
-    const data = await getAllSponsorshipRepo( whereCondition, prisma );
 
-    console.log( data );
+    const data: GetAllSponsorshipType[] = await getAllSponsorshipRepo( whereCondition, prisma );
+    console.log("Get all sponsorship success");
 
-    return data.map( item => toSponsorshipResponse(item, [], [], []));
+    //get all student files
+    const studentIds: string[] = [];
+    data.forEach((item: GetAllSponsorshipType) => {
+        if (item.sponsorshipApplication) {
+            item.sponsorshipApplication.forEach(app => {
+                studentIds.push(binaryToUuid(app.student.id));
+            });
+        }
+    });
+    
+    const bulkFiles = await getBulkFileOfStudents( studentIds );
+
+    const filesByStudent = bulkFiles.reduce((acc, file) => {
+        if (!acc[file.student_id]) acc[binaryToUuid(file.student_id)] = [];
+        acc[binaryToUuid(file.student_id)].push({ name: file.file_name, fileType: file.fileType.name });
+        return acc;
+    }, {});
+
+
+    const result = data.map((item: GetAllSponsorshipType) => {
+        if (item.sponsorshipApplication) {
+          item.sponsorshipApplication.forEach(app => {
+            app.student.files = filesByStudent[binaryToUuid(app.student.id)] || [];
+          });
+        }
+        return toSponsorshipResponse(item);
+    });
+
+    return result;
 };
 
 export const getAllAvailableSponsorship = async ( authHeader: any ): Promise<SponsorshipResponse[]> => {
@@ -142,32 +172,38 @@ export const getAllAvailableSponsorship = async ( authHeader: any ): Promise<Spo
     };
     
     const data = await getAllSponsorshipRepo( whereCondition, prisma );
-
-    return Promise.all(
-        data.map(async (item) => {
-            const sponsorshipId = binaryToUuid(item.id);
-            const schools = await getAllSponsorshipSchoolRepo(sponsorshipId, prisma );
-            const requirements = await getAllSponsorshipRequirements(sponsorshipId, prisma );
-            return toSponsorshipResponse(item, schools, requirements);
-        })
-    );
+    return data.map( item =>  toSponsorshipResponse(item));
 };
 
 
 
 export const getOneSponsorship = async ( sponsorshipId: string): Promise<SponsorshipResponse> => {
-    const data = await getOneSponsorshipRepo( sponsorshipId, prisma );
+    const data:GetAllSponsorshipType = await getOneSponsorshipRepo( sponsorshipId, prisma );
 
-    const schools = await getAllSponsorshipSchoolRepo(sponsorshipId, prisma);
-    const requirements = await getAllSponsorshipRequirements(sponsorshipId, prisma);
-    const payload = await getAllSponsorshipStudent( sponsorshipId, prisma);
-
-    for (const item of payload) {
-        const itemData = await getAllFileOfUser(binaryToUuid(item.student.user_id));
-        item.student.files = itemData.map(e => ({ name: e.file_name, fileType: e.fileType.name }));
+    //get all student files
+    const studentIds = [];
+    if (data.sponsorshipApplication) {
+        data.sponsorshipApplication.forEach(app => {
+            studentIds.push(binaryToUuid(app.student.id));
+        });
     }
+    
+    const bulkFiles = await getBulkFileOfStudents( studentIds );
 
-    return toSponsorshipResponse(data, schools, requirements, payload);
+    const filesByStudent = bulkFiles.reduce((acc, file) => {
+        if (!acc[file.student_id]) acc[binaryToUuid(file.student_id)] = [];
+        acc[binaryToUuid(file.student_id)].push({ name: file.file_name, fileType: file.fileType.name });
+        return acc;
+    }, {});
+
+
+    if (data.sponsorshipApplication) {
+        data.sponsorshipApplication.forEach(app => {
+          app.student.files = filesByStudent[binaryToUuid(app.student.id)] || [];
+        });
+    }
+    
+    return toSponsorshipResponse(data);
 };
 
 export const deleteOneSponsorship = async ( sponsorshipId: string) => {

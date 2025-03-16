@@ -1,7 +1,10 @@
 import { binaryToUuid, RecordStatus, uuidToBinary } from "../utils";
 import { Prisma, PrismaClient, student, user } from "@prisma/client";
 
-const prisma = new PrismaClient({});
+const prisma = new PrismaClient({
+  log: ['query', 'info', 'warn', 'error'],
+});
+
 
 export const registerStudentRepo = async (
   student: Prisma.studentUncheckedCreateInput

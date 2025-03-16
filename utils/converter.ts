@@ -405,7 +405,7 @@ export function toFileTypeResponse( payload: any):FileTypeResponse {
   }
 }
 
-export function toSponsorshipResponse( payload: any, schools: any[], requirements: any[], data: any[] = []): SponsorshipResponse {
+export function toSponsorshipResponse( payload: any ): SponsorshipResponse {
   return {
     id: binaryToUuid(payload.id),
     name: payload.name,
