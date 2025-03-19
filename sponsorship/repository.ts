@@ -4,7 +4,7 @@ import {
   sponsorship,
   sponsorshipSchool,
 } from "@prisma/client";
-import { GetAllSponsorshipType, RecordStatus, uuidToBinary } from "../utils";
+import { GetAllSponsorshipType, RecordStatus, UpdateStudentStatus, UpdateStudentStatusRequest, uuidToBinary } from "../utils";
 
 export const createSponsorshipRepo = async (
   data: Prisma.sponsorshipUncheckedCreateInput,
@@ -250,11 +250,25 @@ export const updateSponsorshipRepo = async (
   data: Prisma.sponsorshipUncheckedUpdateInput,
   prisma: any
 ): Promise<void> => {
-  return prisma.sponsorship.update({
+  return await prisma.sponsorship.update({
     where: { id: uuidToBinary(id) },
     data
   });
 };
+
+export const adjustStudentEligibilityStatusRepo = async (details: UpdateStudentStatus, prisma: any) => {
+  return await prisma.sponsorshipApplication.update({
+    data: {
+      application_stage: details.application_stage,
+      application_status: details.application_status
+    },
+    where: {
+      student_id: uuidToBinary(details.student_id),
+      sponsorship_id: uuidToBinary(details.sponsorship_id) 
+    }
+  })
+}
+
 
 export const deleteOneSponsorshipRepo = async (id: string, prisma: any) => {
   await prisma.sponsorship.update({

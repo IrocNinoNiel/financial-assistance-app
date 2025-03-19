@@ -1,4 +1,5 @@
 import { Prisma } from "@prisma/client";
+import { APPLICATION_STAGE, APPLICATION_STATUS } from "./constant";
 
 export interface LoginRequest {
     username: string;
@@ -425,6 +426,23 @@ export type Sibling = {
 export type ChangePasswordRequest = {
   password: string;
   repassword: string;
+}
+
+export type UpdateStudentStatusRequest = {
+  sponsorshipId: string;
+  appStatus: APPLICATION_STATUS;
+  remarks: string;
+}
+
+export type UpdateStudentStatus = {
+  student_id: string;
+  sponsorship_id: string;
+  application_stage: APPLICATION_STAGE;
+  application_status: APPLICATION_STATUS;
+}
+
+export type SponsorshipMinimal = {
+
 }
 
 export type GetAllSponsorshipType = Prisma.sponsorshipGetPayload<{

@@ -1,15 +1,13 @@
 import { Prisma, PrismaClient, sponsorship } from "@prisma/client";
-import { binaryToUuid, extractUserFromToken, SponsorshipRequest, uuidToBinary } from "../utils";
+import { APPLICATION_STAGE, APPLICATION_STATUS, binaryToUuid, extractUserFromToken, SponsorshipRequest, uuidToBinary } from "../utils";
 import { toApplyScholarship, toApplyScholarshipResponse, toSponsorReqModel, toSponsorSchoolModel, toSponsorshipModel, toSponsorshipResponse } from "../utils/converter";
-import { checkIfSponsorshipExistRepo, checkSponsorshipIdRepo, createSponsorshipRepo, createSponsorshipRequirementRepo, createSponsorshipSchoolRepo, deleteAllSponsorshipRequirements, deleteAllSponsorshipSchools, getAllSponsorshipRepo, getAllSponsorshipRequirements, getAllSponsorshipSchoolRepo, updateSponsorshipRepo, getOneSponsorshipRepo, deleteOneSponsorshipRepo, applyToSponsorshipRepo, doesStudentAlreadyAppliedRepo, getAllStudentSponsorshipRepo, getOneStudentSponsorshipRepo, getAllSponsorshipStudent } from './repository';
-import { ApplySponsorshipRequest, ApplySponsorshipResponse, AuthPayload, GetAllSponsorshipType, RecordStatus, SponsorshipResponse } from '../utils/types';
-import { getOneStudentRepo, getStudentCollegeSchoolRepo } from "../student/repository";;
+import { checkIfSponsorshipExistRepo, checkSponsorshipIdRepo, createSponsorshipRepo, createSponsorshipRequirementRepo, createSponsorshipSchoolRepo, deleteAllSponsorshipRequirements, deleteAllSponsorshipSchools, getAllSponsorshipRepo, getAllSponsorshipRequirements, getAllSponsorshipSchoolRepo, updateSponsorshipRepo, getOneSponsorshipRepo, deleteOneSponsorshipRepo, applyToSponsorshipRepo, doesStudentAlreadyAppliedRepo, getAllStudentSponsorshipRepo, getOneStudentSponsorshipRepo, getAllSponsorshipStudent, adjustStudentEligibilityStatusRepo } from './repository';
+import { ApplySponsorshipRequest, ApplySponsorshipResponse, AuthPayload, GetAllSponsorshipType, RecordStatus, SponsorshipResponse, UpdateStudentStatus, UpdateStudentStatusRequest } from '../utils/types';
+import { getStudentCollegeSchoolRepo } from "../student/repository";;
 import { getAllFileOfStudent, getBulkFileOfStudents } from "../file/service";
 const prisma = new PrismaClient({
   log: ['query', 'info', 'warn', 'error'],
 });
-
-
 
 export const createSponsorship = async (payload: SponsorshipRequest, authHeader: any): Promise<SponsorshipResponse> => {
     const userDetails = extractUserFromToken(authHeader);
@@ -36,7 +34,6 @@ export const createSponsorship = async (payload: SponsorshipRequest, authHeader:
         return toSponsorshipResponse(sponsorshipData);
     });
 };
-
 
 export const applyToSponsorship = async ( payload: ApplySponsorshipRequest, authHeader: any): Promise<ApplySponsorshipResponse> => { 
     const userDetails = extractUserFromToken(authHeader);
@@ -67,7 +64,6 @@ export const getOneStudentSponsorship = async ( sponsorshipId: string, authHeade
     
     return toApplyScholarshipResponse ( data, studentFiles );
 }
-
 
 export const updateSponsorship = async ( payload: SponsorshipRequest, authHeader: any, sponsorshipId: string ) : Promise<SponsorshipResponse> => {
     
@@ -172,8 +168,6 @@ export const getAllAvailableSponsorship = async ( studentId: string ): Promise<S
     return data.map( item =>  toSponsorshipResponse(item));
 };
 
-
-
 export const getOneSponsorship = async ( sponsorshipId: string): Promise<SponsorshipResponse> => {
     const data:GetAllSponsorshipType = await getOneSponsorshipRepo( sponsorshipId, prisma );
 
@@ -202,6 +196,14 @@ export const getOneSponsorship = async ( sponsorshipId: string): Promise<Sponsor
     
     return toSponsorshipResponse(data);
 };
+
+
+export const adjustStudentEligibilityStatus = async (studentId: string, details: UpdateStudentStatusRequest) => {
+
+
+    const converted: UpdateStudentStatus = { student_id: "1", sponsorship_id: "1", application_stage: APPLICATION_STAGE.FINAL_SELECTION, application_status: APPLICATION_STATUS.APPROVED};
+    await adjustStudentEligibilityStatusRepo(converted, prisma);
+}
 
 export const deleteOneSponsorship = async ( sponsorshipId: string) => {
     await deleteOneSponsorshipRepo ( sponsorshipId, prisma );
