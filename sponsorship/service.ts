@@ -201,7 +201,13 @@ export const getOneSponsorship = async ( sponsorshipId: string): Promise<Sponsor
 export const adjustStudentEligibilityStatus = async (studentId: string, details: UpdateStudentStatusRequest) => {
 
 
-    const converted: UpdateStudentStatus = { student_id: "1", sponsorship_id: "1", application_stage: APPLICATION_STAGE.FINAL_SELECTION, application_status: APPLICATION_STATUS.APPROVED};
+    const converted: UpdateStudentStatus = { 
+        student_id: studentId, 
+        sponsorship_id: details.sponsorshipId, 
+        application_stage: details.appStage, 
+        application_status: details.appStatus,
+        remarks: details.remarks
+    };
     await adjustStudentEligibilityStatusRepo(converted, prisma);
 }
 
@@ -220,3 +226,4 @@ export const checkSponsorshipId = async ( sponsorshipId: string ): Promise<boole
 export const doesStudentAlreadyApplied = async ( studentId: string, sponsorshipId: string ): Promise<boolean> => {
     return await doesStudentAlreadyAppliedRepo( studentId, sponsorshipId, prisma );
 }
+

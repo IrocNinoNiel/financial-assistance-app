@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { validateApplyScholarship, validateSponsorship, validateSponsorshipId, validateStudentId } from "../middleware/validation";
+import { validateApplyScholarship, validateChangeStudentStatus, validateSponsorship, validateSponsorshipId, validateStudentId } from "../middleware/validation";
 import { ResponseHandler } from "../response";
-import { ApplySponsorshipRequest, ApplySponsorshipResponse, ERROR_MESSAGES, SponsorshipRequest, SponsorshipResponse, SUCCESS_MESSAGES, VALIDATION_MESSAGES } from "../utils";
+import { ApplySponsorshipRequest, ApplySponsorshipResponse, ERROR_MESSAGES, SponsorshipRequest, SponsorshipResponse, SUCCESS_MESSAGES, UpdateStudentStatusRequest, VALIDATION_MESSAGES } from "../utils";
 import { applyToSponsorship, createSponsorship, deleteOneSponsorship, getAllAvailableSponsorship, getAllSponsorship, getAllStudentSponsorship, getOneSponsorship, getOneStudentSponsorship, updateSponsorship } from "./service";
 import { allowRoles } from "../middleware/authentication";
 
@@ -68,6 +68,19 @@ export default () => {
             ResponseHandler.invalidRequest(req,res , err.message);
         }
     }); 
+
+    sponsorshipAPI.put('/coordinator/students/:studentId/status', allowRoles('system admin', 'financial assistance coordinator' ), validateStudentId, validateChangeStudentStatus, async (req, res)  => {
+        try {
+            const authHeader: string = req.headers.authorization;
+            const { studentId } = req.params;
+            const payload: UpdateStudentStatusRequest = req.body;
+
+
+
+        } catch (err) {
+            ResponseHandler.invalidRequest(req,res , err.message);
+        }
+    });
 
 
     // for students

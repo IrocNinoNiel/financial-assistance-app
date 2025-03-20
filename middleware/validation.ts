@@ -1,4 +1,4 @@
-import { error, LoginRequest, RegisterRequest, VALIDATION_MESSAGES } from "../utils";
+import { APPLICATION_STAGE, APPLICATION_STATUS, error, LoginRequest, RegisterRequest, VALIDATION_MESSAGES } from "../utils";
 import { NextFunction, Request, RequestHandler, Response } from "express";
 import ResponseHandler from "../response/response";
 import { validationResult, body, param } from "express-validator";
@@ -11,6 +11,32 @@ import { checkIfInvalidSchoolId, checkSchoolExist, checkSchoolNameExist } from "
 import { checkAcademicYearId, checkExistingAcademicYear } from "../academicYear/service";
 import { checkIfSponsorshipExist, checkSponsorshipId, doesStudentAlreadyApplied } from "../sponsorship/service";
 import { checkIfInvalidFileTypeId } from "../file/service";
+
+const stageStatusMap = {
+  [APPLICATION_STAGE.POOLING]: [
+    APPLICATION_STATUS.PENDING_POOLING,
+    APPLICATION_STATUS.INCOMPLETE_DOCUMENTS,
+    APPLICATION_STATUS.COMPLETE,
+    APPLICATION_STATUS.REJECTED
+  ],
+  [APPLICATION_STAGE.INTERVIEW_EXAM]: [
+    APPLICATION_STATUS.PENDING_INTERVIEW_EXAM,
+    APPLICATION_STATUS.PASSED_INTERVIEW_EXAM,
+    APPLICATION_STATUS.FAILED_INTERVIEW_EXAM,
+    APPLICATION_STATUS.DENIED_INTERVIEW_EXAM
+  ],
+  [APPLICATION_STAGE.RANKING_SELECTION]: [
+    APPLICATION_STATUS.PENDING_RANKING_SELECTION,
+    APPLICATION_STATUS.RANKED
+  ],
+  [APPLICATION_STAGE.FINAL_SELECTION]: [
+    APPLICATION_STATUS.PENDING_FINAL_SELECTION,
+    APPLICATION_STATUS.NOT_SELECTED,
+    APPLICATION_STATUS.REJECTED,
+    APPLICATION_STATUS.APPROVED
+  ]
+};
+
 
 export const validateLoginInput = async (req: Request, res: Response, next: NextFunction) => {
   const data: LoginRequest = req.body;
@@ -533,6 +559,54 @@ export const validateStudentId = [
         return Promise.reject(VALIDATION_MESSAGES.STUDENT_NOT_FOUND);
       }
   }),
+  validateErrors
+]
+
+export const validateChangeStudentStatus = [
+  // remarks must exist
+  body("remarks")
+    .notEmpty().withMessage(VALIDATION_MESSAGES.REMARKS_REQUIRED),
+  // check if sponsorship is on the system
+  body("sponsorshipId")
+    .notEmpty().withMessage(VALIDATION_MESSAGES.SPONSORSHIP_ID_REQUIRED)
+    .custom(async ( sponsorshipId, { req } ) => {
+      const { studentId } = req.params;
+      const dontExist = await checkSponsorshipId( sponsorshipId );
+      if (dontExist) {
+        return Promise.reject(VALIDATION_MESSAGES.SPONSORSHIP_ID_NOT_FOUND);
+      }
+
+      // check if student is on that sponsorship
+      const studentAlreadyApplied = await doesStudentAlreadyApplied( studentId, sponsorshipId );
+      if(!studentAlreadyApplied) {
+        return Promise.reject(VALIDATION_MESSAGES.STUDENT_NOT_APPLIED);
+      }
+    }),
+  body("appStage") 
+    .notEmpty().withMessage(VALIDATION_MESSAGES.APP_STAGE_REQUIRED)
+    .custom( data => {
+        // check if appStage is in the ENUM
+        const validStages = Object.values(APPLICATION_STAGE);
+        if (!validStages.includes(data)) {
+          return Promise.reject(VALIDATION_MESSAGES.APP_STAGE_INVALID);
+        }
+    }),
+  body("appStatus")
+    .notEmpty().withMessage(VALIDATION_MESSAGES.APP_STATUS_REQUIRED)
+    .custom( (data, {req} ) => {
+      // chceck if appStatus is in the ENUM
+      const validStatus = Object.values(APPLICATION_STATUS);
+      const { appStage } = req.body.appStage;
+      if (!validStatus.includes(data)) {
+        return Promise.reject(VALIDATION_MESSAGES.APP_STATUS_INVALID + " " + validStatus.join(', '));
+      }
+      // check if appStatus belongs to the appStage
+      const validStatusesForStage = stageStatusMap[appStage];
+      if (!validStatusesForStage.includes(data)) { 
+        return Promise.reject(VALIDATION_MESSAGES.INVALID_STATUS_FOR_STAGE + " " + appStage + " Allowed statuses: " + validStatusesForStage.join(', ') )
+      }
+    }),
+
   validateErrors
 ]
 

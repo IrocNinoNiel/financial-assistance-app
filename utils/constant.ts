@@ -21,7 +21,7 @@ export const SUCCESS_MESSAGES = {
 }
 
 export enum APPLICATION_STAGE {
-    POOLING = "POOLING",
+    POOLING = "POOLING", 
     INTERVIEW_EXAM = "INTERVIEW_EXAM",
     RANKING_SELECTION = "RANKING_SELECTION",
     FINAL_SELECTION = "FINAL_SELECTION"
@@ -170,6 +170,12 @@ export const VALIDATION_MESSAGES = {
     SPONSORSHIP_REQUIREMENTS_REQUIRED: "sponsorshipRequirements is required",
     SPONSORSHIP_REQUIREMENTS_INVALID: "One of the file id in the requirements is invalid or does not exist in the system",
     SPONSORSHIP_FUND_ALLOCATION_INVALID: "fundAllocation must be greater than 0",
-
+    REMARKS_REQUIRED: 'remarks is required',
+    STUDENT_NOT_APPLIED: "Student don't have any application on this sponsorship",
+    APP_STAGE_REQUIRED: "appStage is required",
+    APP_STATUS_REQUIRED: "appStatus is required",
+    APP_STAGE_INVALID: "Invalid appStage. Allowed values are: POOLING | INTERVIEW_EXAM | RANKING_SELECTION | FINAL_SELECTION",
+    APP_STATUS_INVALID: "Invalid appStatus",
+    INVALID_STATUS_FOR_STAGE: "Invalid appStatus for"
 };
   

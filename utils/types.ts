@@ -431,6 +431,7 @@ export type ChangePasswordRequest = {
 export type UpdateStudentStatusRequest = {
   sponsorshipId: string;
   appStatus: APPLICATION_STATUS;
+  appStage: APPLICATION_STAGE;
   remarks: string;
 }
 
@@ -439,6 +440,7 @@ export type UpdateStudentStatus = {
   sponsorship_id: string;
   application_stage: APPLICATION_STAGE;
   application_status: APPLICATION_STATUS;
+  remarks: string;
 }
 
 export type SponsorshipMinimal = {
