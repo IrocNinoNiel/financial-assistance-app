@@ -347,8 +347,9 @@ export function toSponsorshipModel( payload: SponsorshipRequest, userId:string):
   }
 }
 
-export function toApplyScholarship( payload: ApplySponsorshipRequest, userId:string  ): Prisma.sponsorshipApplicationUncheckedCreateInput {
+export function toApplyScholarship( payload: ApplySponsorshipRequest, appId:string, userId:string  ): Prisma.sponsorshipApplicationUncheckedCreateInput {
   return {
+    app_id: appId,
     student_id: uuidToBinary(payload.studentId),
     sponsorship_id: uuidToBinary(payload.sponsorshipId),
     application_stage: APPLICATION_STAGE.POOLING,
@@ -361,13 +362,19 @@ export function toApplyScholarship( payload: ApplySponsorshipRequest, userId:str
 export function toApplyScholarshipResponse( payload: any, studentFiles: any[] = [] ): ApplySponsorshipResponse {
 
   const data: ApplySponsorshipResponse =  {
+    appId: payload.app_id,
     studentId: binaryToUuid(payload.student_id),
     studentName: `${payload.student.first_name} ${payload.student.middle_name ? payload.student.middle_name + " " : ""}${payload.student.last_name}`,
+    studentSex: payload.student.sex,
+    programName: payload.student.college_program_name,
+    yearLevel: payload.student.college_year_level,
     sponsorshipId: binaryToUuid(payload.sponsorship_id),
     sponsorshipName: payload.sponsorship.name,
+    cityMun: payload.current_citynum.citymun_desc,
     sponsorshipRemarks: payload.remarks,
     sponsorshipStatus: payload.application_status,
     sponsorshipStage: payload.application_stage,
+    applicationDate: payload.application_date,
     sponsorshipRequirement : (payload?.sponsorship?.requirements ?? []).map(item => ({
       fileId: binaryToUuid(item.file_type_id),
       fileName: item.fileType.name

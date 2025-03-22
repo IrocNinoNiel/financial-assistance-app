@@ -104,10 +104,16 @@ export interface SponsorshipResponse {
 }
 
 export interface ApplySponsorshipResponse {
+  appId: string,
   sponsorshipId: string,
   sponsorshipName: string,
   studentId: string,
   studentName: string,
+  applicationDate: string,
+  studentSex: string,
+  cityMun: string,
+  programName: string,
+  yearLevel: string,
   sponsorshipStatus: string,
   sponsorshipStage: string,
   sponsorshipRemarks: string,

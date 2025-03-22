@@ -84,6 +84,15 @@ export const getAllStudentSponsorshipRepo = async (
           middle_name: true,
           last_name: true,
           user_id: true,
+          sex: true, 
+          college_program_name: true, 
+          college_year_level: true,
+          current_citynum:{
+            select: {
+              citymun_desc: true
+            }
+          }
+
         },
       },
       sponsorship: {
@@ -298,6 +307,16 @@ export const checkIfSponsorshipExistRepo = async (
   });
   return data !== null;
 };
+
+export const generateAppIdRepo = async ( sponsorshipId: string, prisma: any ): Promise<number> => {
+  const count = await prisma.sponsorshipApplication.count({
+    where: {
+      sponsorship_id: uuidToBinary(sponsorshipId)
+    },
+  }); 
+
+  return count;
+}
 
 export const checkSponsorshipIdRepo = async (
   sponsorshipId: string,

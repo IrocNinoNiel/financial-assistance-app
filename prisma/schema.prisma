@@ -402,10 +402,12 @@ model sponsorshipRequirement {
 
 model sponsorshipApplication {
   id                 Bytes    @id @default(dbgenerated("(UUID_TO_BIN(UUID()))")) @db.Binary(16)
+  app_id              String @db.VarChar(255)
   student_id          Bytes @db.Binary(16)
   sponsorship_id      Bytes @db.Binary(16)
   application_stage   application_stage
   application_status  application_status
+  application_date  DateTime @default(now())
   remarks            String?
   record_status       Boolean   @default(true)
   created_at          DateTime @default(now())
@@ -440,7 +442,7 @@ enum application_stage {
 enum application_status {
   // for pooling
   PENDING_POOLING
-  INCOMPLETE_DOCUMENTS // add remarks
+  FOLLOW_UP // add remarks
   COMPLETE
 
   // for interview stage
