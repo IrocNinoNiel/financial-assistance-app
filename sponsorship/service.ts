@@ -1,4 +1,4 @@
-import { Prisma, PrismaClient, sponsorship } from "@prisma/client";
+import { EvaluationStatus, Prisma, PrismaClient, sponsorship } from "@prisma/client";
 import {
   APPLICATION_STAGE,
   APPLICATION_STATUS,
@@ -14,6 +14,8 @@ import {
   toSponsorSchoolModel,
   toSponsorshipModel,
   toSponsorshipResponse,
+  toUpdateStatusModel,
+  toUpdateStatusResponse,
 } from "../utils/converter";
 import {
   checkIfSponsorshipExistRepo,
@@ -36,6 +38,7 @@ import {
   getAllSponsorshipStudent,
   adjustStudentEligibilityStatusRepo,
   generateAppIdRepo,
+  findAppId,
 } from "./repository";
 import {
   ApplySponsorshipRequest,
@@ -52,6 +55,27 @@ import { getAllFileOfStudent, getBulkFileOfStudents } from "../file/service";
 const prisma = new PrismaClient({
   log: ["query", "info", "warn", "error"],
 });
+
+const progressionMap = {
+  [APPLICATION_STAGE.POOLING]: {
+    COMPLETE: {
+      nextStage: APPLICATION_STAGE.APPLICATION_LIST,
+      nextStatus: APPLICATION_STATUS.PENDING_APPLICATION_LIST,
+    },
+  },
+  [APPLICATION_STAGE.APPLICATION_LIST]: {
+    COMPLETE: {
+      nextStage: APPLICATION_STAGE.RANKING_SELECTION,
+      nextStatus: APPLICATION_STATUS.PENDING_RANKING_SELECTION,
+    },
+  },
+  [APPLICATION_STAGE.RANKING_SELECTION]: {
+    RANKED: {
+      nextStage: APPLICATION_STAGE.FINAL_SELECTION,
+      nextStatus: APPLICATION_STATUS.PENDING_FINAL_SELECTION,
+    },
+  },
+};
 
 export const createSponsorship = async (
   payload: SponsorshipRequest,
@@ -297,16 +321,27 @@ export const getOneSponsorship = async (
 
 export const adjustStudentEligibilityStatus = async (
   studentId: string,
-  details: UpdateStudentStatusRequest
+  details: UpdateStudentStatusRequest,
+  authHeader: string
 ) => {
-  const converted: UpdateStudentStatus = {
-    student_id: studentId,
-    sponsorship_id: details.sponsorshipId,
-    application_stage: details.appStage,
-    application_status: details.appStatus,
-    remarks: details.remarks,
-  };
-  await adjustStudentEligibilityStatusRepo(converted, prisma);
+
+  const userDetails = extractUserFromToken(authHeader);
+  const userId = userDetails.userId;
+
+  const next = progressionMap[details.appStage]?.[details.appStatus];
+  if (next) {
+    details.appStage = next.nextStage;
+    details.appStatus = next.nextStatus;
+  }
+
+  return await prisma.$transaction(async (prisma) => { 
+    const app = await findAppId(prisma, studentId, details.sponsorshipId);
+    const converted: UpdateStudentStatus = toUpdateStatusModel( details, studentId, userId);
+    await adjustStudentEligibilityStatusRepo(converted, binaryToUuid(app.id), prisma);
+
+    const response = toUpdateStatusResponse( converted );
+    return response;
+  });
 };
 
 export const deleteOneSponsorship = async (sponsorshipId: string) => {

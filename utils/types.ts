@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { EvaluationStatus, Prisma } from "@prisma/client";
 import { APPLICATION_STAGE, APPLICATION_STATUS } from "./constant";
 
 export interface LoginRequest {
@@ -438,15 +438,21 @@ export type UpdateStudentStatusRequest = {
   sponsorshipId: string;
   appStatus: APPLICATION_STATUS;
   appStage: APPLICATION_STAGE;
+  interviewStatus?: EvaluationStatus;
+  examStatus?: EvaluationStatus;
   remarks: string;
 }
 
 export type UpdateStudentStatus = {
-  student_id: string;
-  sponsorship_id: string;
+  student_id: any;
+  sponsorship_id: any;
   application_stage: APPLICATION_STAGE;
   application_status: APPLICATION_STATUS;
+  exam_status?: EvaluationStatus;
+  interview_status?: EvaluationStatus;
   remarks: string;
+  updated_at: Date;
+  updated_by: any;
 }
 
 export type SponsorshipMinimal = {

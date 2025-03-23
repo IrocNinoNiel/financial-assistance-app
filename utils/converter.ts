@@ -1,7 +1,7 @@
 
-import { Prisma, student, user, academicYear, sponsorship } from '@prisma/client';
+import { Prisma, student, user, academicYear, sponsorship, EvaluationStatus } from '@prisma/client';
 import { User } from "../authentication/model";
-import { AcademicYearRequest, AcademicYearResponse, AddressResponse, ApplySponsorshipRequest, ApplySponsorshipResponse, FileTypeResponse, PartialStudentUser, RecordStatus, RegisterRequest, RoleResponse, SchoolPayload, SiblingRequest, SponsorshipRequest, SponsorshipResponse, SponsorshipStatus, StudentListResponse, StudentRequest, UserDetailsResponse, UserListResponse, UserResponse } from './types';
+import { AcademicYearRequest, AcademicYearResponse, AddressResponse, ApplySponsorshipRequest, ApplySponsorshipResponse, FileTypeResponse, PartialStudentUser, RecordStatus, RegisterRequest, RoleResponse, SchoolPayload, SiblingRequest, SponsorshipRequest, SponsorshipResponse, SponsorshipStatus, StudentListResponse, StudentRequest, UpdateStudentStatus, UserDetailsResponse, UserListResponse, UserResponse } from './types';
 import { binaryToUuid, uuidToBinary } from "./utils";
 import { APPLICATION_STAGE, APPLICATION_STATUS } from './constant';
 
@@ -446,4 +446,38 @@ export function toSponsorshipResponse( payload: any ): SponsorshipResponse {
       files: item.student.files
     })),
   }
+}
+
+export function toUpdateStatusModel(details: any, studentId: string, userId: string): UpdateStudentStatus {
+  const model: any = {
+    student_id: uuidToBinary(studentId),
+    sponsorship_id: uuidToBinary(details.sponsorshipId),
+    application_stage: details.appStage,
+    application_status: details.appStatus,
+    remarks: details.remarks,
+    updated_at: new Date(),
+    updated_by: uuidToBinary(userId)
+  };
+
+  // Only include exam_status if provided
+  if (details.examStatus !== undefined) {
+    model.exam_status = details.examStatus;
+  }
+
+  // Only include interview_status if provided
+  if (details.interviewStatus !== undefined) {
+    model.interview_status = details.interviewStatus;
+  }
+
+  return model;
+}
+
+
+export function toUpdateStatusResponse( converted: UpdateStudentStatus) {
+  return {
+    ...converted,
+    student_id: binaryToUuid(converted.student_id),
+    sponsorship_id: binaryToUuid(converted.sponsorship_id),
+    updated_by: binaryToUuid(converted.updated_by),
+  };
 }

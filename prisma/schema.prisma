@@ -409,6 +409,8 @@ model sponsorshipApplication {
   application_status  application_status
   application_date  DateTime @default(now())
   remarks            String?
+  interview_status   EvaluationStatus @default(PENDING)
+  exam_status        EvaluationStatus @default(PENDING)
   record_status       Boolean   @default(true)
   created_at          DateTime @default(now())
   updated_at          DateTime @updatedAt
@@ -434,32 +436,33 @@ enum siblings_sibling_status {
 
 enum application_stage {
   POOLING
-  INTERVIEW_EXAM
+  APPLICATION_LIST
   RANKING_SELECTION
   FINAL_SELECTION
 }
 
 enum application_status {
-  // for pooling
+  // Pooling Stage Statuses
   PENDING_POOLING
-  FOLLOW_UP // add remarks
+  FOLLOW_UP
   COMPLETE
+  REJECTED // Common, used in multiple stages
 
-  // for interview stage
-  PENDING_INTERVIEW_EXAM
-  PASSED_INTERVIEW_EXAM
-  FAILED_INTERVIEW_EXAM
-  DENIED_INTERVIEW_EXAM
+  // Application List Stage Statuses
+  PENDING_APPLICATION_LIST
 
-  // for ranking selection
+  // Ranking Selection Stage Statuses
   PENDING_RANKING_SELECTION
   RANKED
 
-  // for final phase
-  NOT_SELECTED
+  // Final Selection Stage Statuses
   PENDING_FINAL_SELECTION
+  NOT_SELECTED
   APPROVED
+}
 
-  // can be on use in multiple stage (pooling, final phase)
-  REJECTED
+enum EvaluationStatus {
+  PENDING
+  PASSED
+  FAILED
 }

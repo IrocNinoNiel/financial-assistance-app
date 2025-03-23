@@ -1,4 +1,4 @@
-import { APPLICATION_STAGE, APPLICATION_STATUS, error, LoginRequest, RegisterRequest, VALIDATION_MESSAGES } from "../utils";
+import { APPLICATION_STAGE, APPLICATION_STATUS, error, EvaluationStatus, LoginRequest, RegisterRequest, VALIDATION_MESSAGES } from "../utils";
 import { NextFunction, Request, RequestHandler, Response } from "express";
 import ResponseHandler from "../response/response";
 import { validationResult, body, param } from "express-validator";
@@ -12,22 +12,21 @@ import { checkAcademicYearId, checkExistingAcademicYear } from "../academicYear/
 import { checkIfSponsorshipExist, checkSponsorshipId, doesStudentAlreadyApplied } from "../sponsorship/service";
 import { checkIfInvalidFileTypeId } from "../file/service";
 
-const stageStatusMap = {
+const stageStatusMap: Record<APPLICATION_STAGE, APPLICATION_STATUS[]> = {
   [APPLICATION_STAGE.POOLING]: [
     APPLICATION_STATUS.PENDING_POOLING,
     APPLICATION_STATUS.FOLLOW_UP,
     APPLICATION_STATUS.COMPLETE,
     APPLICATION_STATUS.REJECTED
   ],
-  [APPLICATION_STAGE.INTERVIEW_EXAM]: [
-    APPLICATION_STATUS.PENDING_INTERVIEW_EXAM,
-    APPLICATION_STATUS.PASSED_INTERVIEW_EXAM,
-    APPLICATION_STATUS.FAILED_INTERVIEW_EXAM,
-    APPLICATION_STATUS.DENIED_INTERVIEW_EXAM
+  [APPLICATION_STAGE.APPLICATION_LIST]: [
+    APPLICATION_STATUS.PENDING_APPLICATION_LIST,
+    APPLICATION_STATUS.APPROVED,
+    APPLICATION_STATUS.REJECTED
   ],
   [APPLICATION_STAGE.RANKING_SELECTION]: [
     APPLICATION_STATUS.PENDING_RANKING_SELECTION,
-    APPLICATION_STATUS.RANKED
+    APPLICATION_STATUS.RANKED,
   ],
   [APPLICATION_STAGE.FINAL_SELECTION]: [
     APPLICATION_STATUS.PENDING_FINAL_SELECTION,
@@ -584,26 +583,57 @@ export const validateChangeStudentStatus = [
     }),
   body("appStage") 
     .notEmpty().withMessage(VALIDATION_MESSAGES.APP_STAGE_REQUIRED)
-    .custom( data => {
+    .custom( async data => {
         // check if appStage is in the ENUM
         const validStages = Object.values(APPLICATION_STAGE);
         if (!validStages.includes(data)) {
           return Promise.reject(VALIDATION_MESSAGES.APP_STAGE_INVALID);
-        }
+        } 
     }),
   body("appStatus")
     .notEmpty().withMessage(VALIDATION_MESSAGES.APP_STATUS_REQUIRED)
-    .custom( (data, {req} ) => {
+    .custom( async (data, {req} ) => {
       // chceck if appStatus is in the ENUM
       const validStatus = Object.values(APPLICATION_STATUS);
-      const { appStage } = req.body.appStage;
+      const appStage = req.body.appStage;
       if (!validStatus.includes(data)) {
         return Promise.reject(VALIDATION_MESSAGES.APP_STATUS_INVALID + " " + validStatus.join(', '));
       }
       // check if appStatus belongs to the appStage
       const validStatusesForStage = stageStatusMap[appStage];
+      console.log(validStatusesForStage, data, appStage);
       if (!validStatusesForStage.includes(data)) { 
         return Promise.reject(VALIDATION_MESSAGES.INVALID_STATUS_FOR_STAGE + " " + appStage + " Allowed statuses: " + validStatusesForStage.join(', ') )
+      }
+    }),
+  body("interviewStatus")
+    .optional()
+    .custom( async (data, {req}) => {
+
+      const appStage = req.body.appStage;
+
+      const validStatus = Object.values(EvaluationStatus);
+      if (!validStatus.includes(data)) {
+        return Promise.reject(VALIDATION_MESSAGES.INTERVIEW_STATUS_INVALID + " " + validStatus.join(', '));
+      }
+
+      if( appStage != APPLICATION_STAGE.APPLICATION_LIST) {
+        return Promise.reject(VALIDATION_MESSAGES.FORBIDDEN_INTERVIEW_EXAM_CHANGES)
+      }
+    }),
+  body("examStatus")
+    .optional()
+    .custom( async (data, {req}) => {
+
+      const appStage = req.body.appStage;
+
+      const validStatus = Object.values(EvaluationStatus);
+      if (!validStatus.includes(data)) {
+        return Promise.reject(VALIDATION_MESSAGES.EXAM_STATUS_INVALID + " " + validStatus.join(', '));
+      }
+
+      if( appStage !== APPLICATION_STAGE.APPLICATION_LIST) {
+        return Promise.reject(VALIDATION_MESSAGES.FORBIDDEN_INTERVIEW_EXAM_CHANGES)
       }
     }),
 

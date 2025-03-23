@@ -22,28 +22,35 @@ export const SUCCESS_MESSAGES = {
 
 export enum APPLICATION_STAGE {
     POOLING = "POOLING", 
-    INTERVIEW_EXAM = "INTERVIEW_EXAM",
+    APPLICATION_LIST = "APPLICATION_LIST",
     RANKING_SELECTION = "RANKING_SELECTION",
     FINAL_SELECTION = "FINAL_SELECTION"
 }
 
 export enum APPLICATION_STATUS {
+    // Pooling Stage Statuses
     PENDING_POOLING = "PENDING_POOLING",
     FOLLOW_UP = "FOLLOW_UP",
     COMPLETE = "COMPLETE",
+    REJECTED = "REJECTED", // Common, used in multiple stages
 
-    PENDING_INTERVIEW_EXAM = "PENDING_INTERVIEW_EXAM",
-    PASSED_INTERVIEW_EXAM = "PASSED_INTERVIEW_EXAM",
-    FAILED_INTERVIEW_EXAM = "FAILED_INTERVIEW_EXAM",
-    DENIED_INTERVIEW_EXAM = "DENIED_INTERVIEW_EXAM",
+    // Application List Stage Statuses
+    PENDING_APPLICATION_LIST = "PENDING_APPLICATION_LIST",
 
+    // Ranking Selection Stage Statuses
     PENDING_RANKING_SELECTION = "PENDING_RANKING_SELECTION",
     RANKED = "RANKED",
 
-    NOT_SELECTED = "NOT_SELECTED",
+    // Final Selection Stage Statuses
     PENDING_FINAL_SELECTION = "PENDING_FINAL_SELECTION",
+    NOT_SELECTED = "NOT_SELECTED",
     APPROVED = "APPROVED",
-    REJECTED = "REJECTED"
+}
+
+export enum EvaluationStatus {
+    PENDING = "PENDING",
+    PASSED = "PASSED",
+    FAILED = "FAILED",
 }
 
 export const VALIDATION_MESSAGES = {
@@ -176,6 +183,8 @@ export const VALIDATION_MESSAGES = {
     APP_STATUS_REQUIRED: "appStatus is required",
     APP_STAGE_INVALID: "Invalid appStage. Allowed values are: POOLING | INTERVIEW_EXAM | RANKING_SELECTION | FINAL_SELECTION",
     APP_STATUS_INVALID: "Invalid appStatus",
-    INVALID_STATUS_FOR_STAGE: "Invalid appStatus for"
+    INVALID_STATUS_FOR_STAGE: "Invalid appStatus for",
+    INTERVIEW_STATUS_INVALID: "Invalid interview status",
+    EXAM_STATUS_INVALID: "Invalid exam status",
+    FORBIDDEN_INTERVIEW_EXAM_CHANGES: "You can only change interview/exam status in application list stage"
 };
-  

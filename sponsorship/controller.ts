@@ -2,7 +2,7 @@ import { Router } from "express";
 import { validateApplyScholarship, validateChangeStudentStatus, validateSponsorship, validateSponsorshipId, validateStudentId } from "../middleware/validation";
 import { ResponseHandler } from "../response";
 import { ApplySponsorshipRequest, ApplySponsorshipResponse, ERROR_MESSAGES, SponsorshipRequest, SponsorshipResponse, SUCCESS_MESSAGES, UpdateStudentStatusRequest, VALIDATION_MESSAGES } from "../utils";
-import { applyToSponsorship, createSponsorship, deleteOneSponsorship, getAllAvailableSponsorship, getAllSponsorship, getAllStudentSponsorship, getOneSponsorship, getOneStudentSponsorship, updateSponsorship } from "./service";
+import { adjustStudentEligibilityStatus, applyToSponsorship, createSponsorship, deleteOneSponsorship, getAllAvailableSponsorship, getAllSponsorship, getAllStudentSponsorship, getOneSponsorship, getOneStudentSponsorship, updateSponsorship } from "./service";
 import { allowRoles } from "../middleware/authentication";
 
 export default () => {
@@ -74,7 +74,9 @@ export default () => {
             const authHeader: string = req.headers.authorization;
             const { studentId } = req.params;
             const payload: UpdateStudentStatusRequest = req.body;
-
+            
+            const response = await adjustStudentEligibilityStatus(studentId, payload, authHeader);
+            ResponseHandler.updated(req, res, response);
 
 
         } catch (err) {

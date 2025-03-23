@@ -4,7 +4,7 @@ import {
   sponsorship,
   sponsorshipSchool,
 } from "@prisma/client";
-import { GetAllSponsorshipType, RecordStatus, UpdateStudentStatus, UpdateStudentStatusRequest, uuidToBinary } from "../utils";
+import { binaryToUuid, GetAllSponsorshipType, RecordStatus, UpdateStudentStatus, UpdateStudentStatusRequest, uuidToBinary } from "../utils";
 
 export const createSponsorshipRepo = async (
   data: Prisma.sponsorshipUncheckedCreateInput,
@@ -265,20 +265,30 @@ export const updateSponsorshipRepo = async (
   });
 };
 
-export const adjustStudentEligibilityStatusRepo = async (details: UpdateStudentStatus, prisma: any) => {
+export const adjustStudentEligibilityStatusRepo = async (details: UpdateStudentStatus, appId: string, prisma: any) => {
   return await prisma.sponsorshipApplication.update({
-    data: {
-      application_stage: details.application_stage,
-      application_status: details.application_status
-    },
+    data: details,
     where: {
-      student_id: uuidToBinary(details.student_id),
-      sponsorship_id: uuidToBinary(details.sponsorship_id) 
+      id: uuidToBinary(appId)
     }
   })
 }
 
+export const findAppId = async ( prisma: any, studentId: string, sponsorshipId: string ) => {
+  const app = await prisma.sponsorshipApplication.findFirst({
+    where: {
+      student_id: uuidToBinary(studentId),
+      sponsorship_id: uuidToBinary(sponsorshipId)
+    },
+    select: { id: true } // Get only the primary key
+  });
+  
+  if (!app) {
+    throw new Error("Application not found");
+  }
 
+  return app;
+}
 export const deleteOneSponsorshipRepo = async (id: string, prisma: any) => {
   await prisma.sponsorship.update({
     where: { id: uuidToBinary(id) },

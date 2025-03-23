@@ -1285,19 +1285,49 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/InternalErrorResponse'
-  /sponsorships/student/available/{studentId}:
-    get:
+  /sponsorships/coordinator/students/{studentId}/status:
+    put:
       tags:
-        - Student Sponsorship
-      summary: Get all sponsorship available for the student
+        - Coordinator Sponsorship
       parameters:
         - name: studentId
           in: path
           required: true
-          description: The ID of the student that you want to find available sponsorship
+          description: The ID of the student
           schema:
             type: string
             example: fa8d0ba7-3bd8-4a30-8127-82ca571d1bd0
+      summary: Register a new Sponsorship
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SponsorshipChangeStatusPayload'
+      responses:
+        '201':
+          description: Resource successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetSponsorshipChangeStatus'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
+  /sponsorships/student/available:
+    get:
+      tags:
+        - Student Sponsorship
+      summary: Get all sponsorship available for the student
       responses:
         '200':
           description: A list of sponsorship
@@ -1660,6 +1690,7 @@ components:
           items:
             type: string
             example: a2815764-f067-11ef-ae8c-f4b520508eb0
+            
     ApplySponsorshipPayload:
       type: object
       properties:
@@ -2903,7 +2934,41 @@ components:
                   name:
                     type: string
                     example: Valid id
-                  
         generatedAt:
           type: integer
           example: 1738335123028
+    GetSponsorshipChangeStatus:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          example: 201
+        message:
+          type: string
+          example: Resource Successfully Created!
+        data:
+           $ref: '#/components/schemas/SponsorshipChangeStatusPayload'
+        generatedAt:
+          type: integer
+          example: 1738335123028
+    SponsorshipChangeStatusPayload:
+      type: object
+      properties:
+        sponsorshipId:
+          type: string
+          example: a2815764-f067-11ef-ae8c-f4b520508eb0
+        appStatus:
+          type: string
+          example: POOLING
+        appStage:
+          type: string
+          example: REJECTED
+        interviewStatus:
+          type: string
+          example: PENDING
+        reviewStatus:
+          type: string
+          example: PENDING
+        remarks:
+          type: string
+          example: remarks
