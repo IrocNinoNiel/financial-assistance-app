@@ -4,7 +4,7 @@ import {
   sponsorship,
   sponsorshipSchool,
 } from "@prisma/client";
-import { binaryToUuid, GetAllSponsorshipType, RecordStatus, UpdateStudentStatus, UpdateStudentStatusRequest, uuidToBinary } from "../utils";
+import { binaryToUuid, GetAllSponsorshipType, QueryParams, RecordStatus, UpdateStudentStatus, UpdateStudentStatusRequest, uuidToBinary } from "../utils";
 
 export const createSponsorshipRepo = async (
   data: Prisma.sponsorshipUncheckedCreateInput,
@@ -168,10 +168,26 @@ export const getAllSponsorshipStudent = async (
 
 export const getAllSponsorshipRepo = async (
   whereCondition: any,
-  prisma: any
+  prisma: any,
+  params: QueryParams
 ): Promise<GetAllSponsorshipType[]> => {
+
+  let orderBy: any = {};
+  if (params.sort) {
+    orderBy['created_at'] = params.sort === 'desc' ? 'desc' : 'asc';
+  }
+
+  if (params.search && params.search != "") {
+    whereCondition.name = {
+      contains: params.search
+    };
+  }
+
   return await prisma.sponsorship.findMany({
     where: whereCondition,
+    skip: params.offset,
+    take: params.limit,
+    orderBy,
     include: {
       _count: { select: { sponsorshipApplication: true } },
       academicYear: {

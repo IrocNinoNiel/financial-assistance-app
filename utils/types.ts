@@ -492,5 +492,12 @@ export type GetAllSponsorshipType = Prisma.sponsorshipGetPayload<{
   };
 }>;
 
+export type  QueryParams = {
+  offset: number;
+  limit: number;
+  search: string;
+  sort: string;
+}
+
 
 export type AuthPayload = { email: string, userId: string }

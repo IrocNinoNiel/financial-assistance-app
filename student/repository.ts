@@ -1,4 +1,4 @@
-import { binaryToUuid, RecordStatus, uuidToBinary } from "../utils";
+import { binaryToUuid, QueryParams, RecordStatus, uuidToBinary } from "../utils";
 import { Prisma, PrismaClient, student, user } from "@prisma/client";
 
 const prisma = new PrismaClient({
@@ -117,12 +117,26 @@ export const checkStudentEmailExists = async (
   }
 };
 
-export const getAllStudentRepo = async (): Promise<any> => {
+export const getAllStudentRepo = async ( params: QueryParams ): Promise<any> => {
   try {
+
+    let orderBy: any = {};
+    let whereCondition: any = { record_status: RecordStatus.ACTIVE }
+    if (params.sort) {
+      orderBy['created_at'] = params.sort === 'desc' ? 'desc' : 'asc';
+    }
+
+    if (params.search && params.search != "") {
+      whereCondition.first_name = {
+        contains: params.search
+      };
+    }
+
     const users = await prisma.student.findMany({
-      where: {
-        record_status: RecordStatus.ACTIVE,
-      },
+      where: whereCondition,
+      skip: params.offset,
+      take: params.limit,
+      orderBy,
       include: {
         siblings: true,
         permanent_barangay: { select: { brgy_desc: true, brgy_code: true } },

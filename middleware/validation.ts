@@ -740,3 +740,35 @@ export const validateSponsorship =  [
     }),
   validateErrors
 ]
+
+export const validateQueryParams = [
+
+  query('offset')
+    .optional()
+    .isInt({ min: 0 })
+    .withMessage('Offset must be a non-negative integer')
+    .toInt()
+    .default(0),
+
+  query('limit')
+    .optional()
+    .isInt({ min: 1, max: 100 })
+    .withMessage('Limit must be a positive integer between 1 and 100')
+    .toInt()
+    .default(50),
+
+  query('search')
+    .optional()
+    .isString()
+    .withMessage('Search must be a string')
+    .trim()
+    .escape()
+    .default(''),
+
+  query('sort')
+    .optional()
+    .matches(/^[a-zA-Z0-9_]+:(asc|desc)$/)
+    .withMessage('Sort format must be asc|desc')
+    .default('desc'),
+  validateErrors
+];

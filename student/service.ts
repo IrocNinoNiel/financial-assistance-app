@@ -1,4 +1,4 @@
-import { binaryToUuid, extractUserFromToken, PartialStudentUser, StudentListResponse, StudentRequest, uuidToBinary } from "../utils";
+import { binaryToUuid, extractUserFromToken, PartialStudentUser, QueryParams, StudentListResponse, StudentRequest, uuidToBinary } from "../utils";
 import { v4 as uuidv4 } from 'uuid';
 import { convertStudentResponseToStudent, convertToSiblingData, convertToStudentUser, toStudentResponse } from "../utils/converter";
 import { checkIfStudentRepo, doesStudentExistRepo, getAllStudentRepo, getOneStudentRepo, isEmailTakenByAnotherStudentRepo, registerSiblingsRepo, registerStudentRepo, updateSiblingsRepo, updateStudentRepo, getOneStudentUsingUserIdRepo } from './repository';
@@ -48,8 +48,8 @@ export const updateStudentService = async ( data: StudentRequest, authHeader: an
     return convertedResult;
 }
 
-export const getAllStudent = async () => {
-    const data = await getAllStudentRepo();
+export const getAllStudent = async ( params: QueryParams ) => {
+    const data = await getAllStudentRepo( params );
     const converted: StudentListResponse[] = data.map(item => toStudentResponse(item));
     return converted;
 }

@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { ResponseHandler } from "../response";
-import { StudentRequest } from "../utils";
+import { getQueryParams, QueryParams, StudentRequest } from "../utils";
 import { getAllStudent, getOneStudent, updateStudentService } from "./service";
-import { validateStudentRegistration, validateUpdateStudent, validateGetOneStudent, validateStudentId } from "../middleware/validation";
+import { validateStudentRegistration, validateUpdateStudent, validateGetOneStudent, validateStudentId, validateQueryParams } from "../middleware/validation";
 
 
 export default () => {
@@ -49,10 +49,11 @@ export default () => {
         }
     })
 
-    studentAPI.get('/', async (req, res) => { 
+    studentAPI.get('/', validateQueryParams, async (req, res) => { 
         try {
 
-            const result = await getAllStudent();
+            const params: QueryParams = getQueryParams(req);
+            const result = await getAllStudent( params );
             ResponseHandler.ok(req, res, result);
 
         } catch (err) {

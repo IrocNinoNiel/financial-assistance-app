@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { validateApplyScholarship, validateChangeStudentStatus, validateSponsorship, validateSponsorshipId, validateStudentId } from "../middleware/validation";
+import { validateApplyScholarship, validateChangeStudentStatus, validateQueryParams, validateSponsorship, validateSponsorshipId, validateStudentId } from "../middleware/validation";
 import { ResponseHandler } from "../response";
-import { ApplySponsorshipRequest, ApplySponsorshipResponse, ERROR_MESSAGES, SponsorshipRequest, SponsorshipResponse, SUCCESS_MESSAGES, UpdateStudentStatusRequest, VALIDATION_MESSAGES } from "../utils";
+import { ApplySponsorshipRequest, ApplySponsorshipResponse, ERROR_MESSAGES, getQueryParams, QueryParams, SponsorshipRequest, SponsorshipResponse, SUCCESS_MESSAGES, UpdateStudentStatusRequest, VALIDATION_MESSAGES } from "../utils";
 import { adjustStudentEligibilityStatus, applyToSponsorship, createSponsorship, deleteOneSponsorship, getAllAvailableSponsorship, getAllSponsorship, getAllStudentSponsorship, getOneSponsorship, getOneStudentSponsorship, updateSponsorship } from "./service";
 import { allowRoles } from "../middleware/authentication";
 
@@ -58,11 +58,14 @@ export default () => {
         }
     }); 
 
-    sponsorshipAPI.get('/coordinator', allowRoles('system admin', 'financial assistance coordinator', ), async (req, res) => {
+    sponsorshipAPI.get('/coordinator', allowRoles('system admin', 'financial assistance coordinator' ), validateQueryParams , async (req, res) => {
 
         try {
+
+            const params: QueryParams = getQueryParams(req);
+            console.log("parameter", params);
             const authHeader: string = req.headers.authorization;
-            const data: SponsorshipResponse[] = await getAllSponsorship( authHeader );
+            const data: SponsorshipResponse[] = await getAllSponsorship( authHeader, params );
             ResponseHandler.ok(req, res, data);
         } catch (err) {
             ResponseHandler.invalidRequest(req,res , err.message);
@@ -90,11 +93,12 @@ export default () => {
     sponsorshipAPI.get('/student/available', (req, res) => {
         ResponseHandler.internalServerError( req, res, VALIDATION_MESSAGES.STUDENT_ID_REQUIRED);
     });
-    sponsorshipAPI.get('/student/available/:studentId', allowRoles('system admin', 'student' ), validateStudentId, async (req, res) => {
+    sponsorshipAPI.get('/student/available/:studentId', allowRoles('system admin', 'student' ), validateStudentId, validateQueryParams, async (req, res) => {
 
         try {
             const { studentId } = req.params;
-            const data: SponsorshipResponse[] = await getAllAvailableSponsorship( studentId );
+            const params: QueryParams = getQueryParams(req);
+            const data: SponsorshipResponse[] = await getAllAvailableSponsorship( studentId, params );
             ResponseHandler.ok(req, res, data);
         } catch (err) {
             ResponseHandler.invalidRequest(req,res , err.message);

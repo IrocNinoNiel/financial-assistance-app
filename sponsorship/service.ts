@@ -45,6 +45,7 @@ import {
   ApplySponsorshipResponse,
   AuthPayload,
   GetAllSponsorshipType,
+  QueryParams,
   RecordStatus,
   SponsorshipResponse,
   UpdateStudentStatus,
@@ -206,7 +207,8 @@ export const updateSponsorship = async (
 };
 
 export const getAllSponsorship = async (
-  authHeader: string
+  authHeader: string,
+  params: QueryParams
 ): Promise<SponsorshipResponse[]> => {
   // check if student or sponsor
   const userDetails: { email: string; userId: string } =
@@ -220,7 +222,8 @@ export const getAllSponsorship = async (
 
   const data: GetAllSponsorshipType[] = await getAllSponsorshipRepo(
     whereCondition,
-    prisma
+    prisma,
+    params
   );
   console.log("Get all sponsorship success");
 
@@ -258,7 +261,8 @@ export const getAllSponsorship = async (
 };
 
 export const getAllAvailableSponsorship = async (
-  studentId: string
+  studentId: string,
+  params: QueryParams
 ): Promise<SponsorshipResponse[]> => {
   let whereCondition: any = {};
 
@@ -279,7 +283,7 @@ export const getAllAvailableSponsorship = async (
     },
   };
 
-  const data = await getAllSponsorshipRepo(whereCondition, prisma);
+  const data = await getAllSponsorshipRepo(whereCondition, prisma, params);
   return data.map((item) => toSponsorshipResponse(item));
 };
 

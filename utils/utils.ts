@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import { ERROR_MESSAGES } from "./constant";
+import { QueryParams } from "./types";
 
 
 export function uuidToBinary(uuid: string): Buffer {
@@ -39,4 +40,14 @@ export const extractUserFromToken = (authHeader: any): { email: string, userId: 
   } catch (err) {
       throw new Error("Invalid or expired token.");
   }
+};
+
+export const getQueryParams = (req: any): QueryParams => {
+  const { offset, limit, search, sort } = req.query;
+  return {
+    offset: offset && !isNaN(Number(offset)) ? Number(offset) : 0,
+    limit: limit && !isNaN(Number(limit)) ? Number(limit) : 50,
+    search: (search && search !== 'undefined' && search !== 'null') ? String(search) : '',
+    sort: (sort && sort !== 'undefined' && sort !== 'null') ? String(sort) : 'desc',
+  };
 };
