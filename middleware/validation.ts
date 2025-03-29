@@ -11,6 +11,7 @@ import { checkIfInvalidSchoolId, checkSchoolExist, checkSchoolNameExist } from "
 import { checkAcademicYearId, checkExistingAcademicYear } from "../academicYear/service";
 import { checkIfSponsorshipExist, checkSponsorshipId, doesStudentAlreadyApplied } from "../sponsorship/service";
 import { checkIfInvalidFileTypeId } from "../file/service";
+import { doesAnnExist } from "../announcement/service";
 
 const stageStatusMap: Record<APPLICATION_STAGE, APPLICATION_STATUS[]> = {
   [APPLICATION_STAGE.POOLING]: [
@@ -772,3 +773,71 @@ export const validateQueryParams = [
     .default('desc'),
   validateErrors
 ];
+
+
+export const createAnnouncementValidation = [
+  body("title")
+    .customSanitizer(value => String(value)) // Ensure it's a string
+    .trim()
+    .isString().withMessage(VALIDATION_MESSAGES.ANN_TITLE_INVALID)
+    .notEmpty().withMessage(VALIDATION_MESSAGES.ANN_TITLE_REQUIRED),
+  body("content")
+    .customSanitizer(value => String(value)) // Ensure it's a string
+    .trim()
+    .isString().withMessage(VALIDATION_MESSAGES.ANN_CONTENT_INVALID)
+    .notEmpty().withMessage(VALIDATION_MESSAGES.ANN_CONTENT_REQUIRED),
+  body("caption")
+    .customSanitizer(value => String(value)) // Ensure it's a string
+    .trim()
+    .isString().withMessage(VALIDATION_MESSAGES.ANN_CAPTION_INVALID)
+    .notEmpty().withMessage(VALIDATION_MESSAGES.ANN_CAPTION_REQUIRED),
+  body("targetMunicipalitys")
+    .customSanitizer((value) => {
+      console.log("data here", value);
+      if (typeof value === "string") {
+        try {
+          return JSON.parse(value);
+        } catch {
+          throw new Error(VALIDATION_MESSAGES.ANN_MUN_INVALID_FORMAT);
+        }
+      }
+      return value.map((num: any) => Number(num));
+    })
+    .trim()
+    .isArray({ min: 1 }).withMessage(VALIDATION_MESSAGES.ANN_MUN_EMPTY)
+    .custom((values) => values.every((v: number) => typeof Number(v) === "number"))
+    .withMessage(VALIDATION_MESSAGES.ANN_MUN_INVALID_ITEMS)
+    .custom(async (values: number[]) => {
+      const results = await Promise.all(
+        values.map(async (value) => {
+          const doesNotExist = await checkCityMunExist("", Number(value));
+          return doesNotExist ? Promise.reject(VALIDATION_MESSAGES.ANN_CITYMUN_ID_NOT_FOUND) : true;
+        })
+      );
+      return results;
+    }),
+  body("sponsorshipId")
+    .optional()
+    .customSanitizer(value => String(value)) // Ensure it's a string
+    .trim()
+    .isUUID().withMessage(VALIDATION_MESSAGES.ANN_SPON_INVALID_ID)
+    .custom( async ( sponsorshipId ) => {
+      const dontExist = await checkSponsorshipId( sponsorshipId );
+      if (dontExist) {
+        return Promise.reject(VALIDATION_MESSAGES.SPONSORSHIP_ID_NOT_FOUND);
+      }
+    }),
+  validateErrors
+]
+
+export const checkIfAnnIdExist = [
+  param("annId")
+    .notEmpty().withMessage(VALIDATION_MESSAGES.ANN_ID_REQUIRED)
+    .custom(async (annId) => {
+      const annExist = await doesAnnExist(annId);
+      if (!annExist) {
+        return Promise.reject(VALIDATION_MESSAGES.ANN_NOT_FOUND);
+      }
+  }),
+  validateErrors
+]

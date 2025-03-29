@@ -501,3 +501,64 @@ export type  QueryParams = {
 
 
 export type AuthPayload = { email: string, userId: string }
+
+export type AnnouncementPayloadString = {
+  title: string;
+  content: string;
+  caption: string;
+  targetMunicipalitys: number[];
+  sponsorshipId: string;
+}
+
+export type UploadedAnnouncementFile = {
+  filename: string;
+  path: string;
+  mime_type: string;
+};
+
+export type AnnouncementData = {
+  id: Uint8Array;
+  title: string;
+  content: string;
+  caption: string;
+  sponsorship_id: Uint8Array;
+  locations: {
+      citymun: {
+          id: number;
+          citymun_desc: string;
+      };
+  }[];
+  files: {
+      id: Uint8Array;
+      file_name: string;
+      path: string;
+  }[];
+};
+
+
+export type AnnouncementDataMinimal = {
+  id: Uint8Array;
+  title: string;
+  content: string;
+  caption: string;
+  sponsorship_id: Uint8Array;
+};
+
+export type FlattenedAnnouncementData = {
+  id: string; 
+  title: string;
+  content: string;
+  caption: string;
+  sponsorshipId: string;
+  locations: { id: number; name: string }[];
+  files: { fileName: string; path: string }[];
+};
+
+export type FlattenedAnnouncementDataMinimal = {
+  id: string; 
+  title: string;
+  content: string;
+  caption: string;
+  sponsorshipId: string;
+};
+

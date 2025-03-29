@@ -2290,12 +2290,25 @@ components:
         title:
           type: string
           example: Sample Announcement
+        caption:
+          type: string
+          example: Sample caption
         content:
           type: string
           example: Sample content
-        targetMunicipalityId:
+        sponsorshipId:
           type: string
           example: fa8d0ba7-3bd8-4a30-8127-82ca571d1bd0
+        files:
+          type: array
+          items:
+            type: string
+            example: example.jpeg
+        targetMunicipalitys:
+          type: array
+          items:
+            type: integer
+            example: 1
     AnnouncementSuccessCreateResponse:
       type: object
       properties:
@@ -2306,17 +2319,7 @@ components:
           type: string
           example: Resource Successfully Created!
         data:
-          type: object
-          properties:
-            title:
-              type: string
-              example: Sample Announcement
-            content:
-              type: string
-              example: Sample content
-            targetMunicipalityId:
-              type: string
-              example: fa8d0ba7-3bd8-4a30-8127-82ca571d1bd0
+          $ref: '#/components/schemas/AnnouncementPayload'
     AnnouncementSuccessUpdateResponse:
       type: object
       properties:
@@ -2327,17 +2330,7 @@ components:
           type: string
           example: Resource Successfully Updated!
         data:
-          type: object
-          properties:
-            title:
-              type: string
-              example: Sample Announcement
-            content:
-              type: string
-              example: Sample content
-            targetMunicipalityId:
-              type: string
-              example: fa8d0ba7-3bd8-4a30-8127-82ca571d1bd0
+          $ref: '#/components/schemas/AnnouncementPayload'
     AnnouncementSuccessGetAllResponse:
       type: object
       properties:
@@ -2361,10 +2354,13 @@ components:
                   title:
                     type: string
                     example: Sample Announcement
+                  caption:
+                    type: string
+                    example: Sample caption
                   content:
                     type: string
                     example: Sample content
-                  targetMunicipalityId:
+                  sponsorshipId:
                     type: string
                     example: fa8d0ba7-3bd8-4a30-8127-82ca571d1bd0
     AnnouncementSuccessGetResponse:
@@ -2377,17 +2373,7 @@ components:
           type: string
           example: Resource Successfully Retreived!
         data:
-          type: object
-          properties:
-            title:
-              type: string
-              example: Sample Announcement
-            content:
-              type: string
-              example: Sample content
-            targetMunicipalityId:
-              type: string
-              example: fa8d0ba7-3bd8-4a30-8127-82ca571d1bd0
+          $ref: '#/components/schemas/AnnouncementPayload'
     SuccessDeleteResponse:
       type: object
       properties:

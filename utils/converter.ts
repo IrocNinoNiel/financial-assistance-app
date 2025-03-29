@@ -1,7 +1,7 @@
 
-import { Prisma, student, user, academicYear, sponsorship, EvaluationStatus } from '@prisma/client';
+import { Prisma, student, user, academicYear, sponsorship, EvaluationStatus, announcement } from '@prisma/client';
 import { User } from "../authentication/model";
-import { AcademicYearRequest, AcademicYearResponse, AddressResponse, ApplySponsorshipRequest, ApplySponsorshipResponse, FileTypeResponse, PartialStudentUser, RecordStatus, RegisterRequest, RoleResponse, SchoolPayload, SiblingRequest, SponsorshipRequest, SponsorshipResponse, SponsorshipStatus, StudentListResponse, StudentRequest, UpdateStudentStatus, UserDetailsResponse, UserListResponse, UserResponse } from './types';
+import { AcademicYearRequest, AcademicYearResponse, AddressResponse, AnnouncementData, AnnouncementDataMinimal, AnnouncementPayloadString, ApplySponsorshipRequest, ApplySponsorshipResponse, FileTypeResponse, FlattenedAnnouncementData, FlattenedAnnouncementDataMinimal, PartialStudentUser, RecordStatus, RegisterRequest, RoleResponse, SchoolPayload, SiblingRequest, SponsorshipRequest, SponsorshipResponse, SponsorshipStatus, StudentListResponse, StudentRequest, UpdateStudentStatus, UploadedAnnouncementFile, UserDetailsResponse, UserListResponse, UserResponse } from './types';
 import { binaryToUuid, uuidToBinary } from "./utils";
 import { APPLICATION_STAGE, APPLICATION_STATUS } from './constant';
 
@@ -479,5 +479,59 @@ export function toUpdateStatusResponse( converted: UpdateStudentStatus) {
     student_id: binaryToUuid(converted.student_id),
     sponsorship_id: binaryToUuid(converted.sponsorship_id),
     updated_by: binaryToUuid(converted.updated_by),
+  };
+}
+
+export function toAnnouncementModel( payload: AnnouncementPayloadString ): Prisma.announcementUncheckedCreateInput {
+  return {
+    title: payload.title,
+    content: payload.content,
+    caption: payload.caption,
+    sponsorship_id: payload.sponsorshipId ? uuidToBinary(payload.sponsorshipId) : null,
+  }
+}
+
+export function toAnnouncementLocationModel( locationId: number, announcementId: string): Prisma.announcementLocationUncheckedCreateInput {
+  return {
+    citymun_id: Number(locationId),
+    announcement_id: uuidToBinary(announcementId),
+  }
+}
+
+export const toUploadedFileModel = (file: Express.Multer.File, announcementId: string): Prisma.announcementFileUncheckedCreateInput => {
+  return {
+    announcement_id: uuidToBinary(announcementId),
+    file_name: file.filename,
+    path: file.path,
+    mime_type: file.mimetype,
+  };
+};
+
+export const toAnnouncementResponse = ( data: AnnouncementData ): FlattenedAnnouncementData => {
+  return {
+    id: binaryToUuid(data.id), // Convert Uint8Array to UUID string
+    title: data.title,
+    content: data.content,
+    caption: data.caption,
+    sponsorshipId: binaryToUuid(data.sponsorship_id), // Convert Uint8Array to UUID string
+    locations: data.locations.map(location => ({
+        id: location.citymun.id,
+        name: location.citymun.citymun_desc
+    })), // Extract id and city name
+    files: data.files.map( file => ({
+      id: binaryToUuid(file.id),
+      fileName: file.file_name,
+      path: file.path
+    }))
+  };
+}
+
+export const toAnnouncementMinimalResponse = ( data: AnnouncementDataMinimal ): FlattenedAnnouncementDataMinimal => {
+  return {
+    id: binaryToUuid(data.id),
+    title: data.title,
+    content: data.content,
+    caption: data.caption,
+    sponsorshipId: binaryToUuid(data.sponsorship_id)
   };
 }

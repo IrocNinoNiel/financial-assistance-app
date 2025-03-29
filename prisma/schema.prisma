@@ -8,27 +8,27 @@ datasource db {
 }
 
 model user {
-  id            Bytes         @id @default(dbgenerated("(UUID_TO_BIN(UUID()))")) @db.Binary(16)
-  role_id       Bytes         @db.Binary(16)
-  first_name    String        @db.VarChar(255)
-  middle_name   String?       @db.VarChar(255)
-  last_name     String        @db.VarChar(255)
-  username      String        @db.VarChar(255) @default("user")
-  mobile_number String        @db.VarChar(15)
-  email         String        @unique(map: "email") @db.VarChar(255)
-  password      String        @db.VarChar(255)
-  created_at    DateTime?     @default(now()) @db.Timestamp(0)
-  updated_at    DateTime?     @default(now()) @db.Timestamp(0)
-  created_by    Bytes?        @db.Binary(16)
-  updated_by    Bytes?        @db.Binary(16)
-  record_status Boolean?      @default(true)
-  profile       String?       @db.VarChar(255)
+  id            Bytes     @id @default(dbgenerated("(UUID_TO_BIN(UUID()))")) @db.Binary(16)
+  role_id       Bytes     @db.Binary(16)
+  first_name    String    @db.VarChar(255)
+  middle_name   String?   @db.VarChar(255)
+  last_name     String    @db.VarChar(255)
+  username      String    @default("user") @db.VarChar(255)
+  mobile_number String    @db.VarChar(15)
+  email         String    @unique(map: "email") @db.VarChar(255)
+  password      String    @db.VarChar(255)
+  created_at    DateTime? @default(now()) @db.Timestamp(0)
+  updated_at    DateTime? @default(now()) @db.Timestamp(0)
+  created_by    Bytes?    @db.Binary(16)
+  updated_by    Bytes?    @db.Binary(16)
+  record_status Boolean?  @default(true)
+  profile       String?   @db.VarChar(255)
   students      student[]
 
-  sponsors  sponsorship[] @relation(name: "sponsorship_sponsor")      // Sponsorships where the user is a sponsor
-  coordinators  sponsorship[] @relation(name: "sponsorship_coordinator")  // Sponsorships where the user is a coordinator
-  
-  role          role          @relation(fields: [role_id], references: [id])
+  sponsors     sponsorship[] @relation(name: "sponsorship_sponsor") // Sponsorships where the user is a sponsor
+  coordinators sponsorship[] @relation(name: "sponsorship_coordinator") // Sponsorships where the user is a coordinator
+
+  role role @relation(fields: [role_id], references: [id])
 
   @@map("users")
 }
@@ -176,9 +176,9 @@ model student {
   updated_by         Bytes?    @db.Binary(16)
   record_status      Boolean?  @default(true)
 
-  siblings sibling[]
+  siblings               sibling[]
   sponsorshipApplication sponsorshipApplication[]
-  users    user       @relation(fields: [user_id], references: [id])
+  users                  user                     @relation(fields: [user_id], references: [id])
 
   permanent_barangay barangay? @relation("PermanentStudentAddress", fields: [permanent_brg_id], references: [id])
   permanent_citynum  citymun?  @relation("PermanentStudentAddress", fields: [permanent_citymun_id], references: [id])
@@ -192,33 +192,53 @@ model student {
 
   g12_school     school? @relation("G12School", fields: [g12_school_id], references: [id])
   college_school school? @relation("CollegeSchool", fields: [college_school_id], references: [id])
-  files         file[]
+  files          file[]
 
   @@index([user_id], map: "user_id")
   @@map("students")
 }
 
 model announcement {
-  id                  Bytes                  @id @default(dbgenerated("(UUID_TO_BIN(UUID()))")) @db.Binary(16)
-  title               String                 @db.VarChar(255)
-  content             String                 @db.Text
-  target_municipality String?                @db.VarChar(255)
-  created_at          DateTime?              @default(now()) @db.Timestamp(0)
-  updated_at          DateTime?              @default(now()) @db.Timestamp(0)
-  created_by          Bytes?                 @db.Binary(16)
-  updated_by          Bytes?                 @db.Binary(16)
-  record_status       Boolean?               @default(true)
-  locations           announcementLocation[]
+  id             Bytes                  @id @default(dbgenerated("(UUID_TO_BIN(UUID()))")) @db.Binary(16)
+  title          String                 @db.VarChar(255)
+  caption        String                 @db.VarChar(255)
+  sponsorship_id Bytes?                 @db.Binary(16)
+  content        String                 @db.Text
+  created_at     DateTime?              @default(now()) @db.Timestamp(0)
+  updated_at     DateTime?              @default(now()) @db.Timestamp(0)
+  created_by     Bytes?                 @db.Binary(16)
+  updated_by     Bytes?                 @db.Binary(16)
+  record_status  Boolean?               @default(true)
+  locations      announcementLocation[]
+  files          announcementFile[]
+  sponsorship    sponsorship?           @relation(fields: [sponsorship_id], references: [id], onDelete: Cascade)
+
   @@map("announcements")
 }
 
 model announcementLocation {
   id              Bytes        @id @default(dbgenerated("(UUID_TO_BIN(UUID()))")) @db.Binary(16)
   announcement_id Bytes        @db.Binary(16)
-  municipality    String       @db.VarChar(255)
+  citymun_id      Int
+  announcement    announcement @relation(fields: [announcement_id], references: [id], onDelete: Cascade)
+  citymun         citymun      @relation("announcementLocation", fields: [citymun_id], references: [id])
+  
+  @@unique([announcement_id, citymun_id], map: "unique_announcement_citymun")
+  @@index([announcement_id], map: "announcement_id")
+  @@map("announcementLocations")
+}
+
+model announcementFile {
+  id              Bytes        @id @default(dbgenerated("(UUID_TO_BIN(UUID()))")) @db.Binary(16)
+  announcement_id Bytes        @db.Binary(16)
+  file_name       String
+  path            String
+  mime_type       String
   announcement    announcement @relation(fields: [announcement_id], references: [id], onDelete: Cascade)
 
+  @@unique([announcement_id, file_name], map: "unique_announcement_file")
   @@index([announcement_id], map: "announcement_id")
+  @@map("announcementFiles")
 }
 
 model region {
@@ -246,15 +266,16 @@ model province {
 }
 
 model citymun {
-  id                      Int       @id @default(autoincrement())
+  id                      Int                    @id @default(autoincrement())
   psgc_code               String?
   citymun_desc            String?
   reg_desc                String?
   prov_code               String?
   citymun_code            String?
   schools                 school[]
-  PermanentStudentAddress student[] @relation("PermanentStudentAddress")
-  CurrentStudentAddress   student[] @relation("CurrentStudentAddress")
+  PermanentStudentAddress student[]              @relation("PermanentStudentAddress")
+  CurrentStudentAddress   student[]              @relation("CurrentStudentAddress")
+  announcementLocations   announcementLocation[] @relation("announcementLocation")
 
   @@map("citymuns")
 }
@@ -291,15 +312,14 @@ model school {
   citymun  citymun  @relation(fields: [citymun_id], references: [id])
   brgy     barangay @relation(fields: [brgy_id], references: [id])
 
-  G12School              student[]                @relation("G12School")
-  CollegeSchool          student[]                @relation("CollegeSchool")
-  sponsorshipSchool      sponsorshipSchool[]
+  G12School         student[]           @relation("G12School")
+  CollegeSchool     student[]           @relation("CollegeSchool")
+  sponsorshipSchool sponsorshipSchool[]
 
   // Indexes (without map argument)
   @@index([province_id])
   @@index([citymun_id])
   @@index([brgy_id])
-
   @@map("schools")
 }
 
@@ -311,7 +331,7 @@ model fileType {
   created_by Bytes?    @db.Binary(16)
   updated_by Bytes?    @db.Binary(16)
 
-  files file[]
+  files                   file[]
   sponsorshipRequirements sponsorshipRequirement[]
 }
 
@@ -324,7 +344,7 @@ model file {
   student_id    Bytes     @db.Binary(16)
   record_status Boolean   @default(true)
   fileType      fileType  @relation(fields: [file_type_id], references: [id], onDelete: Cascade)
-  student       student      @relation(fields: [student_id], references: [id], onDelete: Cascade)
+  student       student   @relation(fields: [student_id], references: [id], onDelete: Cascade)
   created_at    DateTime? @default(now())
   updated_at    DateTime?
   created_by    Bytes?    @db.Binary(16)
@@ -350,12 +370,13 @@ model sponsorship {
   created_by       Bytes    @db.Binary(16)
   updated_by       Bytes    @db.Binary(16)
 
-  requirements sponsorshipRequirement[]
-  schools      sponsorshipSchool[]
+  requirements           sponsorshipRequirement[]
+  schools                sponsorshipSchool[]
   sponsorshipApplication sponsorshipApplication[]
-  sponsor      user                     @relation(fields: [sponsor_id], references: [id], name: "sponsorship_sponsor")
-  coordinator  user                     @relation(fields: [coordinator_id], references: [id], name: "sponsorship_coordinator")
-  academicYear academicYear             @relation(fields: [academic_year_id], references: [id])
+  sponsor                user                     @relation(fields: [sponsor_id], references: [id], name: "sponsorship_sponsor")
+  coordinator            user                     @relation(fields: [coordinator_id], references: [id], name: "sponsorship_coordinator")
+  academicYear           academicYear             @relation(fields: [academic_year_id], references: [id])
+  announcements          announcement[]
 
   @@map("sponsorships")
 }
@@ -367,7 +388,7 @@ model academicYear {
   school_term         Int
   date_from           DateTime
   date_to             DateTime
-  record_status       Boolean   @default(true)
+  record_status       Boolean  @default(true)
   created_at          DateTime @default(now())
   updated_at          DateTime @updatedAt
   created_by          Bytes    @db.Binary(16)
@@ -391,38 +412,37 @@ model sponsorshipSchool {
 
 model sponsorshipRequirement {
   sponsorship_id Bytes @db.Binary(16)
-  file_type_id      Bytes @db.Binary(16)
+  file_type_id   Bytes @db.Binary(16)
 
   sponsorship sponsorship @relation(fields: [sponsorship_id], references: [id])
-  fileType      fileType      @relation(fields: [file_type_id], references: [id])
+  fileType    fileType    @relation(fields: [file_type_id], references: [id])
 
   @@id([sponsorship_id, file_type_id])
   @@map("sponsorshipRequirements")
 }
 
 model sponsorshipApplication {
-  id                 Bytes    @id @default(dbgenerated("(UUID_TO_BIN(UUID()))")) @db.Binary(16)
-  app_id              String @db.VarChar(255)
-  student_id          Bytes @db.Binary(16)
-  sponsorship_id      Bytes @db.Binary(16)
-  application_stage   application_stage
-  application_status  application_status
-  application_date  DateTime @default(now())
+  id                 Bytes              @id @default(dbgenerated("(UUID_TO_BIN(UUID()))")) @db.Binary(16)
+  app_id             String             @db.VarChar(255)
+  student_id         Bytes              @db.Binary(16)
+  sponsorship_id     Bytes              @db.Binary(16)
+  application_stage  application_stage
+  application_status application_status
+  application_date   DateTime           @default(now())
   remarks            String?
-  interview_status   EvaluationStatus @default(PENDING)
-  exam_status        EvaluationStatus @default(PENDING)
-  record_status       Boolean   @default(true)
-  created_at          DateTime @default(now())
-  updated_at          DateTime @updatedAt
-  created_by          Bytes    @db.Binary(16)
-  updated_by          Bytes    @db.Binary(16)
+  interview_status   EvaluationStatus   @default(PENDING)
+  exam_status        EvaluationStatus   @default(PENDING)
+  record_status      Boolean            @default(true)
+  created_at         DateTime           @default(now())
+  updated_at         DateTime           @updatedAt
+  created_by         Bytes              @db.Binary(16)
+  updated_by         Bytes              @db.Binary(16)
 
-  student      student                     @relation(fields: [student_id], references: [id])
-  sponsorship  sponsorship                     @relation(fields: [sponsorship_id], references: [id])
+  student     student     @relation(fields: [student_id], references: [id])
+  sponsorship sponsorship @relation(fields: [sponsorship_id], references: [id])
 
   @@map("sponsorshipapplications")
 }
-
 
 enum siblings_sibling_status {
   Single
@@ -430,9 +450,6 @@ enum siblings_sibling_status {
   Widowed
   Divorced
 }
-
-
-
 
 enum application_stage {
   POOLING

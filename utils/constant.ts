@@ -17,7 +17,8 @@ export const SUCCESS_MESSAGES = {
     USER_DELETED: "User Successfully deleted",
     SCHOOL_DELETED: "School Successfully deleted",
     ACADEMIC_YEAR_DELETED: "Academic year Successfully deleted",
-    SPONSORSHIP_DELETED: "Sponsorship Successfully deleted"
+    SPONSORSHIP_DELETED: "Sponsorship Successfully deleted",
+    ANNOUNCEMENT_DELETED: "Announcement Successfully deleted"
 }
 
 export enum APPLICATION_STAGE {
@@ -186,5 +187,18 @@ export const VALIDATION_MESSAGES = {
     INVALID_STATUS_FOR_STAGE: "Invalid appStatus for",
     INTERVIEW_STATUS_INVALID: "Invalid interview status",
     EXAM_STATUS_INVALID: "Invalid exam status",
-    FORBIDDEN_INTERVIEW_EXAM_CHANGES: "You can only change interview/exam status in application list stage"
+    FORBIDDEN_INTERVIEW_EXAM_CHANGES: "You can only change interview/exam status in application list stage",
+    ANN_TITLE_INVALID: "Title must be a string",
+    ANN_TITLE_REQUIRED: "Title is required",
+    ANN_CONTENT_INVALID: "Content must be a string",
+    ANN_CONTENT_REQUIRED: "Content is required",
+    ANN_CAPTION_INVALID: "Caption must be a string",
+    ANN_CAPTION_REQUIRED: "Caption is required",
+    ANN_MUN_EMPTY: "targetMunicipalitys must be a non-empty array",
+    ANN_MUN_INVALID_ITEMS: "Each targetMunicipality must be a number",
+    ANN_SPON_INVALID_ID: "sponsorshipId must be a valid UUID",
+    ANN_CITYMUN_ID_NOT_FOUND: 'municipality ID not found in the system',
+    ANN_MUN_INVALID_FORMAT: 'municipality ID array must be string of array',
+    ANN_ID_REQUIRED: 'Announcement ID is required',
+    ANN_NOT_FOUND: 'Announcement not Found'
 };
