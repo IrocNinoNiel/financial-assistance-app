@@ -200,5 +200,5 @@ export const VALIDATION_MESSAGES = {
     ANN_CITYMUN_ID_NOT_FOUND: 'municipality ID not found in the system',
     ANN_MUN_INVALID_FORMAT: 'municipality ID array must be string of array',
     ANN_ID_REQUIRED: 'Announcement ID is required',
-    ANN_NOT_FOUND: 'Announcement not Found'
+    ANN_NOT_FOUND: 'Announcement not found or your not the owner'
 };

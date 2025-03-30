@@ -497,6 +497,8 @@ export type  QueryParams = {
   limit: number;
   search: string;
   sort: string;
+  mine?: boolean;
+  cityMunId?: number;
 }
 
 

@@ -482,14 +482,25 @@ export function toUpdateStatusResponse( converted: UpdateStudentStatus) {
   };
 }
 
-export function toAnnouncementModel( payload: AnnouncementPayloadString ): Prisma.announcementUncheckedCreateInput {
-  return {
+export function toAnnouncementModel( payload: AnnouncementPayloadString, userId: string, isUpdate: boolean = false ): Prisma.announcementUncheckedCreateInput {
+  const data: Prisma.announcementUncheckedCreateInput = {
     title: payload.title,
     content: payload.content,
     caption: payload.caption,
-    sponsorship_id: payload.sponsorshipId ? uuidToBinary(payload.sponsorshipId) : null,
+    sponsorship_id: payload.sponsorshipId ? uuidToBinary(payload.sponsorshipId) : null
+  };
+
+  if(isUpdate) {
+    data.updated_at = new Date();
+    data.updated_by = uuidToBinary(userId);
+  } else {
+    data.created_by = uuidToBinary(userId);
+    data.updated_by =  uuidToBinary(userId);
   }
+
+  return data;
 }
+
 
 export function toAnnouncementLocationModel( locationId: number, announcementId: string): Prisma.announcementLocationUncheckedCreateInput {
   return {

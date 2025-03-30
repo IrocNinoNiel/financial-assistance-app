@@ -1,8 +1,8 @@
-import { APPLICATION_STAGE, APPLICATION_STATUS, error, EvaluationStatus, LoginRequest, RegisterRequest, VALIDATION_MESSAGES } from "../utils";
+import { APPLICATION_STAGE, APPLICATION_STATUS, AuthPayload, error, EvaluationStatus, extractUserFromToken, LoginRequest, RegisterRequest, VALIDATION_MESSAGES } from "../utils";
 import { NextFunction, Request, RequestHandler, Response } from "express";
 import ResponseHandler from "../response/response";
 import { validationResult, body, param } from "express-validator";
-import { checkEmailExists, checkRole, checkUsernameExists } from "../authentication/service";
+import { checkEmailExists, checkRole, checkUsernameExists, getUserRole } from "../authentication/service";
 import { doesStudentExist, getOneStudent, getOneStudentUsingUserId, isEmailTakenByAnotherStudent } from "../student/service";
 import { query } from "express-validator";
 import { checkBarangayExist, checkCityMunExist, checkProvinceExist, checkRegionExist } from "../address/service";
@@ -11,7 +11,7 @@ import { checkIfInvalidSchoolId, checkSchoolExist, checkSchoolNameExist } from "
 import { checkAcademicYearId, checkExistingAcademicYear } from "../academicYear/service";
 import { checkIfSponsorshipExist, checkSponsorshipId, doesStudentAlreadyApplied } from "../sponsorship/service";
 import { checkIfInvalidFileTypeId } from "../file/service";
-import { doesAnnExist } from "../announcement/service";
+import { doesAnnExist, doesAnnExistGet } from "../announcement/service";
 
 const stageStatusMap: Record<APPLICATION_STAGE, APPLICATION_STATUS[]> = {
   [APPLICATION_STAGE.POOLING]: [
@@ -833,8 +833,30 @@ export const createAnnouncementValidation = [
 export const checkIfAnnIdExist = [
   param("annId")
     .notEmpty().withMessage(VALIDATION_MESSAGES.ANN_ID_REQUIRED)
-    .custom(async (annId) => {
-      const annExist = await doesAnnExist(annId);
+    .custom(async (annId, {req}) => {
+      const authHeader: string = req.headers.authorization;
+      const userDetails: AuthPayload = extractUserFromToken(authHeader);
+      const userRole: string = await getUserRole(userDetails.userId);
+      let isAdmin = false;
+
+      if(userRole.toLowerCase() === 'system admin' ) {
+        isAdmin = true;
+      }
+
+      const annExist = await doesAnnExist(annId, userDetails.userId, isAdmin);
+      if (!annExist) {
+        return Promise.reject(VALIDATION_MESSAGES.ANN_NOT_FOUND);
+      }
+  }),
+  validateErrors
+]
+
+export const checkIfAnnIdExistForGet = [
+  param("annId")
+    .notEmpty().withMessage(VALIDATION_MESSAGES.ANN_ID_REQUIRED)
+    .custom(async (annId, {req}) => {
+      
+      const annExist = await doesAnnExistGet( annId );
       if (!annExist) {
         return Promise.reject(VALIDATION_MESSAGES.ANN_NOT_FOUND);
       }

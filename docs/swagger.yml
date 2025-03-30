@@ -696,6 +696,18 @@ paths:
             type: integer
             minimum: 1
           description: Maximum number of records to return
+        - in: query
+          name: mine
+          schema:
+            type: boolean
+            example: true
+          description: If you want to get the announcement the user created
+        - in: query
+          name: cityMunId
+          schema:
+            type: integer
+            example: 1
+          description: get specific announcement on certain areas
       responses:
         '200':
           description: A list of users

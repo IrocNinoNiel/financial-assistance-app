@@ -1,18 +1,21 @@
 import { announcement, Prisma, PrismaClient } from "@prisma/client";
-import { AnnouncementData, AnnouncementDataMinimal, AnnouncementPayloadString, binaryToUuid, FlattenedAnnouncementData, FlattenedAnnouncementDataMinimal } from "../utils";
+import { AnnouncementData, AnnouncementDataMinimal, AnnouncementPayloadString, binaryToUuid, extractUserFromToken, FlattenedAnnouncementData, FlattenedAnnouncementDataMinimal, QueryParams } from "../utils";
 import { toAnnouncementLocationModel, toAnnouncementMinimalResponse, toAnnouncementModel, toAnnouncementResponse, toUploadedFileModel } from "../utils/converter";
-import { createAnnouncementFileRepo, createAnnouncementLocationRepo, createAnnouncementRepo, deleteAllFilesNotUsed, deleteAllUnusedLocation, deleteAnnouncementRepo, deleteFilesNotUsed, deleteLocationsNotUsed, doesAnnExistRepo, getAllAnnouncementData, getExistingFiles, getExistingLocations, getOneAnnouncementData, updateAnnouncementFiles, updateAnnouncementLocations, updateAnnouncementRepo } from './repository';
+import { createAnnouncementFileRepo, createAnnouncementLocationRepo, createAnnouncementRepo, deleteAllFilesNotUsed, deleteAllUnusedLocation, deleteAnnouncementRepo, deleteFilesNotUsed, deleteLocationsNotUsed, doesAnnExistGetRepo, doesAnnExistRepo, getAllAnnouncementData, getExistingFiles, getExistingLocations, getOneAnnouncementData, updateAnnouncementFiles, updateAnnouncementLocations, updateAnnouncementRepo } from './repository';
 
 
 const prisma = new PrismaClient({
     log: ["query", "info", "warn", "error"],
 });
 
-export const createAnnouncement = async (payload: AnnouncementPayloadString, files: any): Promise<FlattenedAnnouncementData> => {
+export const createAnnouncement = async (payload: AnnouncementPayloadString, files: any, authHeader: string): Promise<FlattenedAnnouncementData> => {
+
+    const userDetails = extractUserFromToken(authHeader);
+    const createdUserId = userDetails.userId;
 
     return await prisma.$transaction(async (prisma: PrismaClient) => { 
         // save announcement
-        const data: Prisma.announcementUncheckedCreateInput = toAnnouncementModel( payload );
+        const data: Prisma.announcementUncheckedCreateInput = toAnnouncementModel( payload, createdUserId );
         const result: announcement = await createAnnouncementRepo( data, prisma );
 
         // save announcement location
@@ -33,11 +36,14 @@ export const createAnnouncement = async (payload: AnnouncementPayloadString, fil
 }
 
 
-export const updateAnnouncement = async (payload: AnnouncementPayloadString, files: any, announcementId: string): Promise<FlattenedAnnouncementData> => {
+export const updateAnnouncement = async (payload: AnnouncementPayloadString, files: any, announcementId: string, authHeader: string): Promise<FlattenedAnnouncementData> => {
+
+    const userDetails = extractUserFromToken(authHeader);
+    const createdUserId = userDetails.userId;
 
     return await prisma.$transaction(async (prisma: PrismaClient) => { 
         // save announcement
-        const data: Prisma.announcementUncheckedCreateInput = toAnnouncementModel( payload );
+        const data: Prisma.announcementUncheckedCreateInput = toAnnouncementModel( payload, createdUserId, true );
         const result: announcement = await updateAnnouncementRepo( data, prisma, announcementId );
 
         // save announcement location
@@ -84,8 +90,12 @@ export const deleteAnnouncement = async ( announcementId: string): Promise<void>
     await deleteAnnouncementRepo( announcementId, prisma );
 }
 
-export const doesAnnExist = async ( annId: string ): Promise<boolean> => {
-    return await doesAnnExistRepo(annId, prisma);
+export const doesAnnExist = async ( annId: string, userId: string, isAdmin: boolean = false ): Promise<boolean> => {
+    return await doesAnnExistRepo(annId, userId, isAdmin, prisma);
+}
+
+export const doesAnnExistGet = async ( annId: string ): Promise<boolean> => {
+    return await doesAnnExistGetRepo(annId, prisma);
 }
 
 export const getOneAnnouncement = async( annId: string ): Promise<FlattenedAnnouncementData> => {
@@ -93,7 +103,11 @@ export const getOneAnnouncement = async( annId: string ): Promise<FlattenedAnnou
     return toAnnouncementResponse( data ); 
 }
 
-export const getAllAnnouncement = async ( ): Promise<FlattenedAnnouncementDataMinimal[]> => {
-    const data: AnnouncementDataMinimal[] =  await getAllAnnouncementData( prisma );
+export const getAllAnnouncement = async ( params: QueryParams, authHeader: string ): Promise<FlattenedAnnouncementDataMinimal[]> => {
+    
+    const userDetails = extractUserFromToken(authHeader);
+    const userId = userDetails.userId;
+
+    const data: AnnouncementDataMinimal[] =  await getAllAnnouncementData( params, prisma, userId );
     return data.map( (e: AnnouncementDataMinimal) => toAnnouncementMinimalResponse( e ));
 }

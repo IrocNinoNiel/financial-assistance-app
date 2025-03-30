@@ -43,11 +43,13 @@ export const extractUserFromToken = (authHeader: any): { email: string, userId: 
 };
 
 export const getQueryParams = (req: any): QueryParams => {
-  const { offset, limit, search, sort } = req.query;
+  const { offset, limit, search, sort, mine, cityMunId } = req.query;
   return {
     offset: offset && !isNaN(Number(offset)) ? Number(offset) : 0,
     limit: limit && !isNaN(Number(limit)) ? Number(limit) : 50,
     search: (search && search !== 'undefined' && search !== 'null') ? String(search) : '',
     sort: (sort && sort !== 'undefined' && sort !== 'null') ? String(sort) : 'desc',
+    mine: (mine && mine !== 'undefined' && mine !== 'null') ? (String(mine).toLowerCase() == "true" ? true : false) : false,
+    cityMunId: cityMunId && !isNaN(Number(cityMunId)) ? Number(cityMunId) : null
   };
 };

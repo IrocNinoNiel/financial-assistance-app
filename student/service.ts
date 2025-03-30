@@ -56,8 +56,6 @@ export const getAllStudent = async ( params: QueryParams ) => {
 
 export const getOneStudent = async ( studentId: string ) => {
     const data = await getOneStudentRepo( studentId );
-
-    console.log("get one student", data);
     if(data === null) { 
         return null;
     }

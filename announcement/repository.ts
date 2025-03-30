@@ -1,5 +1,5 @@
 import { announcement, Prisma, PrismaClient } from "@prisma/client";
-import { AnnouncementData, AnnouncementDataMinimal, RecordStatus, uuidToBinary } from "../utils";
+import { AnnouncementData, AnnouncementDataMinimal, QueryParams, RecordStatus, uuidToBinary } from "../utils";
 
 export const createAnnouncementRepo = async (data: Prisma.announcementUncheckedCreateInput, prisma: PrismaClient ): Promise<announcement> => {
     return await prisma.announcement.create({ data });
@@ -74,11 +74,39 @@ export const getOneAnnouncementData = async ( id: string, prisma: PrismaClient )
     })
 }
 
-export const getAllAnnouncementData = async ( prisma: PrismaClient ): Promise<AnnouncementDataMinimal[]> => {
+export const getAllAnnouncementData = async ( params: QueryParams, prisma: PrismaClient, userId: string ): Promise<AnnouncementDataMinimal[]> => {
+
+    let orderBy: any = {};
+    let whereCondition: any = { record_status: RecordStatus.ACTIVE }
+    if (params.sort) {
+        orderBy['created_at'] = params.sort === 'desc' ? 'desc' : 'asc';
+    }
+
+    if (params.search && params.search !== "") {
+        whereCondition.OR = [
+            { title: { contains: params.search } },
+            { caption: { contains: params.search } },
+            {  content: { contains: params.search } }
+        ];
+    }
+
+    if( params.mine ) {
+        whereCondition.created_by = uuidToBinary(userId)
+    }
+
+    if( params.cityMunId && params.cityMunId !== null) {
+        whereCondition.locations = {
+            some: {
+                citymun_id: params.cityMunId
+            }
+        };
+    }
+
     return await prisma.announcement.findMany({
-        where: {
-            record_status: RecordStatus.ACTIVE,
-        },
+        where: whereCondition,
+        skip: params.offset,
+        take: params.limit,
+        orderBy,
         select: {
             id: true,
             title: true,
@@ -139,10 +167,27 @@ export const getExistingFiles = async( announcementId: string, prisma: PrismaCli
 
 export const doesAnnExistRepo = async (
     annId: string,
+    userId: string,
+    isAdmin: boolean = false,
     prisma: PrismaClient
 ): Promise<boolean> => {
+    const whereStatement: any = {id: uuidToBinary(annId), record_status: RecordStatus.ACTIVE }
+    if(!isAdmin) {
+        whereStatement.created_by =  uuidToBinary(userId);
+    }
     const ann = await prisma.announcement.findUnique({
-        where: { id: uuidToBinary(annId), record_status: RecordStatus.ACTIVE },
+        where: whereStatement,
+    });
+    return !!ann;
+};
+
+export const doesAnnExistGetRepo = async (
+    annId: string,
+    prisma: PrismaClient
+): Promise<boolean> => {
+    const whereStatement: any = {id: uuidToBinary(annId), record_status: RecordStatus.ACTIVE }
+    const ann = await prisma.announcement.findUnique({
+        where: whereStatement,
     });
     return !!ann;
 };
