@@ -14,7 +14,7 @@ export function convertStudentResponseToStudent(response: StudentRequest, userId
     extension_name: response.extensionName,
     sex: response.sex,
     place_of_birth: response.placeOfBirth,
-    birthdate: new Date(response.birthdate),
+    birthdate: response.birthdate ? new Date(response.birthdate) : null,
     height: response.height,
     weight: response.weight,
     permanent_street: response.permanentStreet,
@@ -36,12 +36,12 @@ export function convertStudentResponseToStudent(response: StudentRequest, userId
     g12_award_honor: response.g12AwardHonor,
     g12_organization: response.g12Organization,
     g12_year_of_graduation: response.g12YearOfGraduation,
-    g12_school_id: uuidToBinary(response.g12SchoolId),
+    g12_school_id: response.g12SchoolId ?  uuidToBinary(response.g12SchoolId) : null,
     college_program_name: response.collegeProgramName,
     college_year_level: response.collegeYearLevel,
     college_award_honor: response.collegeAwardHonor,
     college_organization: response.collegeOrganization,
-    college_school_id: uuidToBinary(response.collegeSchoolId),
+    college_school_id: response.collegeSchoolId ? uuidToBinary(response.collegeSchoolId) : null,
     email: response.email,
     mobile_number: response.mobileNumber,
     is_solo_parent: response.isSoloParent,
@@ -95,19 +95,28 @@ export function convertToStudentUser(response: any): PartialStudentUser {
 
 
 
-export function convertToSiblingData(studentId: string,  siblingRequests: SiblingRequest[]): Prisma.siblingUncheckedCreateInput[] {
+export function convertToSiblingData(
+  studentId: string, 
+  siblingRequests?: SiblingRequest[]
+): Prisma.siblingUncheckedCreateInput[] {
+
+  if (!siblingRequests || siblingRequests.length === 0) {
+    return [];
+  }
+
   return siblingRequests.map(sibling => ({
-      student_id: uuidToBinary(studentId),
-      sibling_name: sibling.name,
-      sibling_bdate: new Date(sibling.birthdate),
-      sibling_age: sibling.age,
-      living_with_parents: sibling.livingWithParents,
-      sibling_status: sibling.status as "Single" | "Married" | "Divorced" | "Widowed",
-      own_house: sibling.ownHouse,
-      created_by: uuidToBinary(studentId),
-      updated_by: uuidToBinary(studentId)
+    student_id: uuidToBinary(studentId),
+    sibling_name: sibling.name,
+    sibling_bdate: sibling.birthdate ? new Date(sibling.birthdate) : null, // Ensure valid date
+    sibling_age: sibling.age,
+    living_with_parents: sibling.livingWithParents,
+    sibling_status: sibling.status as "Single" | "Married" | "Divorced" | "Widowed",
+    own_house: sibling.ownHouse,
+    created_by: uuidToBinary(studentId),
+    updated_by: uuidToBinary(studentId)
   }));
 }
+
 
 export function convertToUser(data: RegisterRequest, hashedPassword: any ): Prisma.userUncheckedCreateInput {
    return {
@@ -146,7 +155,7 @@ export function toStudentResponse(item: any ): StudentListResponse {
     extensionName: item.extension_name || undefined,
     sex: item.sex,
     placeOfBirth: item.place_of_birth,
-    birthdate: new Date(item.birthdate),
+    birthdate: item.birthdate ? new Date(item.birthdate) : null,
     height: item.height || undefined,
     weight: item.weight || undefined,
     permanentStreet: item.permanent_street,
