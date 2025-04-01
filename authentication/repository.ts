@@ -1,4 +1,4 @@
-import { Prisma, PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient, user } from '@prisma/client';
 import { binaryToUuid, RecordStatus, uuidToBinary } from '../utils';
 import { User, UserRole } from './model';
 import { notEqual } from 'assert';
@@ -51,8 +51,6 @@ export const checkUsernameExistsRepo = async (username: string, userId?: string)
   }
 };
 
-
-
 export const checkUserExists = async (username: string) : Promise<any>  => {
     try {
       const user = await prisma.user.findFirst({
@@ -67,6 +65,22 @@ export const checkUserExists = async (username: string) : Promise<any>  => {
       console.error('Error checking email existence:', error);
       throw new Error('Database error');
     }
+}
+
+export const getUserDetails = async (userId: string) : Promise<user>  => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        id: uuidToBinary(userId),
+        record_status: RecordStatus.ACTIVE
+      },
+    });
+
+    return user;
+  } catch (error) {
+    console.error('Error checking email existence:', error);
+    throw new Error('Database error');
+  }
 }
 
 export const getRoleRepo = async (name: string) : Promise<any>  => {

@@ -1,7 +1,7 @@
 import { Router } from "express";
 import ResponseHandler from "../response/response";
 import { ChangePasswordRequest, LoginRequest, RegisterRequest } from "../utils";
-import { changePasswordService, loginService, registerService } from "./service";
+import { changePasswordService, getAuthDetails, loginService, registerService } from "./service";
 import { validateLoginInput, validatePassword, validateRegisterInput, validateStudentRegisterInput, validateUserId } from "../middleware/validation";
 import { authentication } from "../middleware/authentication";
 
@@ -53,6 +53,16 @@ export default () => {
             ResponseHandler.invalidRequest(req,res , err.message);
         }
     });
+
+    authAPI.get('/me' ,authentication, async( req, res ) => {
+        try {
+            const authHeader = req.headers.authorization;
+            const data = await getAuthDetails( authHeader );
+            ResponseHandler.ok(req, res, data);
+        } catch (err) {
+            ResponseHandler.invalidRequest(req,res , err.message);
+        }
+    })
 
 
     return authAPI;

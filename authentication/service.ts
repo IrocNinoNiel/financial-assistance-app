@@ -1,9 +1,9 @@
 import { binaryToUuid, ChangePasswordRequest, extractUserFromToken, LoginRequest, RegisterRequest, AuthResponse, uuidToBinary } from "../utils";
 import bcrypt from 'bcryptjs';
-import { changePasswordRepo, checkEmailExistsRepo, checkRoleRepo, checkUserExists, checkUsernameExistsRepo, getPermission, getRoleRepo, getUserRoleRepo, registerRepo } from "./repository";
+import { changePasswordRepo, checkEmailExistsRepo, checkRoleRepo, checkUserExists, checkUsernameExistsRepo, getPermission, getRoleRepo, getUserDetails, getUserRoleRepo, registerRepo } from "./repository";
 import { convertToUser, toUserPermissionResponse } from "../utils/converter";
 import jwt from 'jsonwebtoken';
-import { Prisma, student } from "@prisma/client";
+import { Prisma, student, user } from "@prisma/client";
 import { checkIfStudentRepo, registerStudentRepo } from "../student/repository";
 import { getOneStudentUsingUserId } from "../student/service";
 
@@ -106,6 +106,29 @@ export const loginService = async ( data: LoginRequest ) => {
         permissions: converted
     } as AuthResponse;
     
+}
+
+export const getAuthDetails = async( authHeader: any ) => {
+    const userDetails = extractUserFromToken(authHeader);
+    const user: user = await getUserDetails( userDetails.userId );
+    const permission: any[] = await getPermission( binaryToUuid(user.role_id) );
+    const converted: any = toUserPermissionResponse(permission);
+
+    let studentId = null;
+    const student = await checkIfStudentRepo(binaryToUuid(user.id));
+    if(student) {
+        const studentDetails: any = await getOneStudentUsingUserId(binaryToUuid(user.id));
+        if( studentDetails ) {
+            studentId = binaryToUuid(studentDetails.id);
+        }
+    }
+
+    return {
+        user: user.username,
+        userId: binaryToUuid(user.id),
+        studentId: studentId,
+        permissions: converted
+    } as AuthResponse;
 }
 
 export const checkRole = async ( roleId: string) => {
