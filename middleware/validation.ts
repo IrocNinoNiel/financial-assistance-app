@@ -340,6 +340,13 @@ export const validateUpdateStudent = [
         return Promise.reject(VALIDATION_MESSAGES.G12_SCHOOL_ID_NOT_FOUND);
       }
     }),
+  body('gwa').optional({ nullable: true, checkFalsy: true }).isFloat({ min: 1, max: 5 }).withMessage(VALIDATION_MESSAGES.GWA_INVALID)
+    .custom(value => {
+        if (value < 1 || value > 5) {
+            throw new Error(VALIDATION_MESSAGES.GWA_OUT_OF_BOUNDS);
+        }
+        return true;
+    }),
   ...commonValidationMiddleware,
   validateErrors
 ];

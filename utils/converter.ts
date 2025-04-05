@@ -76,6 +76,7 @@ export function convertStudentResponseToStudent(response: StudentRequest, userId
     guardian_income: response.guardianIncome,
     guardian_mobile_number: response.guardianMobileNumber,
     number_of_siblings: response.numberOfSiblings,
+    gwa: response.gwa,
     created_by: uuidToBinary(userId),
     updated_by: uuidToBinary(userId),
     updated_at: new Date(),
@@ -235,6 +236,7 @@ export function toStudentResponse(item: any ): StudentListResponse {
     guardianIncome: item.guardian_income || undefined,
     guardianMobileNumber: item.guardian_mobile_number,
     numberOfSiblings: item.number_of_siblings,
+    gwa: item.gwa,
     siblings: item.siblings?.map((sibling: any) => ({
       studentId: binaryToUuid(sibling.student_id),
       siblingName: sibling.sibling_name,

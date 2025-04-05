@@ -284,6 +284,7 @@ export interface StudentRequest {
   guardianMobileNumber?: string;
   numberOfSiblings?: number;
   siblings?: SiblingRequest[];
+  gwa?: number;
 }
 
 
@@ -405,6 +406,7 @@ export interface StudentListResponse {
   numberOfSiblings: number;
   emergencyContactName2: string;
   emergencyContactNumber2: string;
+  gwa?: number;
   siblings: SiblingResponse[];
 }
 
@@ -564,3 +566,16 @@ export type FlattenedAnnouncementDataMinimal = {
   sponsorshipId: string;
 };
 
+
+export type Applicants = {
+  id: string;
+  gwa: number;
+  siblings: number;
+  income: number;
+  involvement: number;
+}
+
+export type SawScoreType = {
+  id: string;
+  score: number;
+}

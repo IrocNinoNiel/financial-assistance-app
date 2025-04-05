@@ -44,7 +44,7 @@ export const registerService = async ( data: RegisterRequest, isStudent: boolean
     const token = jwt.sign(
         { userId: binaryToUuid(result.id), username: result.username },
         process.env.SECRET_KEY, 
-        { expiresIn: '1h' }
+        { expiresIn: '7D' }
     );
     console.log("jwt has been sign");
 

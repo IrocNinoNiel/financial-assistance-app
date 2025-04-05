@@ -25,7 +25,7 @@ export default () => {
     studentAPI.put('/:studentId', validateUpdateStudent, async (req, res) => {
 
         try {
-           
+            
             const data: StudentRequest = req.body;
             const authHeader = req.headers.authorization;
             const { studentId } = req.params;
