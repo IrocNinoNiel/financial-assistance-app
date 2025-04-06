@@ -452,13 +452,14 @@ model schedule {
   batch_no           Int
   schedule_type      schedule_type  
   location           String             @db.VarChar(255)
-  scheduled_at       DateTime
+  start_date         DateTime
+  end_date           DateTime
   schedule_quota     Int
   record_status      Boolean            @default(true)
   created_at         DateTime           @default(now())
   updated_at         DateTime           @updatedAt
-  created_by         Bytes              @db.Binary(16)
-  updated_by         Bytes              @db.Binary(16)
+  created_by         Bytes?             @db.Binary(16)
+  updated_by         Bytes?             @db.Binary(16)
 
   sponsorship sponsorship @relation(fields: [sponsorship_id], references: [id])
 }

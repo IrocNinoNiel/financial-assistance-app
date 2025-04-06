@@ -1,4 +1,4 @@
-import { EvaluationStatus, Prisma } from "@prisma/client";
+import { EvaluationStatus, Prisma, schedule } from '@prisma/client';
 import { APPLICATION_STAGE, APPLICATION_STATUS } from "./constant";
 
 export interface LoginRequest {
@@ -579,3 +579,39 @@ export type SawScoreType = {
   id: string;
   score: number;
 }
+
+export type ScheduleRequest = {
+  sponsorshipId: string;
+  batchNo: number;
+  scheduleType: string;
+  location: string;
+  startDate: string;
+  endDate: string;
+  scheduleQuota: number;
+}
+
+export type ScheduleResponse = {
+  id: string
+  sponsorshipId: string;
+  sponsorshipName: string;
+  batchNo: number;
+  scheduleType: string;
+  location: string;
+  startDate: string;
+  endDate: string;
+  scheduleQuota: number;
+}
+
+export type ScheduleModified = {
+  id: Uint8Array;
+  sponsorship_id: Uint8Array;
+  batch_no: number;
+  schedule_type: string;
+  location: string;
+  start_date: Date;
+  end_date: Date;
+  schedule_quota: number;
+  sponsorship: {
+      name: string;
+  };
+};

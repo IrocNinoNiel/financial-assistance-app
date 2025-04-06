@@ -1,7 +1,7 @@
 
-import { Prisma, student, user, academicYear, sponsorship, EvaluationStatus, announcement } from '@prisma/client';
+import { Prisma, student, user, academicYear, sponsorship, EvaluationStatus, announcement, schedule_type } from '@prisma/client';
 import { User } from "../authentication/model";
-import { AcademicYearRequest, AcademicYearResponse, AddressResponse, AnnouncementData, AnnouncementDataMinimal, AnnouncementPayloadString, ApplySponsorshipRequest, ApplySponsorshipResponse, FileTypeResponse, FlattenedAnnouncementData, FlattenedAnnouncementDataMinimal, PartialStudentUser, RecordStatus, RegisterRequest, RoleResponse, SchoolPayload, SiblingRequest, SponsorshipRequest, SponsorshipResponse, SponsorshipStatus, StudentListResponse, StudentRequest, UpdateStudentStatus, UploadedAnnouncementFile, UserDetailsResponse, UserListResponse, UserResponse } from './types';
+import { AcademicYearRequest, AcademicYearResponse, AddressResponse, AnnouncementData, AnnouncementDataMinimal, AnnouncementPayloadString, ApplySponsorshipRequest, ApplySponsorshipResponse, FileTypeResponse, FlattenedAnnouncementData, FlattenedAnnouncementDataMinimal, PartialStudentUser, RecordStatus, RegisterRequest, RoleResponse, ScheduleModified, ScheduleRequest, ScheduleResponse, SchoolPayload, SiblingRequest, SponsorshipRequest, SponsorshipResponse, SponsorshipStatus, StudentListResponse, StudentRequest, UpdateStudentStatus, UploadedAnnouncementFile, UserDetailsResponse, UserListResponse, UserResponse } from './types';
 import { binaryToUuid, uuidToBinary } from "./utils";
 import { APPLICATION_STAGE, APPLICATION_STATUS } from './constant';
 
@@ -556,4 +556,32 @@ export const toAnnouncementMinimalResponse = ( data: AnnouncementDataMinimal ): 
     caption: data.caption,
     sponsorshipId: binaryToUuid(data.sponsorship_id)
   };
+}
+
+export const toScheduleModel = ( data: ScheduleRequest, creatorId: string, isEdit: boolean = false ): Prisma.scheduleUncheckedCreateInput => {
+  return {
+    sponsorship_id: uuidToBinary( data.sponsorshipId ),
+    batch_no: data.batchNo,
+    schedule_type: data.scheduleType as schedule_type,
+    location: data.location,
+    start_date: data.startDate,
+    end_date: data.endDate,
+    schedule_quota: data.scheduleQuota,
+    ...(isEdit ? {} : { created_by: uuidToBinary(creatorId) }),
+    updated_by: uuidToBinary( creatorId )
+  }
+}
+
+export const convertedScheduleResponse = ( data: ScheduleModified ): ScheduleResponse => {
+  return {
+    id: binaryToUuid( data.id ),
+    sponsorshipId: binaryToUuid( data.sponsorship_id ),
+    sponsorshipName: data.sponsorship?.name ?? null,
+    batchNo: data.batch_no,
+    location: data.location,
+    startDate: data.start_date.toISOString(),
+    endDate: data.end_date.toISOString(),
+    scheduleQuota: data.schedule_quota,
+    scheduleType: data.schedule_type
+  }
 }
