@@ -9,9 +9,9 @@ import { Applicants, SawScoreType } from "./types";
 // ];
 const pairwiseMatrix: number[][] = [
     [1.00, 4.00, 0.25, 3.00], 
-    [0.25, 1.00, 0.167, 2.00], 
+    [0.25, 1.00, 0.17, 2.00], 
     [4.00, 6.00, 1.00, 5.00], 
-    [0.333, 0.50, 0.20, 1.00]
+    [0.33, 0.50, 0.20, 1.00]
 ];
 
 function calculateAHPWeights(matrix: number[][]): number[] {

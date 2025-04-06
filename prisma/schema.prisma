@@ -378,6 +378,7 @@ model sponsorship {
   coordinator            user                     @relation(fields: [coordinator_id], references: [id], name: "sponsorship_coordinator")
   academicYear           academicYear             @relation(fields: [academic_year_id], references: [id])
   announcements          announcement[]
+  schedule               schedule[]
 
   @@map("sponsorships")
 }
@@ -443,6 +444,28 @@ model sponsorshipApplication {
   sponsorship sponsorship @relation(fields: [sponsorship_id], references: [id])
 
   @@map("sponsorshipapplications")
+}
+
+model schedule {
+  id                 Bytes              @id @default(dbgenerated("(UUID_TO_BIN(UUID()))")) @db.Binary(16)
+  sponsorship_id     Bytes              @db.Binary(16)
+  batch_no           Int
+  schedule_type      schedule_type  
+  location           String             @db.VarChar(255)
+  scheduled_at       DateTime
+  schedule_quota     Int
+  record_status      Boolean            @default(true)
+  created_at         DateTime           @default(now())
+  updated_at         DateTime           @updatedAt
+  created_by         Bytes              @db.Binary(16)
+  updated_by         Bytes              @db.Binary(16)
+
+  sponsorship sponsorship @relation(fields: [sponsorship_id], references: [id])
+}
+
+enum schedule_type {
+  TEST
+  INTERVIEW
 }
 
 enum siblings_sibling_status {

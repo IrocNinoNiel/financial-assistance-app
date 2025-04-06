@@ -30,6 +30,8 @@ tags:
     description: Endpoints for Coordinator Sponsorship
   - name: Student Sponsorship
     description: Endpoints for Student Sponsorship
+  - name: Schedule
+    description: Endpoints for interview/exam schedule
 paths:
   /auth/register:
     post:
@@ -198,7 +200,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/InternalErrorResponse'
-    
   /students/{studentId}:
     get:
       tags:
@@ -1598,6 +1599,59 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/InternalErrorResponse'
+  /schedule:
+    get:
+      tags: 
+        - Schedule
+      summary: Get all sponsorship schedule of the coordinator
+      responses:
+        '200':
+          description: A list of academic year
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetAllScheduleSuccessResponse'
+        '403':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenErrorResponse'
+        '500':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
+    post:
+      tags:
+        - Academic Year
+      summary: Register a new Academic year
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AcademicYearPayload'
+      responses:
+        '201':
+          description: Resource successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetAcademicYearSuccessResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
 components:
   schemas:
     RegisterPayload:
@@ -2825,7 +2879,41 @@ components:
         data:
           type: array
           items: 
-            $ref: '#/components/schemas/AcademicYearResponse'   
+            $ref: '#/components/schemas/AcademicYearResponse'  
+    ScheduleResponse:
+      type: object
+      properties:
+        sponsorshipId:
+          type: string
+          example: a2815764-f067-11ef-ae8c-f4b520508eb0
+        batchNo:
+          type: integer
+          example: 1
+        schedule_type:
+          type: string
+          example: exam/interview
+        location:
+          type: string
+          example: school
+        schedule_quota:
+          type: integer
+          example: 10
+        scheduled_at:
+          type: string
+          example: 2025-08-02 10:00:00
+    GetAllScheduleSuccessResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: Request Successfully Accepted!
+        data:
+          type: array
+          items: 
+            $ref: '#/components/schemas/ScheduleResponse'  
     GetAcademicYearSuccessResponse:
       type: object
       properties:
