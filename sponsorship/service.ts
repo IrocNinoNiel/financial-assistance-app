@@ -39,6 +39,7 @@ import {
   adjustStudentEligibilityStatusRepo,
   generateAppIdRepo,
   findAppId,
+  checkBatchRepo,
 } from "./repository";
 import {
   ApplySponsorshipRequest,
@@ -377,6 +378,10 @@ export const doesStudentAlreadyApplied = async (
 ): Promise<boolean> => {
   return await doesStudentAlreadyAppliedRepo(studentId, sponsorshipId, prisma);
 };
+
+export const checkBatch = async ( batchNo: number, sponsorshipId: string ): Promise<boolean> => {
+  return await checkBatchRepo( batchNo, sponsorshipId, prisma );
+}
 
 async function generateAppId(sponsorshipId: string) {
     const currentYear = new Date().getFullYear();

@@ -388,3 +388,16 @@ export const deleteAllSponsorshipRequirements = async (
     where: { sponsorship_id: uuidToBinary(sponsorshipId) },
   });
 };
+
+
+export const checkBatchRepo = async (
+  batchNo: number,
+  sponsorshipId: string,
+  prisma: PrismaClient
+) => {
+  const result = await prisma.sponsorship.findFirst({
+    where: { id: uuidToBinary(sponsorshipId), batch_number: batchNo, record_status: RecordStatus.ACTIVE },
+  });
+
+  return !!result;
+};

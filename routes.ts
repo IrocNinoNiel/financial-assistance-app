@@ -12,6 +12,7 @@ import parameters from "./middleware/parameters";
 import academicYearController from "./academicYear/controller";
 import sponsorshipController from "./sponsorship/controller";
 import announcementController from "./announcement/controller";
+import scheduleController from "./schedule/controller";
 
 const routes = Router();
 
@@ -27,6 +28,7 @@ routes.use("/schools", authentication, schoolController());
 routes.use("/academic-years", authentication, academicYearController())
 routes.use("/sponsorships", authentication, sponsorshipController())
 routes.use("/announcements", authentication, announcementController())
+routes.use("/schedules", authentication, scheduleController())
 
 routes.get("/verify", authentication, (req, res) => {
     res.json({ valid: true, message: "you have access to this api" });

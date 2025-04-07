@@ -1,7 +1,7 @@
 import { Prisma, PrismaClient, schedule } from '@prisma/client';
 import { binaryToUuid, extractUserFromToken, QueryParams, ScheduleModified, ScheduleRequest, ScheduleResponse } from "../utils"
 import { convertedScheduleResponse, toScheduleModel } from "../utils/converter";
-import { all, destroy, get, save, update } from "./repository";
+import { all, destroy, findIfExistsRepo, get, save, update } from "./repository";
 
 const prisma = new PrismaClient({
     // log: ["query", "info", "warn", "error"],
@@ -47,4 +47,8 @@ export const fetch = async ( id: string ) : Promise<ScheduleResponse> => {
 
 export const remove = async ( id: string ) => {
     await destroy( id, prisma );
+}
+
+export const findIfExists = async ( id: string ): Promise<boolean> => {
+    return await findIfExistsRepo( id, prisma );
 }

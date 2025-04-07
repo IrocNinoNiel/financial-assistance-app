@@ -202,5 +202,21 @@ export const VALIDATION_MESSAGES = {
     ANN_ID_REQUIRED: 'Announcement ID is required',
     ANN_NOT_FOUND: 'Announcement not found or your not the owner',
     GWA_INVALID: 'GWA is Invalid',
-    GWA_OUT_OF_BOUNDS: 'GWA is out of bounds'
+    GWA_OUT_OF_BOUNDS: 'GWA is out of bounds',
+    BATCH_NO_REQUIRED: "Batch No Required",
+    BATCH_NO_NOT_EXIST: "Sponsorship don't have this batch no",
+    SCHEDULE_TYPE_REQUIRED: "scheduleType is required",
+    SCHEDULE_TYPE_INVALID: "scheduleType must be either TEST or INTERVIEW",
+    LOCATION_REQUIRED: "location is required",
+    SCHEDULE_QUOTA_REQUIRED: "scheduleQuota is required",
+    SCHEDULE_QUOTA_INVALID: "scheduleQuota must be a number greater than or equal to 1",
+    START_DATE_REQUIRED: "startDate is required",
+    START_DATE_INVALID: "startDate must be a valid datetime",
+    END_DATE_REQUIRED: "endDate is required",
+    END_DATE_INVALID: "endDate must be a valid datetime",
+    END_DATE_INVALID_FORMAT: "Invalid date format",
+    END_DATE_BEFORE_START_DATE: "endDate must be greater than startDate",
+    SCHED_ID_REQUIRED: "scheduleId is required",
+    SCHED_NOT_FOUND: "Schedule doesn't exist",
+    SCHEDULE_DELETED: "Schedule succesfully deleted"
 };

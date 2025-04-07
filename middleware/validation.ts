@@ -9,9 +9,10 @@ import { checkBarangayExist, checkCityMunExist, checkProvinceExist, checkRegionE
 import { checkIfNotSponsor, doesUserExist } from "../user/service";
 import { checkIfInvalidSchoolId, checkSchoolExist, checkSchoolNameExist } from "../schools/service";
 import { checkAcademicYearId, checkExistingAcademicYear } from "../academicYear/service";
-import { checkIfSponsorshipExist, checkSponsorshipId, doesStudentAlreadyApplied } from "../sponsorship/service";
+import { checkBatch, checkIfSponsorshipExist, checkSponsorshipId, doesStudentAlreadyApplied } from "../sponsorship/service";
 import { checkIfInvalidFileTypeId } from "../file/service";
 import { doesAnnExist, doesAnnExistGet } from "../announcement/service";
+import { findIfExists } from "../schedule/service";
 
 const stageStatusMap: Record<APPLICATION_STAGE, APPLICATION_STATUS[]> = {
   [APPLICATION_STAGE.POOLING]: [
@@ -866,6 +867,66 @@ export const checkIfAnnIdExistForGet = [
       const annExist = await doesAnnExistGet( annId );
       if (!annExist) {
         return Promise.reject(VALIDATION_MESSAGES.ANN_NOT_FOUND);
+      }
+  }),
+  validateErrors
+]
+
+export const validateSchedulePayload = [
+  body("sponsorshipId")
+    .notEmpty().withMessage(VALIDATION_MESSAGES.SPONSORSHIP_ID_REQUIRED)
+    .custom(async ( sponsorshipId, { req } ) => {
+      const { studentId } = req.params;
+      const dontExist = await checkSponsorshipId( sponsorshipId );
+      if (dontExist) {
+        return Promise.reject(VALIDATION_MESSAGES.SPONSORSHIP_ID_NOT_FOUND);
+      }
+    }),
+  body("batchNo")
+    .notEmpty().withMessage(VALIDATION_MESSAGES.BATCH_NO_REQUIRED)
+    .custom( async ( batchNo, { req } ) => {
+      const sponsorshipId = req.body.sponsorshipId;
+      const batchExist = await checkBatch( batchNo, sponsorshipId );
+
+      if(!batchExist) {
+        return Promise.reject(VALIDATION_MESSAGES.BATCH_NO_NOT_EXIST);
+      }
+    }),
+  body('scheduleType')
+    .notEmpty().withMessage(VALIDATION_MESSAGES.SCHEDULE_TYPE_REQUIRED)
+    .isIn(['TEST', 'INTERVIEW']).withMessage(VALIDATION_MESSAGES.SCHEDULE_TYPE_INVALID),
+  body('location')
+    .notEmpty().withMessage(VALIDATION_MESSAGES.LOCATION_REQUIRED),
+  body('scheduleQuota')
+    .notEmpty().withMessage(VALIDATION_MESSAGES.SCHEDULE_QUOTA_REQUIRED)
+    .isInt({ min: 1 }).withMessage(VALIDATION_MESSAGES.SCHEDULE_QUOTA_INVALID),
+  body('startDate')
+    .notEmpty().withMessage(VALIDATION_MESSAGES.START_DATE_REQUIRED)
+    .isISO8601().withMessage(VALIDATION_MESSAGES.START_DATE_INVALID),
+  body('endDate')
+    .notEmpty().withMessage(VALIDATION_MESSAGES.END_DATE_REQUIRED)
+    .isISO8601().withMessage(VALIDATION_MESSAGES.END_DATE_INVALID)
+    .custom((value, { req }) => {
+      const start = new Date(req.body.startDate);
+      const end = new Date(value);
+      if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+        return Promise.reject(VALIDATION_MESSAGES.END_DATE_INVALID_FORMAT);
+      }
+      if (end <= start) {
+        return Promise.reject(VALIDATION_MESSAGES.END_DATE_BEFORE_START_DATE);
+      }
+    }),
+  validateErrors
+]
+
+export const validateScheduleId = [
+  param("scheduleId")
+    .notEmpty().withMessage(VALIDATION_MESSAGES.SCHED_ID_REQUIRED)
+    .custom(async ( scheduleId ) => {
+      
+      const schedExist = await findIfExists( scheduleId );
+      if (!schedExist) {
+        return Promise.reject(VALIDATION_MESSAGES.SCHED_NOT_FOUND);
       }
   }),
   validateErrors

@@ -83,3 +83,14 @@ export const all = async ( params: QueryParams, creatorId: string = "" ,prisma: 
         }
     );
 }
+
+export const findIfExistsRepo = async ( id: string, prisma: PrismaClient ): Promise<boolean> => {
+    const result = await prisma.schedule.findFirst({
+        where: {
+            id: uuidToBinary(id),
+            record_status: RecordStatus.ACTIVE,
+        },
+    });
+
+    return !!result;
+}
