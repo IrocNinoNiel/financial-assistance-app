@@ -464,6 +464,31 @@ model schedule {
   sponsorship sponsorship @relation(fields: [sponsorship_id], references: [id])
 }
 
+model criterionCategory {
+  id                 Bytes              @id @default(dbgenerated("(UUID_TO_BIN(UUID()))")) @db.Binary(16)
+  name               String             @db.VarChar(255)
+  record_status      Boolean            @default(true)
+  created_at         DateTime           @default(now())
+  updated_at         DateTime           @updatedAt
+  created_by         Bytes?             @db.Binary(16)
+  updated_by         Bytes?             @db.Binary(16)
+
+  criterion          defaultCategoryCriterion[]
+}
+
+model defaultCategoryCriterion {
+  id                    Bytes              @id @default(dbgenerated("(UUID_TO_BIN(UUID()))")) @db.Binary(16)
+  criterion_category_id Bytes              @db.Binary(16)
+  name                  String             @db.VarChar(255)
+  record_status         Boolean            @default(true)
+  created_at            DateTime           @default(now())
+  updated_at            DateTime           @updatedAt
+  created_by            Bytes?             @db.Binary(16)
+  updated_by            Bytes?             @db.Binary(16)
+
+  criterionCategory criterionCategory @relation(fields: [criterion_category_id], references: [id])
+}
+
 enum schedule_type {
   TEST
   INTERVIEW
