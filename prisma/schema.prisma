@@ -379,6 +379,7 @@ model sponsorship {
   academicYear           academicYear             @relation(fields: [academic_year_id], references: [id])
   announcements          announcement[]
   schedule               schedule[]
+  criterion              sponsorshipCriterion[]
 
   @@map("sponsorships")
 }
@@ -489,10 +490,75 @@ model defaultCategoryCriterion {
   criterionCategory criterionCategory @relation(fields: [criterion_category_id], references: [id])
 }
 
+model sponsorshipCriterion {
+  id                    Bytes              @id @default(dbgenerated("(UUID_TO_BIN(UUID()))")) @db.Binary(16)
+  sponsorship_id        Bytes              @db.Binary(16)
+  name                  String             @db.VarChar(255)
+  label                 String             @db.VarChar(255)
+  data_source           DataSource
+  formula_type          FormulaType?
+  preference            Preference?
+  record_status         Boolean            @default(true)
+  created_at            DateTime           @default(now())
+  updated_at            DateTime           @updatedAt
+  created_by            Bytes?             @db.Binary(16)
+  updated_by            Bytes?             @db.Binary(16)
+
+  criterionAs     sponsorshipCriteriaPairwise[] @relation("CriterionA")
+  criterionBs     sponsorshipCriteriaPairwise[] @relation("CriterionB")
+  customCriterion customInputCriterion[]
+
+  requiredColumn        criterionRequiredColumn[]
+  sponsorship sponsorship @relation(fields: [sponsorship_id], references: [id])
+}
+
+model criterionRequiredColumn {
+  id                              Bytes              @id @default(dbgenerated("(UUID_TO_BIN(UUID()))")) @db.Binary(16)
+  sponsorship_criterion_id        Bytes              @db.Binary(16)
+  table                           String             @db.VarChar(255)
+  column                          String             @db.VarChar(255)
+  record_status                   Boolean            @default(true)
+  created_at                      DateTime           @default(now())
+  updated_at                      DateTime           @updatedAt
+  created_by                      Bytes?             @db.Binary(16)
+  updated_by                      Bytes?             @db.Binary(16)
+
+  criterion sponsorshipCriterion @relation(fields: [sponsorship_criterion_id], references: [id])
+}
+
+model sponsorshipCriteriaPairwise {
+  id                                Bytes              @id @default(dbgenerated("(UUID_TO_BIN(UUID()))")) @db.Binary(16)
+  sponsorship_criterion_id_a        Bytes              @db.Binary(16)
+  sponsorship_criterion_id_b        Bytes              @db.Binary(16)
+  value                             Int
+  record_status                     Boolean            @default(true)
+  created_at                        DateTime           @default(now())
+  updated_at                        DateTime           @updatedAt
+  created_by                        Bytes?             @db.Binary(16)
+  updated_by                        Bytes?             @db.Binary(16)
+
+  criterion_a sponsorshipCriterion @relation("CriterionA", fields: [sponsorship_criterion_id_a], references: [id])
+  criterion_b sponsorshipCriterion @relation("CriterionB", fields: [sponsorship_criterion_id_b], references: [id])
+}
+
+model customInputCriterion {
+  id                                Bytes              @id @default(dbgenerated("(UUID_TO_BIN(UUID()))")) @db.Binary(16)
+  sponsorship_criterion_id          Bytes              @db.Binary(16)
+  student_id                        Bytes              @db.Binary(16)
+  value                             Int
+  record_status                     Boolean            @default(true)
+  created_at                        DateTime           @default(now())
+  updated_at                        DateTime           @updatedAt
+  created_by                        Bytes?             @db.Binary(16)
+  updated_by                        Bytes?             @db.Binary(16)
+
+  criterion sponsorshipCriterion @relation(fields: [sponsorship_criterion_id], references: [id])    
+}
+
 enum schedule_type {
   TEST
   INTERVIEW
-}
+}   
 
 enum siblings_sibling_status {
   Single
@@ -532,4 +598,20 @@ enum EvaluationStatus {
   PENDING
   PASSED
   FAILED
+}
+
+enum DataSource {
+  COLUMN
+  CUSTOM_INPUT
+  COMPUTED
+}
+
+enum FormulaType {
+  SUM
+  AVG
+}
+
+enum Preference {
+  MAX
+  MIN
 }

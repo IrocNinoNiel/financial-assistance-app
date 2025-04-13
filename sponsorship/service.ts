@@ -383,6 +383,10 @@ export const checkBatch = async ( batchNo: number, sponsorshipId: string ): Prom
   return await checkBatchRepo( batchNo, sponsorshipId, prisma );
 }
 
+export const criterion = async (): Promise<void> => {
+  
+}
+
 async function generateAppId(sponsorshipId: string) {
     const currentYear = new Date().getFullYear();
     const count: number = await generateAppIdRepo(sponsorshipId, prisma);
