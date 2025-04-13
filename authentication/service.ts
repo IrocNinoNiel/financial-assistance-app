@@ -81,7 +81,7 @@ export const loginService = async ( data: LoginRequest ) => {
     const token = jwt.sign(
         { userId: binaryToUuid(user.id), username: user.username },
         process.env.SECRET_KEY, 
-        { expiresIn: '1h' }
+        { expiresIn: '7D' }
     );
 
     let studentId = null;

@@ -1,7 +1,7 @@
 
-import { Prisma, student, user, academicYear, sponsorship, EvaluationStatus, announcement, schedule_type } from '@prisma/client';
+import { Prisma, student, user, academicYear, sponsorship, EvaluationStatus, announcement, schedule_type, criterionCategory } from '@prisma/client';
 import { User } from "../authentication/model";
-import { AcademicYearRequest, AcademicYearResponse, AddressResponse, AnnouncementData, AnnouncementDataMinimal, AnnouncementPayloadString, ApplySponsorshipRequest, ApplySponsorshipResponse, FileTypeResponse, FlattenedAnnouncementData, FlattenedAnnouncementDataMinimal, PartialStudentUser, RecordStatus, RegisterRequest, RoleResponse, ScheduleModified, ScheduleRequest, ScheduleResponse, SchoolPayload, SiblingRequest, SponsorshipRequest, SponsorshipResponse, SponsorshipStatus, StudentListResponse, StudentRequest, UpdateStudentStatus, UploadedAnnouncementFile, UserDetailsResponse, UserListResponse, UserResponse } from './types';
+import { AcademicYearRequest, AcademicYearResponse, AddressResponse, AnnouncementData, AnnouncementDataMinimal, AnnouncementPayloadString, ApplySponsorshipRequest, ApplySponsorshipResponse, criterionCategoryResponse, CriterionCategoryWithCriterion, FileTypeResponse, FlattenedAnnouncementData, FlattenedAnnouncementDataMinimal, PartialStudentUser, RecordStatus, RegisterRequest, RoleResponse, ScheduleModified, ScheduleRequest, ScheduleResponse, SchoolPayload, SiblingRequest, SponsorshipRequest, SponsorshipResponse, SponsorshipStatus, StudentListResponse, StudentRequest, UpdateStudentStatus, UploadedAnnouncementFile, UserDetailsResponse, UserListResponse, UserResponse } from './types';
 import { binaryToUuid, uuidToBinary } from "./utils";
 import { APPLICATION_STAGE, APPLICATION_STATUS } from './constant';
 
@@ -583,5 +583,13 @@ export const convertedScheduleResponse = ( data: ScheduleModified ): ScheduleRes
     endDate: data.end_date.toISOString(),
     scheduleQuota: data.schedule_quota,
     scheduleType: data.schedule_type
+  }
+}
+
+export const toCriterionCategory = ( data: CriterionCategoryWithCriterion): criterionCategoryResponse => {
+  return {
+    id: binaryToUuid(data.id),
+    name: data.name,
+    criterions: data?.criterion.map(e => {return { id: binaryToUuid(e.id), name: e.name}})
   }
 }

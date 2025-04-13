@@ -51,6 +51,16 @@ async function auth(req: Request, res: Response ) {
         const authHeader = req.headers.authorization; 
         const token = authHeader.split(' ')[1];
         jwt.verify(token, process.env.SECRET_KEY);
+
+        const decoded = jwt.verify(token, process.env.SECRET_KEY!) as jwt.JwtPayload;
+
+        if (!decoded.exp) return null;
+
+        const currentTime = Math.floor(Date.now() / 1000); 
+        const timeLeftInSeconds = decoded.exp - currentTime;
+        const timeLeftInHours = timeLeftInSeconds / 3600;
+        console.log(`Token expires in ~${timeLeftInHours.toFixed(2)} hours`);
+
         return token;
     } catch (err) {
         return null;

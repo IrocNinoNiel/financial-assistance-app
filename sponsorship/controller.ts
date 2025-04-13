@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { validateApplyScholarship, validateChangeStudentStatus, validateQueryParams, validateSponsorship, validateSponsorshipId, validateStudentId } from "../middleware/validation";
 import { ResponseHandler } from "../response";
-import { ApplySponsorshipRequest, ApplySponsorshipResponse, ERROR_MESSAGES, getQueryParams, QueryParams, SponsorshipRequest, SponsorshipResponse, SUCCESS_MESSAGES, UpdateStudentStatusRequest, VALIDATION_MESSAGES } from "../utils";
-import { adjustStudentEligibilityStatus, applyToSponsorship, createSponsorship, deleteOneSponsorship, getAllAvailableSponsorship, getAllSponsorship, getAllStudentSponsorship, getOneSponsorship, getOneStudentSponsorship, updateSponsorship } from "./service";
+import { ApplySponsorshipRequest, ApplySponsorshipResponse, criterionCategoryResponse, ERROR_MESSAGES, getQueryParams, QueryParams, SponsorshipRequest, SponsorshipResponse, SUCCESS_MESSAGES, UpdateStudentStatusRequest, VALIDATION_MESSAGES } from "../utils";
+import { adjustStudentEligibilityStatus, applyToSponsorship, createSponsorship, deleteOneSponsorship, getAllAvailableSponsorship, getAllSponsorship, getAllStudentSponsorship, getCategoryCriterion, getOneSponsorship, getOneStudentSponsorship, updateSponsorship } from "./service";
 import { allowRoles } from "../middleware/authentication";
 
 export default () => {
@@ -66,6 +66,16 @@ export default () => {
             console.log("parameter", params);
             const authHeader: string = req.headers.authorization;
             const data: SponsorshipResponse[] = await getAllSponsorship( authHeader, params );
+            ResponseHandler.ok(req, res, data);
+        } catch (err) {
+            ResponseHandler.invalidRequest(req,res , err.message);
+        }
+    }); 
+
+    sponsorshipAPI.get('/criterion-category', allowRoles('system admin', 'financial assistance coordinator' ), validateQueryParams , async (req, res) => {
+
+        try {
+            const data: criterionCategoryResponse[] = await getCategoryCriterion();
             ResponseHandler.ok(req, res, data);
         } catch (err) {
             ResponseHandler.invalidRequest(req,res , err.message);

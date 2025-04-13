@@ -615,3 +615,25 @@ export type ScheduleModified = {
       name: string;
   };
 };
+
+export type criterionResponse = {
+  id: string;
+  name: string;
+}
+
+export type criterionCategoryResponse = {
+  id: string;
+  name: string;
+  criterions: criterionResponse[]
+}
+
+export type Criterion = {
+  id: Uint8Array;
+  name: string;
+};
+
+export type CriterionCategoryWithCriterion = {
+  id: Uint8Array;
+  name: string;
+  criterion: Criterion[];
+};

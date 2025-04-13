@@ -1,4 +1,4 @@
-import { EvaluationStatus, Prisma, PrismaClient, sponsorship } from "@prisma/client";
+import { criterionCategory, EvaluationStatus, Prisma, PrismaClient, sponsorship } from "@prisma/client";
 import {
   APPLICATION_STAGE,
   APPLICATION_STATUS,
@@ -10,6 +10,7 @@ import {
 import {
   toApplyScholarship,
   toApplyScholarshipResponse,
+  toCriterionCategory,
   toSponsorReqModel,
   toSponsorSchoolModel,
   toSponsorshipModel,
@@ -40,11 +41,14 @@ import {
   generateAppIdRepo,
   findAppId,
   checkBatchRepo,
+  getCategoryCriterionRepo,
 } from "./repository";
 import {
   ApplySponsorshipRequest,
   ApplySponsorshipResponse,
   AuthPayload,
+  criterionCategoryResponse,
+  CriterionCategoryWithCriterion,
   GetAllSponsorshipType,
   QueryParams,
   RecordStatus,
@@ -383,8 +387,9 @@ export const checkBatch = async ( batchNo: number, sponsorshipId: string ): Prom
   return await checkBatchRepo( batchNo, sponsorshipId, prisma );
 }
 
-export const criterion = async (): Promise<void> => {
-  
+export const getCategoryCriterion = async (): Promise<criterionCategoryResponse[]> => {
+    const result: CriterionCategoryWithCriterion[]= await getCategoryCriterionRepo( prisma );
+    return result.map((e) => toCriterionCategory(e));
 }
 
 async function generateAppId(sponsorshipId: string) {

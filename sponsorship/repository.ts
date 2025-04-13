@@ -1,10 +1,11 @@
 import {
+  criterionCategory,
   Prisma,
   PrismaClient,
   sponsorship,
   sponsorshipSchool,
 } from "@prisma/client";
-import { binaryToUuid, GetAllSponsorshipType, QueryParams, RecordStatus, UpdateStudentStatus, UpdateStudentStatusRequest, uuidToBinary } from "../utils";
+import { binaryToUuid, CriterionCategoryWithCriterion, GetAllSponsorshipType, QueryParams, RecordStatus, UpdateStudentStatus, UpdateStudentStatusRequest, uuidToBinary } from "../utils";
 
 export const createSponsorshipRepo = async (
   data: Prisma.sponsorshipUncheckedCreateInput,
@@ -401,3 +402,12 @@ export const checkBatchRepo = async (
 
   return !!result;
 };
+
+export const getCategoryCriterionRepo = async ( prisma: PrismaClient ) : Promise<CriterionCategoryWithCriterion[]> => {
+  return await prisma.criterionCategory.findMany(
+    { 
+      select: { id: true, name: true, criterion: { select: { id: true, name: true}}},
+      where: {record_status: RecordStatus.ACTIVE}
+    } 
+  );
+}

@@ -475,6 +475,7 @@ model criterionCategory {
   updated_by         Bytes?             @db.Binary(16)
 
   criterion          defaultCategoryCriterion[]
+  sponsorshipCriterion sponsorshipCriterion[]
 }
 
 model defaultCategoryCriterion {
@@ -493,6 +494,7 @@ model defaultCategoryCriterion {
 model sponsorshipCriterion {
   id                    Bytes              @id @default(dbgenerated("(UUID_TO_BIN(UUID()))")) @db.Binary(16)
   sponsorship_id        Bytes              @db.Binary(16)
+  criterion_category_id Bytes              @db.Binary(16)
   name                  String             @db.VarChar(255)
   label                 String             @db.VarChar(255)
   data_source           DataSource
@@ -510,6 +512,7 @@ model sponsorshipCriterion {
 
   requiredColumn        criterionRequiredColumn[]
   sponsorship sponsorship @relation(fields: [sponsorship_id], references: [id])
+  criterionCategory criterionCategory @relation(fields: [criterion_category_id], references: [id])
 }
 
 model criterionRequiredColumn {
