@@ -1,4 +1,4 @@
-import { criterionCategory, EvaluationStatus, Prisma, PrismaClient, sponsorship } from "@prisma/client";
+import { criterionCategory, criterionRequiredColumn, EvaluationStatus, Prisma, PrismaClient, sponsorship, sponsorshipCriteriaPairwise, sponsorshipCriterion } from "@prisma/client";
 import {
   APPLICATION_STAGE,
   APPLICATION_STATUS,
@@ -10,9 +10,12 @@ import {
 import {
   toApplyScholarship,
   toApplyScholarshipResponse,
+  toCriteriaPairwise,
   toCriterionCategory,
+  toRequiredColumn,
   toSponsorReqModel,
   toSponsorSchoolModel,
+  toSponsorshipCriterion,
   toSponsorshipModel,
   toSponsorshipResponse,
   toUpdateStatusModel,
@@ -42,16 +45,33 @@ import {
   findAppId,
   checkBatchRepo,
   getCategoryCriterionRepo,
+  checkCriterionCategoryIdRepo,
+  createSponsorshipCriterionRepo,
+  getAllSponsorshipCriterionRepo,
+  updateSponsorshipCriterionRepo,
+  getAllRequiredColumnRepo,
+  updateRequiredColumnRepo,
+  createManyRequiredColumnRepo,
+  saveBulkPairwiseCriteriaRepo,
+  deleteManyRequiredColumnRepo,
+  deleteManySponsorshipCriterionRepo,
 } from "./repository";
 import {
+  Action,
   ApplySponsorshipRequest,
   ApplySponsorshipResponse,
   AuthPayload,
+  Criteria,
   criterionCategoryResponse,
   CriterionCategoryWithCriterion,
+  CriterionPayload,
+  CriterionResponse,
   GetAllSponsorshipType,
+  Pairwise,
   QueryParams,
   RecordStatus,
+  RequiredColumns,
+  SponsorshipCriterion,
   SponsorshipResponse,
   UpdateStudentStatus,
   UpdateStudentStatusRequest,
@@ -392,6 +412,89 @@ export const getCategoryCriterion = async (): Promise<criterionCategoryResponse[
     return result.map((e) => toCriterionCategory(e));
 }
 
+export const checkCriterionCategoryId = async ( criterionCategoryId: string): Promise<boolean> => {
+  return checkCriterionCategoryIdRepo( criterionCategoryId, prisma );
+}
+
+export const updateSponsorshipCriterion = async ( payload: CriterionPayload, sponsorshipId: string, authHeader: string ): Promise<CriterionResponse | null> => {
+  const categoryCriterionId: string = payload.criterionCategoryId;
+  return await prisma.$transaction(async (prisma: PrismaClient) => {
+
+    // get all sponsorhipCrierion data using sponsorshipId
+    const sponsorshipCriterionData: sponsorshipCriterion[] = await getAllSponsorshipCriterionRepo( sponsorshipId, prisma );
+    if(payload.criteria.length > 0){ 
+      return null;
+    }
+    
+    // if the sponsorship still dont have criterion
+    if(sponsorshipCriterionData.length == 0) {
+      const sponsorshipCriterion: SponsorshipCriterion[] = [];
+      for (const data of payload.criteria) { 
+      
+        const sponsorshipCriterionData: sponsorshipCriterion = await handleCriterion( 
+          data,
+          [], 
+          categoryCriterionId, 
+          sponsorshipId, 
+          [],
+          "", 
+          "CREATE", 
+          prisma 
+        );
+
+        // save required column
+        if(data.requiredColumns.length > 0) {
+          await bulkCreateRequiredColumn(data.requiredColumns, binaryToUuid(sponsorshipCriterionData.id), prisma );
+        }
+
+        sponsorshipCriterion.push( { id: binaryToUuid(sponsorshipCriterionData.id), name: sponsorshipCriterionData.name});
+      }
+
+      // save the criterion pairwise
+      if(payload.pairwise.length > 0) {
+        await bulkCreatePairwiseCriterion(payload.pairwise, sponsorshipCriterion, prisma);
+      }
+    } else {
+
+      const sponsorshipCrit: SponsorshipCriterion[] = [];
+      // loop through the existing criterion data
+      for( const data of payload.criteria) {
+        const criteria = sponsorshipCriterionData.find(c => c.name === data.name);
+        const convertedData = toSponsorshipCriterion(data, categoryCriterionId, sponsorshipId);
+
+        // Create or update the sponsorship criterion
+        const sponsorshipCriterion = criteria
+          ? await updateSponsorshipCriterionRepo(convertedData, binaryToUuid(criteria.id), prisma)
+          : await createSponsorshipCriterionRepo(convertedData, prisma);
+
+        const sponsorshipCriterionId = binaryToUuid(sponsorshipCriterion.id);
+
+        // Sync required columns
+        await syncRequiredColumns(data.requiredColumns, sponsorshipCriterionId, prisma);
+        sponsorshipCrit.push( { id: binaryToUuid(sponsorshipCriterion.id), name: sponsorshipCriterion.name});
+
+      }
+
+      // sync pairwise data
+      await syncPairwiseCriterion(payload.pairwise, sponsorshipCrit, prisma);
+
+
+      await handleCriterion( 
+        null,
+        payload.criteria, 
+        "", 
+        "", 
+        sponsorshipCriterionData,
+        "", 
+        "DELETE", 
+        prisma 
+      );
+    }
+
+    return null;
+  });
+}
+
 async function generateAppId(sponsorshipId: string) {
     const currentYear = new Date().getFullYear();
     const count: number = await generateAppIdRepo(sponsorshipId, prisma);
@@ -405,3 +508,123 @@ async function generateAppId(sponsorshipId: string) {
 
     return appId;
 }
+
+
+const handleCriterion = async (
+  criterion: Criteria,
+  criterionArray: Criteria[] = [],
+  categoryCriterionId: string = "",
+  sponsorshipId: string = "",
+  sponsorshipCriterionData: sponsorshipCriterion[] = [],
+  id: string = "", 
+  action: Action = "CREATE",
+  prisma: PrismaClient,
+): Promise<sponsorshipCriterion | null> => {
+
+  const convertedData = toSponsorshipCriterion(criterion, categoryCriterionId, sponsorshipId);
+  const deleteIds: string[] = [];
+
+  if(action == "CREATE") {
+    return await createSponsorshipCriterionRepo( convertedData, prisma );
+  } else if (action == "UPDATE") {
+    return await updateSponsorshipCriterionRepo( convertedData, id, prisma );
+  } 
+
+  for( const data of sponsorshipCriterionData) {
+    const criteria = criterionArray.find(c => c.name === data.name);
+    if(!criteria) {
+      deleteIds.push(binaryToUuid(data.id));
+    }
+  }
+
+  if(deleteIds.length > 0 ) {
+    await deleteManySponsorshipCriterionRepo(deleteIds, prisma);
+  }
+  return null;
+}
+
+const bulkCreateRequiredColumn = async(
+  requiredColumns: RequiredColumns[],
+  sponsorshipCriterionDataId: string = "",
+  prisma: PrismaClient
+): Promise<void> => {
+  const bulk: Prisma.criterionRequiredColumnUncheckedCreateInput[] = [];
+  for( const col of requiredColumns) {
+    const convertedRequiredColumnData: Prisma.criterionRequiredColumnUncheckedCreateInput = toRequiredColumn( col,sponsorshipCriterionDataId); 
+    bulk.push(convertedRequiredColumnData);
+  }
+
+  await createManyRequiredColumnRepo( bulk, prisma );
+}
+
+const bulkCreatePairwiseCriterion = async(
+  pairwise: Pairwise[],
+  sponsorshipCriterion: SponsorshipCriterion[],
+  prisma: PrismaClient
+): Promise<void> => {
+
+  const bulk: Prisma.sponsorshipCriteriaPairwiseUncheckedCreateInput[] = []
+
+  for(const pair of pairwise ) {
+    const criterionA = sponsorshipCriterion.find(c => c.name === pair.criteriaNameA);
+    const criterionB = sponsorshipCriterion.find(c => c.name === pair.criteriaNameB);
+
+    if(!criterionA || !criterionB) {
+      continue;
+    }
+
+    const pairwiseConverted: Prisma.sponsorshipCriteriaPairwiseUncheckedCreateInput = toCriteriaPairwise( criterionA.id, criterionB.id, pair.value);
+    bulk.push(pairwiseConverted);
+  }
+
+  await saveBulkPairwiseCriteriaRepo( bulk, prisma);
+}
+
+const syncRequiredColumns = async (
+  incomingCols: RequiredColumns[],
+  sponsorshipCriterionId: string,
+  prisma: PrismaClient
+): Promise<void> => {
+  const existingCols: criterionRequiredColumn[] = await getAllRequiredColumnRepo(sponsorshipCriterionId, prisma);
+  const bulk: Prisma.criterionRequiredColumnUncheckedCreateInput[] = [];
+  const deleteIds: string[] = [];
+
+  for (const reqCol of incomingCols) {
+    const match: criterionRequiredColumn = existingCols.find(c => c.table === reqCol.table && c.column === reqCol.column);
+    const converted: Prisma.criterionRequiredColumnUncheckedCreateInput = toRequiredColumn(reqCol, sponsorshipCriterionId);
+
+    if (!match) {
+      bulk.push(converted);
+    } else {
+      await updateRequiredColumnRepo(converted, binaryToUuid(match.id), prisma);
+    }
+  }
+
+  if(bulk.length > 0) {
+    await createManyRequiredColumnRepo( bulk, prisma );
+  }
+
+  for (const existing of existingCols) {
+    const stillExists: RequiredColumns = incomingCols.find(
+      c => c.table === existing.table && c.column === existing.column
+    );
+    if (!stillExists) {
+      deleteIds.push(binaryToUuid(existing.id));
+    }
+  }
+
+  if(deleteIds.length > 0 ) {
+    await deleteManyRequiredColumnRepo(deleteIds, prisma);
+  }
+};
+
+
+const syncPairwiseCriterion = async (
+  incomingPairwise: Pairwise[],
+  sponsorshipCriterionData: SponsorshipCriterion[],
+  prisma: PrismaClient
+): Promise<void> => {
+  // const existingPairwise: sponsorshipCriteriaPairwise[] = await getAllCriterionPairwise(sponsorshipCriterionId, prisma);
+  const bulk: Prisma.criterionRequiredColumnUncheckedCreateInput[] = [];
+  const deleteIds: string[] = [];
+};

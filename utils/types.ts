@@ -637,3 +637,43 @@ export type CriterionCategoryWithCriterion = {
   name: string;
   criterion: Criterion[];
 };
+
+export type CriterionPayload = {
+  criterionCategoryId: string;
+  criteria: Criteria[];
+  pairwise: Pairwise[];
+};
+
+export type CriterionResponse = {
+  sponsorshipId: string;
+  criterionCategoryId: string;
+  criteria: Criteria[];
+  pairwise: Pairwise[];
+};
+
+export type Criteria = {
+  name: string;
+  label: string;
+  dataSource: string;
+  formulaType: string;
+  preference: string;
+  requiredColumns: RequiredColumns[];
+};
+
+export type RequiredColumns = {
+  table: string;
+  column: string;
+};
+
+export type Pairwise = {
+  criteriaNameA: string;
+  criteriaNameB: string;
+  value: number;
+};
+
+export type SponsorshipCriterion = {
+  id: string;
+  name: string
+}
+
+export type Action = "CREATE" | "UPDATE" | "DELETE";

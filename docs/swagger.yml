@@ -1813,8 +1813,91 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/InternalErrorResponse'
+  /sponsorships/update-criterion/{sponsorshipId}:
+    put:
+      tags:
+        - Coordinator Sponsorship
+      parameters:
+        - name: sponsorshipId
+          in: path
+          required: true
+          description: The ID of the sponsorship
+          schema:
+            type: string
+            example: fa8d0ba7-3bd8-4a30-8127-82ca571d1bd0
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CriterionPayload'
+      responses:
+        '201':
+          description: Resource successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetScheduleSuccessResponse'
+      
 components:
   schemas:
+    CriterionPayload:
+      type: object
+      properties:
+        criterionCategoryId:
+          type: string
+          example: fa8d0ba7-3bd8-4a30-8127-82ca571d1bd0
+        criteria:
+          type: array
+          items:
+            $ref: '#/components/schemas/Criteria'
+        pairwise:
+          type: array
+          items:
+            $ref: '#/components/schemas/Pairwise'
+    Criteria:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "Monthly Income"
+        label:
+          type: string
+          example: "Monthly Income of Applicant"
+        dataSource:
+          type: string
+          example: "COLUMN"
+        formulaType:
+          type: string
+          example: "SUM"
+        preference:
+          type: string
+          example: "MIN"
+        requiredColumns:
+          type: array
+          items:
+            $ref: '#/components/schemas/RequiredColumns'
+    RequiredColumns:
+      type: object
+      properties:
+        table:
+          type: string
+          example: "students"
+        column:
+          type: string
+          example: "gwa"
+    Pairwise:
+      type: object
+      properties:
+        criteriaNameA:
+          type: string
+          example: "GWA"
+        criteriaNameB:
+          type: string
+          example: "Monthly Income"
+        value:
+          type: integer
+          example: 1
     RegisterPayload:
       type: object
       properties:

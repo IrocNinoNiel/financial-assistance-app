@@ -1,7 +1,7 @@
 
-import { Prisma, student, user, academicYear, sponsorship, EvaluationStatus, announcement, schedule_type, criterionCategory } from '@prisma/client';
+import { Prisma, student, user, academicYear, sponsorship, EvaluationStatus, announcement, schedule_type, criterionCategory, DataSource, FormulaType } from '@prisma/client';
 import { User } from "../authentication/model";
-import { AcademicYearRequest, AcademicYearResponse, AddressResponse, AnnouncementData, AnnouncementDataMinimal, AnnouncementPayloadString, ApplySponsorshipRequest, ApplySponsorshipResponse, criterionCategoryResponse, CriterionCategoryWithCriterion, FileTypeResponse, FlattenedAnnouncementData, FlattenedAnnouncementDataMinimal, PartialStudentUser, RecordStatus, RegisterRequest, RoleResponse, ScheduleModified, ScheduleRequest, ScheduleResponse, SchoolPayload, SiblingRequest, SponsorshipRequest, SponsorshipResponse, SponsorshipStatus, StudentListResponse, StudentRequest, UpdateStudentStatus, UploadedAnnouncementFile, UserDetailsResponse, UserListResponse, UserResponse } from './types';
+import { AcademicYearRequest, AcademicYearResponse, AddressResponse, AnnouncementData, AnnouncementDataMinimal, AnnouncementPayloadString, ApplySponsorshipRequest, ApplySponsorshipResponse, Criteria, criterionCategoryResponse, CriterionCategoryWithCriterion, FileTypeResponse, FlattenedAnnouncementData, FlattenedAnnouncementDataMinimal, PartialStudentUser, RecordStatus, RegisterRequest, RequiredColumns, RoleResponse, ScheduleModified, ScheduleRequest, ScheduleResponse, SchoolPayload, SiblingRequest, SponsorshipRequest, SponsorshipResponse, SponsorshipStatus, StudentListResponse, StudentRequest, UpdateStudentStatus, UploadedAnnouncementFile, UserDetailsResponse, UserListResponse, UserResponse } from './types';
 import { binaryToUuid, uuidToBinary } from "./utils";
 import { APPLICATION_STAGE, APPLICATION_STATUS } from './constant';
 
@@ -591,5 +591,32 @@ export const toCriterionCategory = ( data: CriterionCategoryWithCriterion): crit
     id: binaryToUuid(data.id),
     name: data.name,
     criterions: data?.criterion.map(e => {return { id: binaryToUuid(e.id), name: e.name}})
+  }
+}
+
+export const toSponsorshipCriterion = ( data: Criteria, categoryCriterionId: string, sponsorshipId: string ): Prisma.sponsorshipCriterionUncheckedCreateInput => {
+  return {
+    sponsorship_id: uuidToBinary(sponsorshipId),
+    criterion_category_id: uuidToBinary(categoryCriterionId),
+    name: data.name,
+    label: data.label,
+    data_source: data.dataSource as DataSource,
+    formula_type: data.formulaType as FormulaType,
+  }
+}
+
+export const toRequiredColumn = ( data: RequiredColumns, sponsorshipCriterionId: string ): Prisma.criterionRequiredColumnUncheckedCreateInput => {
+  return {
+    sponsorship_criterion_id: uuidToBinary( sponsorshipCriterionId ),
+    table: data.table,
+    column: data.column
+  }
+}
+
+export const toCriteriaPairwise = ( criterionAId: string, criterionBId, value: number ): Prisma.sponsorshipCriteriaPairwiseUncheckedCreateInput => {
+  return {
+    sponsorship_criterion_id_a: uuidToBinary(criterionAId),
+    sponsorship_criterion_id_b: uuidToBinary(criterionBId),
+    value: value
   }
 }

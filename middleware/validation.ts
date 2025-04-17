@@ -1,4 +1,4 @@
-import { APPLICATION_STAGE, APPLICATION_STATUS, AuthPayload, error, EvaluationStatus, extractUserFromToken, LoginRequest, RegisterRequest, VALIDATION_MESSAGES } from "../utils";
+import { APPLICATION_STAGE, APPLICATION_STATUS, AuthPayload, ColumnEnum, error, EvaluationStatus, extractUserFromToken, LoginRequest, RegisterRequest, TableColumnMap, TableEnum, VALIDATION_MESSAGES } from "../utils";
 import { NextFunction, Request, RequestHandler, Response } from "express";
 import ResponseHandler from "../response/response";
 import { validationResult, body, param } from "express-validator";
@@ -9,7 +9,7 @@ import { checkBarangayExist, checkCityMunExist, checkProvinceExist, checkRegionE
 import { checkIfNotSponsor, doesUserExist } from "../user/service";
 import { checkIfInvalidSchoolId, checkSchoolExist, checkSchoolNameExist } from "../schools/service";
 import { checkAcademicYearId, checkExistingAcademicYear } from "../academicYear/service";
-import { checkBatch, checkIfSponsorshipExist, checkSponsorshipId, doesStudentAlreadyApplied } from "../sponsorship/service";
+import { checkBatch, checkCriterionCategoryId, checkIfSponsorshipExist, checkSponsorshipId, doesStudentAlreadyApplied } from "../sponsorship/service";
 import { checkIfInvalidFileTypeId } from "../file/service";
 import { doesAnnExist, doesAnnExistGet } from "../announcement/service";
 import { findIfExists } from "../schedule/service";
@@ -548,9 +548,9 @@ export const validateAcademicYearId = [
 export const validateSponsorshipId = [
   param("sponsorshipId")
     .notEmpty().withMessage(VALIDATION_MESSAGES.SPONSORSHIP_ID_REQUIRED)
-    .custom(async ( academicYearId ) => {
-      console.log("params", academicYearId);
-      const dontExist = await checkSponsorshipId( academicYearId );
+    .custom(async ( sponsorshipId ) => {
+      console.log("params", sponsorshipId);
+      const dontExist = await checkSponsorshipId( sponsorshipId );
       if (dontExist) {
         return Promise.reject(VALIDATION_MESSAGES.SPONSORSHIP_ID_NOT_FOUND);
       }
@@ -929,5 +929,113 @@ export const validateScheduleId = [
         return Promise.reject(VALIDATION_MESSAGES.SCHED_NOT_FOUND);
       }
   }),
+  validateErrors
+]
+
+export const validateUpdateCriterionPayload = [
+  body("criterionCategoryId")
+    .customSanitizer(value => String(value))
+    .trim()
+    .isUUID().withMessage(VALIDATION_MESSAGES.CRIT_CAT_INVALID_ID)
+    .custom( async ( criterionCategoryId ) => {
+      const dontExist = await checkCriterionCategoryId( criterionCategoryId );
+      if (dontExist) {
+        return Promise.reject(VALIDATION_MESSAGES.CRIT_CAT_NOT_FOUND);
+      }
+    }),
+  body('criteria')
+    .isArray({ min: 1 })
+    .withMessage(VALIDATION_MESSAGES.CRITERIA_ARRAY_EMPTY),
+  body('criteria')
+    .custom((criteria) => {
+      if (!Array.isArray(criteria)) {
+        return Promise.reject(VALIDATION_MESSAGES.CRITERIA_ARRAY_INVALID);
+      }
+  
+      for (let i = 0; i < criteria.length; i++) {
+        const c = criteria[i];
+        if (typeof c.name !== 'string' || c.name.trim() === '') {
+          return Promise.reject(VALIDATION_MESSAGES.CRITERIA_NAME_INVALID);
+        }
+  
+  
+        if (!['COLUMN', 'CUSTOM_INPUT', 'COMPUTED'].includes(c.dataSource)) {
+          return Promise.reject(VALIDATION_MESSAGES.CRITERIA_DATASOURCE_INVALID);
+        }
+        
+        if (c.dataSource === 'COMPUTED') {
+          if (!['SUM', 'AVG'].includes(c.formulaType)) {
+            return Promise.reject(VALIDATION_MESSAGES.CRITERIA_FORMULATYPE_INVALID);
+          }
+        }
+  
+        if (!['MIN', 'MAX'].includes(c.preference)) {
+          return Promise.reject(VALIDATION_MESSAGES.CRITERIA_PREFERENCE_INVALID);
+        }
+
+        if(['COMPUTED', 'COLUMN'].includes(c.dataSource)) { 
+          if (!Array.isArray(c.requiredColumns) || c.requiredColumns.length === 0) {
+            return Promise.reject(VALIDATION_MESSAGES.CRITERIA_REQUIREDCOLUMN_INVALID);
+          }
+
+          for (const rc of c.requiredColumns) {
+            if (!rc.table || typeof rc.table !== 'string') {
+              return Promise.reject(VALIDATION_MESSAGES.CRITERIA_REQUIREDCOLUMN_TABLE_INVALID)
+            }
+    
+            if (!rc.column || typeof rc.column !== 'string') {
+              return Promise.reject(VALIDATION_MESSAGES.CRITERIA_REQUIREDCOLUMN_COLUMN_INVALID)
+            }
+
+            const tableEnumValues = Object.values(TableEnum);
+            if (!tableEnumValues.includes(rc.table)) {
+              return Promise.reject(VALIDATION_MESSAGES.CRITERIA_REQUIREDCOLUMN_TABLE_INVALID);
+            }
+
+            const validColumns = TableColumnMap[rc.table as TableEnum];
+            if (!validColumns) {
+              return Promise.reject(VALIDATION_MESSAGES.CRITERIA_REQUIREDCOLUMN_TABLE_INVALID);
+            }
+          
+            if (!validColumns.includes(rc.column as ColumnEnum)) {
+              return Promise.reject(VALIDATION_MESSAGES.CRITERIA_REQUIREDCOLUMN_COLUMN_INVALID);
+            }
+          };
+        }
+      };
+    }),
+  body('pairwise')
+    .isArray({ min: 1})
+    .withMessage(VALIDATION_MESSAGES.PAIRWISE_ARRAY_EMPTY)
+    .custom((pairwise, {req}) => {
+      // get all the criteria name
+      const criteriaNames = (req.body.criteria || []).map((c: any) => c.name);
+
+      // loop through pairise and check if criteriaNameA and B exist on the criteria name
+      for (const pair of pairwise) { 
+        if (
+          !pair.criteriaNameA ||
+          !criteriaNames.includes(pair.criteriaNameA)
+        ) {
+          return Promise.reject(VALIDATION_MESSAGES.PAIRWISE_CRITERIA_A_INVALID);
+        }
+
+        if (
+          !pair.criteriaNameB ||
+          !criteriaNames.includes(pair.criteriaNameB)
+        ) {
+          return Promise.reject(VALIDATION_MESSAGES.PAIRWISE_CRITERIA_B_INVALID);
+        }
+
+        if (
+          typeof pair.value !== 'number' ||
+          !Number.isInteger(pair.value) ||
+          pair.value < 1 ||
+          pair.value > 9
+        ) {
+          return Promise.reject(VALIDATION_MESSAGES.PAIRWISE_VALUE_INVALID);
+        }
+      }
+    }),
   validateErrors
 ]

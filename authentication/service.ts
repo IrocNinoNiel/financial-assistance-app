@@ -75,7 +75,7 @@ export const loginService = async ( data: LoginRequest ) => {
     const isPasswordValid = await bcrypt.compare(data.password, user.password);
 
     if (!isPasswordValid) {
-      throw new Error('Invalid password');
+        throw new Error('Invalid password');
     }  
 
     const token = jwt.sign(

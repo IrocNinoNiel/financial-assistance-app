@@ -1,8 +1,10 @@
 import {
   criterionCategory,
+  criterionRequiredColumn,
   Prisma,
   PrismaClient,
   sponsorship,
+  sponsorshipCriterion,
   sponsorshipSchool,
 } from "@prisma/client";
 import { binaryToUuid, CriterionCategoryWithCriterion, GetAllSponsorshipType, QueryParams, RecordStatus, UpdateStudentStatus, UpdateStudentStatusRequest, uuidToBinary } from "../utils";
@@ -410,4 +412,94 @@ export const getCategoryCriterionRepo = async ( prisma: PrismaClient ) : Promise
       where: {record_status: RecordStatus.ACTIVE}
     } 
   );
+}
+
+export const checkCriterionCategoryIdRepo = async (
+  criterionCategoryId: string,
+  prisma: PrismaClient
+): Promise<boolean> => {
+  const data = await prisma.criterionCategory.findFirst({
+    where: {
+      id: uuidToBinary(criterionCategoryId),
+      record_status: RecordStatus.ACTIVE,
+    },
+  });
+  return data === null;
+};
+
+export const createSponsorshipCriterionRepo = async (
+  convertedData: Prisma.sponsorshipCriterionUncheckedCreateInput,
+  prisma: PrismaClient
+): Promise<sponsorshipCriterion> => {
+
+  return await prisma.sponsorshipCriterion.create({
+    data: convertedData
+  });
+}
+export const getAllSponsorshipCriterionRepo = async ( sponsorshipId: string, prisma: PrismaClient ): Promise<sponsorshipCriterion[]> => {
+  return await prisma.sponsorshipCriterion.findMany(
+    { where: 
+      { sponsorship_id: uuidToBinary( sponsorshipId), 
+        record_status: RecordStatus.ACTIVE
+      }
+    });
+}
+
+export const createManyRequiredColumnRepo = async (
+  data: Prisma.criterionRequiredColumnUncheckedCreateInput[],
+  prisma: PrismaClient
+): Promise<void> => {
+  await prisma.criterionRequiredColumn.createMany({ data: data });
+}
+
+export const saveBulkPairwiseCriteriaRepo = async (
+  data: Prisma.sponsorshipCriteriaPairwiseUncheckedCreateInput[],
+  prisma: PrismaClient
+): Promise<void> => {
+  await prisma.sponsorshipCriteriaPairwise.createMany({data});
+}
+
+export const deleteManySponsorshipCriterionRepo = async (
+  ids: string[],
+  prisma: PrismaClient
+): Promise<void> => {
+  await prisma.sponsorshipCriterion.updateMany({
+    where: { id: { in: ids.map(uuidToBinary) }, },
+    data: { record_status: RecordStatus.DELETED },
+  });
+}
+
+export const updateSponsorshipCriterionRepo = async (
+  convertedData: Prisma.sponsorshipCriterionUncheckedCreateInput,
+  id: string,
+  prisma: PrismaClient
+): Promise<sponsorshipCriterion> => {
+
+  return await prisma.sponsorshipCriterion.update({
+    where: { id: uuidToBinary(id)},
+    data: convertedData
+  });
+}
+
+export const getAllRequiredColumnRepo = async ( 
+  sponCritId: string, prisma: PrismaClient
+): Promise<criterionRequiredColumn[]> => {
+  return await prisma.criterionRequiredColumn.findMany({
+    where: {sponsorship_criterion_id: uuidToBinary( sponCritId )}
+  })
+}
+
+export const updateRequiredColumnRepo = async (
+  data: Prisma.criterionRequiredColumnUncheckedCreateInput,
+  id: string,
+  prisma: PrismaClient
+): Promise<void> => {
+  await prisma.criterionRequiredColumn.update({ where: { id: uuidToBinary(id)},data: data });
+}
+
+export const deleteManyRequiredColumnRepo = async( 
+  ids: string[],
+  prisma: PrismaClient
+): Promise<void> => {
+  await prisma.criterionRequiredColumn.updateMany({ where: {id: { in: ids.map(uuidToBinary) },}, data: {record_status: RecordStatus.DELETED}});
 }

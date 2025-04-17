@@ -54,6 +54,64 @@ export enum EvaluationStatus {
     FAILED = "FAILED",
 }
 
+export enum TableEnum {
+    STUDENT = 'students',
+    SPONSORSHIP_APPLICATION = 'sponsorshipApplications',
+}
+
+export enum ColumnEnum {
+    // Academic
+    GWA = 'gwa',
+    COLLEGE_YEAR_LEVEL = 'college_year_level',
+    G12_YEAR_OF_GRADUATION = 'g12_year_of_graduation',
+
+    // Family & Income
+    FATHER_INCOME = 'father_income',
+    MOTHER_INCOME = 'mother_income',
+    GUARDIAN_INCOME = 'guardian_income',
+    NUMBER_OF_SIBLINGS = 'number_of_siblings',
+
+    // Physical/Identity
+    IS_SOLO_PARENT = 'is_solo_parent',
+    IS_CHILD_OF_SOLO_PARENT = 'is_child_of_solo_parent',
+    IS_INDIGENOUS_PEOPLE = 'is_indigenous_people',
+    IS_SPED = 'is_sped',
+    IS_PWD = 'is_pwd',
+
+    // Sponsorship Application Specific
+    INTERVIEW_STATUS = 'interview_status',
+    EXAM_STATUS = 'exam_status',
+
+    // gender specific
+    SEX = 'sex'
+}
+
+export const TableColumnMap: Record<TableEnum, ColumnEnum[]> = {
+    [TableEnum.STUDENT]: [
+        // Academic
+        ColumnEnum.GWA,
+        ColumnEnum.COLLEGE_YEAR_LEVEL,
+        ColumnEnum.G12_YEAR_OF_GRADUATION,
+
+        // Family & Income
+        ColumnEnum.FATHER_INCOME,
+        ColumnEnum.MOTHER_INCOME,
+        ColumnEnum.GUARDIAN_INCOME,
+        ColumnEnum.NUMBER_OF_SIBLINGS,
+
+        // Physical/Identity
+        ColumnEnum.IS_SOLO_PARENT,
+        ColumnEnum.IS_CHILD_OF_SOLO_PARENT,
+        ColumnEnum.IS_INDIGENOUS_PEOPLE,
+        ColumnEnum.IS_SPED,
+        ColumnEnum.IS_PWD,
+    ],
+    [TableEnum.SPONSORSHIP_APPLICATION]: [
+        ColumnEnum.INTERVIEW_STATUS,
+        ColumnEnum.EXAM_STATUS,
+    ],
+};
+
 export const VALIDATION_MESSAGES = {
     FIRST_NAME_REQUIRED: 'First name is required and should be a string',
     LAST_NAME_REQUIRED: 'Last name is required and should be a string',
@@ -218,5 +276,21 @@ export const VALIDATION_MESSAGES = {
     END_DATE_BEFORE_START_DATE: "endDate must be greater than startDate",
     SCHED_ID_REQUIRED: "scheduleId is required",
     SCHED_NOT_FOUND: "Schedule doesn't exist",
-    SCHEDULE_DELETED: "Schedule succesfully deleted"
+    SCHEDULE_DELETED: "Schedule succesfully deleted",
+    CRIT_CAT_INVALID_ID: "Criterion Category Invalid Id",
+    CRIT_CAT_NOT_FOUND: "Criterion Category Not Found",
+    CRITERIA_ARRAY_EMPTY: "Criteria must be a non-empty array",
+    CRITERIA_NAME_INVALID: 'Each criteria item must have a valid name',
+    CRITERIA_LABEL_INVALID: 'Each criteria item must have a valid label',
+    CRITERIA_DATASOURCE_INVALID: 'Each criteria item must have a valid dataSource (COLUMN, CUSTOM_INPUT, COMPUTED)',
+    CRITERIA_FORMULATYPE_INVALID: 'Each criteria item must have a valid formulaType',
+    CRITERIA_PREFERENCE_INVALID: 'Each criteria item must have a valid preference (MIN or MAX)',
+    CRITERIA_REQUIREDCOLUMN_INVALID: 'COLUMN and COMPUTED data source criteria must have at least one requiredColumn',
+    CRITERIA_REQUIREDCOLUMN_TABLE_INVALID: 'Each requiredColumn for COLUMN or COMPUTED data sources must include a valid table name from the database.',
+    CRITERIA_REQUIREDCOLUMN_COLUMN_INVALID: 'Each requiredColumn for COLUMN or COMPUTED data sources must include a valid column that exists within the specified table.',
+    CRITERIA_ARRAY_INVALID: 'Criteria must be an array',
+    PAIRWISE_ARRAY_EMPTY: 'Pairwise Array must not be empty',
+    PAIRWISE_CRITERIA_A_INVALID: 'Please review Criteria A if its valid',
+    PAIRWISE_CRITERIA_B_INVALID: 'Please review Criteria B if its valid',
+    PAIRWISE_VALUE_INVALID: 'Pairwise comparison value between A and b must be an integer from 1 to 9'
 };
