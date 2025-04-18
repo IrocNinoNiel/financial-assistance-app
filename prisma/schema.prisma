@@ -380,6 +380,7 @@ model sponsorship {
   announcements          announcement[]
   schedule               schedule[]
   criterion              sponsorshipCriterion[]
+  pairwise               sponsorshipCriteriaPairwise[]
 
   @@map("sponsorships")
 }
@@ -533,6 +534,7 @@ model sponsorshipCriteriaPairwise {
   id                                Bytes              @id @default(dbgenerated("(UUID_TO_BIN(UUID()))")) @db.Binary(16)
   sponsorship_criterion_id_a        Bytes              @db.Binary(16)
   sponsorship_criterion_id_b        Bytes              @db.Binary(16)
+  sponsorship_id                    Bytes              @db.Binary(16)
   value                             Int
   record_status                     Boolean            @default(true)
   created_at                        DateTime           @default(now())
@@ -542,6 +544,7 @@ model sponsorshipCriteriaPairwise {
 
   criterion_a sponsorshipCriterion @relation("CriterionA", fields: [sponsorship_criterion_id_a], references: [id])
   criterion_b sponsorshipCriterion @relation("CriterionB", fields: [sponsorship_criterion_id_b], references: [id])
+  sponsorship sponsorship @relation(fields: [sponsorship_id], references: [id])
 }
 
 model customInputCriterion {

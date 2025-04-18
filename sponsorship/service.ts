@@ -1,4 +1,13 @@
-import { criterionCategory, criterionRequiredColumn, EvaluationStatus, Prisma, PrismaClient, sponsorship, sponsorshipCriteriaPairwise, sponsorshipCriterion } from "@prisma/client";
+import {
+  criterionCategory,
+  criterionRequiredColumn,
+  EvaluationStatus,
+  Prisma,
+  PrismaClient,
+  sponsorship,
+  sponsorshipCriteriaPairwise,
+  sponsorshipCriterion,
+} from "@prisma/client";
 import {
   APPLICATION_STAGE,
   APPLICATION_STATUS,
@@ -55,6 +64,9 @@ import {
   saveBulkPairwiseCriteriaRepo,
   deleteManyRequiredColumnRepo,
   deleteManySponsorshipCriterionRepo,
+  getAllCriterionPairwiseRepo,
+  updatePairwiseCriteriaRepo,
+  deleteManySponsorshipPairwiseCriterion,
 } from "./repository";
 import {
   Action,
@@ -152,7 +164,7 @@ export const applyToSponsorship = async (
   const userId = userDetails.userId;
 
   return await prisma.$transaction(async (prisma) => {
-    const appId = await generateAppId( payload.sponsorshipId );
+    const appId = await generateAppId(payload.sponsorshipId);
     const apply: Prisma.sponsorshipApplicationUncheckedCreateInput =
       toApplyScholarship(payload, appId, userId);
     const data: any = await applyToSponsorshipRepo(apply, prisma);
@@ -353,7 +365,6 @@ export const adjustStudentEligibilityStatus = async (
   details: UpdateStudentStatusRequest,
   authHeader: string
 ) => {
-
   const userDetails = extractUserFromToken(authHeader);
   const userId = userDetails.userId;
 
@@ -363,12 +374,20 @@ export const adjustStudentEligibilityStatus = async (
     details.appStatus = next.nextStatus;
   }
 
-  return await prisma.$transaction(async (prisma) => { 
+  return await prisma.$transaction(async (prisma) => {
     const app = await findAppId(prisma, studentId, details.sponsorshipId);
-    const converted: UpdateStudentStatus = toUpdateStatusModel( details, studentId, userId);
-    await adjustStudentEligibilityStatusRepo(converted, binaryToUuid(app.id), prisma);
+    const converted: UpdateStudentStatus = toUpdateStatusModel(
+      details,
+      studentId,
+      userId
+    );
+    await adjustStudentEligibilityStatusRepo(
+      converted,
+      binaryToUuid(app.id),
+      prisma
+    );
 
-    const response = toUpdateStatusResponse( converted );
+    const response = toUpdateStatusResponse(converted);
     return response;
   });
 };
@@ -403,195 +422,309 @@ export const doesStudentAlreadyApplied = async (
   return await doesStudentAlreadyAppliedRepo(studentId, sponsorshipId, prisma);
 };
 
-export const checkBatch = async ( batchNo: number, sponsorshipId: string ): Promise<boolean> => {
-  return await checkBatchRepo( batchNo, sponsorshipId, prisma );
-}
+export const checkBatch = async (
+  batchNo: number,
+  sponsorshipId: string
+): Promise<boolean> => {
+  return await checkBatchRepo(batchNo, sponsorshipId, prisma);
+};
 
-export const getCategoryCriterion = async (): Promise<criterionCategoryResponse[]> => {
-    const result: CriterionCategoryWithCriterion[]= await getCategoryCriterionRepo( prisma );
-    return result.map((e) => toCriterionCategory(e));
-}
+export const getCategoryCriterion = async (): Promise<
+  criterionCategoryResponse[]
+> => {
+  const result: CriterionCategoryWithCriterion[] =
+    await getCategoryCriterionRepo(prisma);
+  return result.map((e) => toCriterionCategory(e));
+};
 
-export const checkCriterionCategoryId = async ( criterionCategoryId: string): Promise<boolean> => {
-  return checkCriterionCategoryIdRepo( criterionCategoryId, prisma );
-}
+export const checkCriterionCategoryId = async (
+  criterionCategoryId: string
+): Promise<boolean> => {
+  return checkCriterionCategoryIdRepo(criterionCategoryId, prisma);
+};
 
-export const updateSponsorshipCriterion = async ( payload: CriterionPayload, sponsorshipId: string, authHeader: string ): Promise<CriterionResponse | null> => {
+/**
+ * Updates the sponsorship criterion along with required columns and pairwise data.
+ *
+ * This function handles both creation and update logic depending on whether the sponsorship
+ * already has existing criteria. It performs all operations inside a Prisma transaction to 
+ * maintain consistency.
+ *
+ * @param payload - The criterion data payload containing criteria, required columns, and pairwise comparisons.
+ * @param sponsorshipId - The ID of the sponsorship this criterion belongs to.
+ * @param authHeader - Authorization header for user context (unused in current implementation).
+ * @returns CriterionResponse or null after updating/creating criteria.
+ */
+export const updateSponsorshipCriterion = async (
+  payload: CriterionPayload,
+  sponsorshipId: string,
+  authHeader: string
+): Promise<CriterionResponse | null> => {
   const categoryCriterionId: string = payload.criterionCategoryId;
   return await prisma.$transaction(async (prisma: PrismaClient) => {
-
     // get all sponsorhipCrierion data using sponsorshipId
-    const sponsorshipCriterionData: sponsorshipCriterion[] = await getAllSponsorshipCriterionRepo( sponsorshipId, prisma );
-    if(payload.criteria.length > 0){ 
+    const sponsorshipCriterionData: sponsorshipCriterion[] =
+      await getAllSponsorshipCriterionRepo(sponsorshipId, prisma);
+    if (payload.criteria.length === 0) {
       return null;
     }
-    
+
     // if the sponsorship still dont have criterion
-    if(sponsorshipCriterionData.length == 0) {
+    if (sponsorshipCriterionData.length == 0) {
       const sponsorshipCriterion: SponsorshipCriterion[] = [];
-      for (const data of payload.criteria) { 
-      
-        const sponsorshipCriterionData: sponsorshipCriterion = await handleCriterion( 
-          data,
-          [], 
-          categoryCriterionId, 
-          sponsorshipId, 
-          [],
-          "", 
-          "CREATE", 
-          prisma 
-        );
+      for (const data of payload.criteria) {
+        const sponsorshipCriterionData: sponsorshipCriterion =
+          await handleCriterion(
+            data,
+            [],
+            categoryCriterionId,
+            sponsorshipId,
+            [],
+            "",
+            "CREATE",
+            prisma
+          );
 
         // save required column
-        if(data.requiredColumns.length > 0) {
-          await bulkCreateRequiredColumn(data.requiredColumns, binaryToUuid(sponsorshipCriterionData.id), prisma );
+        if (data.requiredColumns.length > 0) {
+          await bulkCreateRequiredColumn(
+            data.requiredColumns,
+            binaryToUuid(sponsorshipCriterionData.id),
+            prisma
+          );
         }
 
-        sponsorshipCriterion.push( { id: binaryToUuid(sponsorshipCriterionData.id), name: sponsorshipCriterionData.name});
+        sponsorshipCriterion.push({
+          id: binaryToUuid(sponsorshipCriterionData.id),
+          name: sponsorshipCriterionData.name,
+        });
       }
 
       // save the criterion pairwise
-      if(payload.pairwise.length > 0) {
-        await bulkCreatePairwiseCriterion(payload.pairwise, sponsorshipCriterion, prisma);
+      if (payload.pairwise.length > 0) {
+        await bulkCreatePairwiseCriterion(
+          payload.pairwise,
+          sponsorshipCriterion,
+          sponsorshipId,
+          prisma
+        );
       }
     } else {
-
       const sponsorshipCrit: SponsorshipCriterion[] = [];
       // loop through the existing criterion data
-      for( const data of payload.criteria) {
-        const criteria = sponsorshipCriterionData.find(c => c.name === data.name);
-        const convertedData = toSponsorshipCriterion(data, categoryCriterionId, sponsorshipId);
+      for (const data of payload.criteria) {
+        const criteria = sponsorshipCriterionData.find(
+          (c) => c.name === data.name
+        );
+        const convertedData = toSponsorshipCriterion(
+          data,
+          categoryCriterionId,
+          sponsorshipId
+        );
 
         // Create or update the sponsorship criterion
         const sponsorshipCriterion = criteria
-          ? await updateSponsorshipCriterionRepo(convertedData, binaryToUuid(criteria.id), prisma)
+          ? await updateSponsorshipCriterionRepo(
+              convertedData,
+              binaryToUuid(criteria.id),
+              prisma
+            )
           : await createSponsorshipCriterionRepo(convertedData, prisma);
 
         const sponsorshipCriterionId = binaryToUuid(sponsorshipCriterion.id);
 
         // Sync required columns
-        await syncRequiredColumns(data.requiredColumns, sponsorshipCriterionId, prisma);
-        sponsorshipCrit.push( { id: binaryToUuid(sponsorshipCriterion.id), name: sponsorshipCriterion.name});
-
+        await syncRequiredColumns(
+          data.requiredColumns,
+          sponsorshipCriterionId,
+          prisma
+        );
+        sponsorshipCrit.push({
+          id: binaryToUuid(sponsorshipCriterion.id),
+          name: sponsorshipCriterion.name,
+        });
       }
 
       // sync pairwise data
-      await syncPairwiseCriterion(payload.pairwise, sponsorshipCrit, prisma);
+      await syncPairwiseCriterion(
+        payload.pairwise,
+        sponsorshipCrit,
+        sponsorshipId,
+        prisma
+      );
 
-
-      await handleCriterion( 
+      await handleCriterion(
         null,
-        payload.criteria, 
-        "", 
-        "", 
+        payload.criteria,
+        "",
+        "",
         sponsorshipCriterionData,
-        "", 
-        "DELETE", 
-        prisma 
+        "",
+        "DELETE",
+        prisma
       );
     }
 
     return null;
   });
-}
+};
 
-async function generateAppId(sponsorshipId: string) {
-    const currentYear = new Date().getFullYear();
-    const count: number = await generateAppIdRepo(sponsorshipId, prisma);
-    const nextNumber = count + 1;
-
-    // Pad the number with leading zeros
-    const paddedNumber = String(nextNumber).padStart(5, "0");
-
-    // Formulate app_id
-    const appId = `${currentYear}-${paddedNumber}`;
-
-    return appId;
-}
-
-
+/**
+ * Handles create, update, or delete operations for a sponsorship criterion.
+ *
+ * Depending on the `action` parameter, this function:
+ * - Creates a new criterion ("CREATE")
+ * - Updates an existing criterion ("UPDATE")
+ * - Deletes criteria that are no longer present in the provided `criterionArray` ("DELETE")
+ *
+ * @param criterion - The criterion to be created or updated (required for CREATE/UPDATE).
+ * @param criterionArray - The latest array of criteria from the user (used for DELETE comparison).
+ * @param categoryCriterionId - ID of the category this criterion belongs to.
+ * @param sponsorshipId - ID of the sponsorship campaign.
+ * @param sponsorshipCriterionData - Existing criteria in the database (used for DELETE comparison).
+ * @param id - UUID of the criterion to update (required for UPDATE).
+ * @param action - The action to perform: "CREATE" | "UPDATE" | "DELETE".
+ * @param prisma - Prisma client instance.
+ * @returns The created/updated criterion, or null if deleting.
+ */
 const handleCriterion = async (
   criterion: Criteria,
   criterionArray: Criteria[] = [],
   categoryCriterionId: string = "",
   sponsorshipId: string = "",
   sponsorshipCriterionData: sponsorshipCriterion[] = [],
-  id: string = "", 
+  id: string = "",
   action: Action = "CREATE",
-  prisma: PrismaClient,
+  prisma: PrismaClient
 ): Promise<sponsorshipCriterion | null> => {
-
-  const convertedData = toSponsorshipCriterion(criterion, categoryCriterionId, sponsorshipId);
+  const convertedData = toSponsorshipCriterion(
+    criterion,
+    categoryCriterionId,
+    sponsorshipId
+  );
   const deleteIds: string[] = [];
 
-  if(action == "CREATE") {
-    return await createSponsorshipCriterionRepo( convertedData, prisma );
+  if (action == "CREATE") {
+    return await createSponsorshipCriterionRepo(convertedData, prisma);
   } else if (action == "UPDATE") {
-    return await updateSponsorshipCriterionRepo( convertedData, id, prisma );
-  } 
+    return await updateSponsorshipCriterionRepo(convertedData, id, prisma);
+  }
 
-  for( const data of sponsorshipCriterionData) {
-    const criteria = criterionArray.find(c => c.name === data.name);
-    if(!criteria) {
+  for (const data of sponsorshipCriterionData) {
+    const criteria = criterionArray.find((c) => c.name === data.name);
+    if (!criteria) {
       deleteIds.push(binaryToUuid(data.id));
     }
   }
 
-  if(deleteIds.length > 0 ) {
+  if (deleteIds.length > 0) {
     await deleteManySponsorshipCriterionRepo(deleteIds, prisma);
   }
   return null;
-}
+};
 
-const bulkCreateRequiredColumn = async(
+/**
+ * Bulk creates required columns associated with a specific sponsorship criterion.
+ *
+ * This function transforms the input `requiredColumns` into database-compatible format
+ * and saves them in bulk to optimize performance.
+ *
+ * @param requiredColumns - Array of required column definitions to associate with the criterion.
+ * @param sponsorshipCriterionDataId - The UUID of the criterion to link these columns to.
+ * @param prisma - Prisma client instance.
+ * @returns A promise that resolves once the required columns have been saved.
+ */
+const bulkCreateRequiredColumn = async (
   requiredColumns: RequiredColumns[],
   sponsorshipCriterionDataId: string = "",
   prisma: PrismaClient
 ): Promise<void> => {
   const bulk: Prisma.criterionRequiredColumnUncheckedCreateInput[] = [];
-  for( const col of requiredColumns) {
-    const convertedRequiredColumnData: Prisma.criterionRequiredColumnUncheckedCreateInput = toRequiredColumn( col,sponsorshipCriterionDataId); 
+  for (const col of requiredColumns) {
+    const convertedRequiredColumnData: Prisma.criterionRequiredColumnUncheckedCreateInput =
+      toRequiredColumn(col, sponsorshipCriterionDataId);
     bulk.push(convertedRequiredColumnData);
   }
 
-  await createManyRequiredColumnRepo( bulk, prisma );
-}
+  await createManyRequiredColumnRepo(bulk, prisma);
+};
 
-const bulkCreatePairwiseCriterion = async(
+/**
+ * Bulk creates pairwise comparisons for sponsorship criteria.
+ *
+ * This function maps over the given `pairwise` data, matches each pair with their corresponding
+ * criterion IDs from `sponsorshipCriterion`, converts them into a database-compatible format,
+ * and performs a bulk insert.
+ *
+ * @param pairwise - Array of pairwise comparison data between criteria.
+ * @param sponsorshipCriterion - Array of created or existing sponsorship criteria, used to resolve IDs.
+ * @param sponsorshipId - The ID of the sponsorship to associate the pairwise data with.
+ * @param prisma - Prisma client instance.
+ * @returns A promise that resolves after saving all valid pairwise comparisons.
+ */
+const bulkCreatePairwiseCriterion = async (
   pairwise: Pairwise[],
   sponsorshipCriterion: SponsorshipCriterion[],
+  sponsorshipId: string,
   prisma: PrismaClient
 ): Promise<void> => {
+  const bulk: Prisma.sponsorshipCriteriaPairwiseUncheckedCreateInput[] = [];
 
-  const bulk: Prisma.sponsorshipCriteriaPairwiseUncheckedCreateInput[] = []
+  for (const pair of pairwise) {
+    const criterionA = sponsorshipCriterion.find(
+      (c) => c.name === pair.criteriaNameA
+    );
+    const criterionB = sponsorshipCriterion.find(
+      (c) => c.name === pair.criteriaNameB
+    );
 
-  for(const pair of pairwise ) {
-    const criterionA = sponsorshipCriterion.find(c => c.name === pair.criteriaNameA);
-    const criterionB = sponsorshipCriterion.find(c => c.name === pair.criteriaNameB);
-
-    if(!criterionA || !criterionB) {
+    if (!criterionA || !criterionB) {
       continue;
     }
 
-    const pairwiseConverted: Prisma.sponsorshipCriteriaPairwiseUncheckedCreateInput = toCriteriaPairwise( criterionA.id, criterionB.id, pair.value);
+    const pairwiseConverted: Prisma.sponsorshipCriteriaPairwiseUncheckedCreateInput =
+      toCriteriaPairwise(
+        criterionA.id,
+        criterionB.id,
+        sponsorshipId,
+        pair.value
+      );
     bulk.push(pairwiseConverted);
   }
 
-  await saveBulkPairwiseCriteriaRepo( bulk, prisma);
-}
+  await saveBulkPairwiseCriteriaRepo(bulk, prisma);
+};
 
+/**
+ * Synchronizes the required columns for a given sponsorship criterion.
+ *
+ * This function compares incoming required columns against those already in the database.
+ * It will:
+ * - Add new required columns that don't exist yet
+ * - Update existing ones if needed
+ * - Delete any columns that were removed from the input
+ *
+ * @param incomingCols - The latest required column definitions from the user input.
+ * @param sponsorshipCriterionId - The UUID of the sponsorship criterion to sync columns for.
+ * @param prisma - Prisma client instance.
+ * @returns A promise that resolves once all create/update/delete operations are complete.
+ */
 const syncRequiredColumns = async (
   incomingCols: RequiredColumns[],
   sponsorshipCriterionId: string,
   prisma: PrismaClient
 ): Promise<void> => {
-  const existingCols: criterionRequiredColumn[] = await getAllRequiredColumnRepo(sponsorshipCriterionId, prisma);
+  const existingCols: criterionRequiredColumn[] =
+    await getAllRequiredColumnRepo(sponsorshipCriterionId, prisma);
   const bulk: Prisma.criterionRequiredColumnUncheckedCreateInput[] = [];
   const deleteIds: string[] = [];
 
   for (const reqCol of incomingCols) {
-    const match: criterionRequiredColumn = existingCols.find(c => c.table === reqCol.table && c.column === reqCol.column);
-    const converted: Prisma.criterionRequiredColumnUncheckedCreateInput = toRequiredColumn(reqCol, sponsorshipCriterionId);
+    const match: criterionRequiredColumn = existingCols.find(
+      (c) => c.table === reqCol.table && c.column === reqCol.column
+    );
+    const converted: Prisma.criterionRequiredColumnUncheckedCreateInput =
+      toRequiredColumn(reqCol, sponsorshipCriterionId);
 
     if (!match) {
       bulk.push(converted);
@@ -600,31 +733,128 @@ const syncRequiredColumns = async (
     }
   }
 
-  if(bulk.length > 0) {
-    await createManyRequiredColumnRepo( bulk, prisma );
+  if (bulk.length > 0) {
+    await createManyRequiredColumnRepo(bulk, prisma);
   }
 
   for (const existing of existingCols) {
     const stillExists: RequiredColumns = incomingCols.find(
-      c => c.table === existing.table && c.column === existing.column
+      (c) => c.table === existing.table && c.column === existing.column
     );
     if (!stillExists) {
       deleteIds.push(binaryToUuid(existing.id));
     }
   }
 
-  if(deleteIds.length > 0 ) {
+  if (deleteIds.length > 0) {
     await deleteManyRequiredColumnRepo(deleteIds, prisma);
   }
 };
 
-
+/**
+ * Synchronizes pairwise comparison data for sponsorship criteria.
+ *
+ * This function performs a full sync by:
+ * - Inserting new pairwise entries that don't yet exist
+ * - Updating existing entries if the value has changed
+ * - Deleting any existing pairwise entries that are no longer present in the input
+ *
+ * @param incomingPairwise - Array of new or updated pairwise comparisons.
+ * @param sponsorshipCriterionData - Current list of sponsorship criteria used to resolve IDs.
+ * @param sponsorshipId - The sponsorship ID these pairwise relationships belong to.
+ * @param prisma - Prisma client instance for database operations.
+ */
 const syncPairwiseCriterion = async (
   incomingPairwise: Pairwise[],
   sponsorshipCriterionData: SponsorshipCriterion[],
+  sponsorshipId: string,
   prisma: PrismaClient
 ): Promise<void> => {
-  // const existingPairwise: sponsorshipCriteriaPairwise[] = await getAllCriterionPairwise(sponsorshipCriterionId, prisma);
-  const bulk: Prisma.criterionRequiredColumnUncheckedCreateInput[] = [];
+  const bulk: Prisma.sponsorshipCriteriaPairwiseUncheckedCreateInput[] = [];
   const deleteIds: string[] = [];
+  const updatePromises: Promise<void>[] = [];
+
+  // Fetch existing pairwise data
+  const existingData: sponsorshipCriteriaPairwise[] =
+    await getAllCriterionPairwiseRepo(sponsorshipId, prisma);
+
+  // Create lookup maps
+  const existingMap = new Map<string, sponsorshipCriteriaPairwise>();
+  for (const d of existingData) {
+    const key = `${binaryToUuid(d.sponsorship_criterion_id_a)}-${binaryToUuid(
+      d.sponsorship_criterion_id_b
+    )}`;
+    existingMap.set(key, d);
+  }
+
+  const criterionMap = new Map<string, SponsorshipCriterion>();
+  for (const c of sponsorshipCriterionData) {
+    criterionMap.set(c.name, c);
+  }
+
+  // Process incoming pairwise comparisons
+  for (const pairwise of incomingPairwise) {
+    const criterionA = criterionMap.get(pairwise.criteriaNameA);
+    const criterionB = criterionMap.get(pairwise.criteriaNameB);
+
+    if (!criterionA || !criterionB) continue;
+
+    const key = `${pairwise.criteriaNameA}-${pairwise.criteriaNameB}`;
+    const existing = existingMap.get(key);
+    const newEntry = toCriteriaPairwise(
+      criterionA.id,
+      criterionB.id,
+      sponsorshipId,
+      pairwise.value
+    );
+
+    if (!existing) {
+      bulk.push(newEntry);
+    } else {
+      // Only update if value has changed
+      if (existing.value !== pairwise.value) {
+        updatePromises.push(
+          updatePairwiseCriteriaRepo(
+            newEntry,
+            binaryToUuid(existing.id),
+            prisma
+          )
+        );
+      }
+      existingMap.delete(key); // Mark as processed
+    }
+  }
+
+  // Insert new entries
+  if (bulk.length > 0) {
+    await saveBulkPairwiseCriteriaRepo(bulk, prisma);
+  }
+
+  // Perform updates
+  if (updatePromises.length > 0) {
+    await Promise.all(updatePromises);
+  }
+
+  // Delete unmatched existing entries
+  for (const [key, unreferenced] of existingMap.entries()) {
+    deleteIds.push(binaryToUuid(unreferenced.id));
+  }
+
+  if (deleteIds.length > 0) {
+    await deleteManySponsorshipPairwiseCriterion(deleteIds, prisma);
+  }
 };
+
+async function generateAppId(sponsorshipId: string) {
+  const currentYear = new Date().getFullYear();
+  const count: number = await generateAppIdRepo(sponsorshipId, prisma);
+  const nextNumber = count + 1;
+
+  // Pad the number with leading zeros
+  const paddedNumber = String(nextNumber).padStart(5, "0");
+
+  // Formulate app_id
+  const appId = `${currentYear}-${paddedNumber}`;
+
+  return appId;
+}

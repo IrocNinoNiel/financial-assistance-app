@@ -4,6 +4,7 @@ import {
   Prisma,
   PrismaClient,
   sponsorship,
+  sponsorshipCriteriaPairwise,
   sponsorshipCriterion,
   sponsorshipSchool,
 } from "@prisma/client";
@@ -502,4 +503,23 @@ export const deleteManyRequiredColumnRepo = async(
   prisma: PrismaClient
 ): Promise<void> => {
   await prisma.criterionRequiredColumn.updateMany({ where: {id: { in: ids.map(uuidToBinary) },}, data: {record_status: RecordStatus.DELETED}});
+}
+
+export const getAllCriterionPairwiseRepo = async (sponsorshipId: string, prisma: PrismaClient): Promise<sponsorshipCriteriaPairwise[]> => {
+  return await prisma.sponsorshipCriteriaPairwise.findMany({ where: { sponsorship_id: uuidToBinary(sponsorshipId),record_status: RecordStatus.ACTIVE}})
+}
+
+export const updatePairwiseCriteriaRepo = async (
+  data: Prisma.sponsorshipCriteriaPairwiseUncheckedCreateInput,
+  id: string,
+  prisma: PrismaClient
+): Promise<void> => {
+  await prisma.sponsorshipCriteriaPairwise.update({ where: {id: uuidToBinary(id)}, data: data});
+}
+
+export const deleteManySponsorshipPairwiseCriterion = async( 
+  ids: string[],
+  prisma: PrismaClient
+): Promise<void> => {
+  await prisma.sponsorshipCriteriaPairwise.updateMany({ where: {id: { in: ids.map(uuidToBinary) },}, data: {record_status: RecordStatus.DELETED}});
 }

@@ -613,10 +613,11 @@ export const toRequiredColumn = ( data: RequiredColumns, sponsorshipCriterionId:
   }
 }
 
-export const toCriteriaPairwise = ( criterionAId: string, criterionBId, value: number ): Prisma.sponsorshipCriteriaPairwiseUncheckedCreateInput => {
+export const toCriteriaPairwise = ( criterionAId: string, criterionBId, sponsorshipId: string, value: number ): Prisma.sponsorshipCriteriaPairwiseUncheckedCreateInput => {
   return {
     sponsorship_criterion_id_a: uuidToBinary(criterionAId),
     sponsorship_criterion_id_b: uuidToBinary(criterionBId),
+    sponsorship_id: uuidToBinary(sponsorshipId),
     value: value
   }
 }
