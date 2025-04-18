@@ -957,52 +957,64 @@ export const validateUpdateCriterionPayload = [
         if (typeof c.name !== 'string' || c.name.trim() === '') {
           return Promise.reject(VALIDATION_MESSAGES.CRITERIA_NAME_INVALID);
         }
+        console.log("Validated criteria name");
   
   
         if (!['COLUMN', 'CUSTOM_INPUT', 'COMPUTED'].includes(c.dataSource)) {
           return Promise.reject(VALIDATION_MESSAGES.CRITERIA_DATASOURCE_INVALID);
         }
+        console.log("Validated criteria data source");
         
         if (c.dataSource === 'COMPUTED') {
           if (!['SUM', 'AVG'].includes(c.formulaType)) {
             return Promise.reject(VALIDATION_MESSAGES.CRITERIA_FORMULATYPE_INVALID);
           }
+          console.log("Validated criteria formulat ype");
         }
   
         if (!['MIN', 'MAX'].includes(c.preference)) {
           return Promise.reject(VALIDATION_MESSAGES.CRITERIA_PREFERENCE_INVALID);
+          console.log("Validated criteria preference");
         }
 
         if(['COMPUTED', 'COLUMN'].includes(c.dataSource)) { 
           if (!Array.isArray(c.requiredColumns) || c.requiredColumns.length === 0) {
             return Promise.reject(VALIDATION_MESSAGES.CRITERIA_REQUIREDCOLUMN_INVALID);
           }
+          console.log("Validated criteria required columns  1");
 
           for (const rc of c.requiredColumns) {
             if (!rc.table || typeof rc.table !== 'string') {
               return Promise.reject(VALIDATION_MESSAGES.CRITERIA_REQUIREDCOLUMN_TABLE_INVALID)
             }
+            console.log("Validated criteria required columns table");
     
             if (!rc.column || typeof rc.column !== 'string') {
               return Promise.reject(VALIDATION_MESSAGES.CRITERIA_REQUIREDCOLUMN_COLUMN_INVALID)
             }
+            console.log("Validated criteria required column column");
 
             const tableEnumValues = Object.values(TableEnum);
             if (!tableEnumValues.includes(rc.table)) {
               return Promise.reject(VALIDATION_MESSAGES.CRITERIA_REQUIREDCOLUMN_TABLE_INVALID);
             }
+            console.log("Validated criteria column and table");
 
             const validColumns = TableColumnMap[rc.table as TableEnum];
             if (!validColumns) {
               return Promise.reject(VALIDATION_MESSAGES.CRITERIA_REQUIREDCOLUMN_TABLE_INVALID);
             }
+            console.log("Validated criteria column and table")
           
             if (!validColumns.includes(rc.column as ColumnEnum)) {
               return Promise.reject(VALIDATION_MESSAGES.CRITERIA_REQUIREDCOLUMN_COLUMN_INVALID);
             }
+            console.log("Validated criteria column and table")
           };
         }
       };
+
+      return true;
     }),
   body('pairwise')
     .isArray({ min: 1})
@@ -1036,6 +1048,7 @@ export const validateUpdateCriterionPayload = [
           return Promise.reject(VALIDATION_MESSAGES.PAIRWISE_VALUE_INVALID);
         }
       }
+      return true;
     }),
   validateErrors
 ]

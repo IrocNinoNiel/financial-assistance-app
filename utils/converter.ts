@@ -1,7 +1,7 @@
 
-import { Prisma, student, user, academicYear, sponsorship, EvaluationStatus, announcement, schedule_type, criterionCategory, DataSource, FormulaType } from '@prisma/client';
+import { Prisma, student, user, academicYear, sponsorship, EvaluationStatus, announcement, schedule_type, criterionCategory, DataSource, FormulaType, Preference } from '@prisma/client';
 import { User } from "../authentication/model";
-import { AcademicYearRequest, AcademicYearResponse, AddressResponse, AnnouncementData, AnnouncementDataMinimal, AnnouncementPayloadString, ApplySponsorshipRequest, ApplySponsorshipResponse, Criteria, criterionCategoryResponse, CriterionCategoryWithCriterion, FileTypeResponse, FlattenedAnnouncementData, FlattenedAnnouncementDataMinimal, PartialStudentUser, RecordStatus, RegisterRequest, RequiredColumns, RoleResponse, ScheduleModified, ScheduleRequest, ScheduleResponse, SchoolPayload, SiblingRequest, SponsorshipRequest, SponsorshipResponse, SponsorshipStatus, StudentListResponse, StudentRequest, UpdateStudentStatus, UploadedAnnouncementFile, UserDetailsResponse, UserListResponse, UserResponse } from './types';
+import { AcademicYearRequest, AcademicYearResponse, AddressResponse, AnnouncementData, AnnouncementDataMinimal, AnnouncementPayloadString, ApplySponsorshipRequest, ApplySponsorshipResponse, Criteria, criterionCategoryResponse, CriterionCategoryWithCriterion, FileTypeResponse, FlattenedAnnouncementData, FlattenedAnnouncementDataMinimal, Pairwise, PartialStudentUser, RecordStatus, RegisterRequest, RequiredColumns, RoleResponse, ScheduleModified, ScheduleRequest, ScheduleResponse, SchoolPayload, SiblingRequest, SponsorshipRequest, SponsorshipResponse, SponsorshipStatus, StudentListResponse, StudentRequest, UpdateStudentStatus, UploadedAnnouncementFile, UserDetailsResponse, UserListResponse, UserResponse } from './types';
 import { binaryToUuid, uuidToBinary } from "./utils";
 import { APPLICATION_STAGE, APPLICATION_STATUS } from './constant';
 
@@ -602,6 +602,7 @@ export const toSponsorshipCriterion = ( data: Criteria, categoryCriterionId: str
     label: data.label,
     data_source: data.dataSource as DataSource,
     formula_type: data.formulaType as FormulaType,
+    preference: data.preference as Preference
   }
 }
 
@@ -613,11 +614,13 @@ export const toRequiredColumn = ( data: RequiredColumns, sponsorshipCriterionId:
   }
 }
 
-export const toCriteriaPairwise = ( criterionAId: string, criterionBId, sponsorshipId: string, value: number ): Prisma.sponsorshipCriteriaPairwiseUncheckedCreateInput => {
+export const toCriteriaPairwise = ( criterionAId: string, criterionBId, sponsorshipId: string, data: Pairwise ): Prisma.sponsorshipCriteriaPairwiseUncheckedCreateInput => {
   return {
     sponsorship_criterion_id_a: uuidToBinary(criterionAId),
+    sponsorship_criterion_name_a: data.criteriaNameA,
     sponsorship_criterion_id_b: uuidToBinary(criterionBId),
+    sponsorship_criterion_name_b: data.criteriaNameB,
     sponsorship_id: uuidToBinary(sponsorshipId),
-    value: value
+    value: data.value
   }
 }

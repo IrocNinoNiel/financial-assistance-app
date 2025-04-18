@@ -1837,7 +1837,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetScheduleSuccessResponse'
+                $ref: '#/components/schemas/GetCriterionSuccessResponse'
       
 components:
   schemas:
@@ -2175,6 +2175,20 @@ components:
         data:
           type: string
           example: File successfully saved
+        generatedAt:
+          type: integer
+          example: 1738335123028
+    GetCriterionSuccessResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          example: 201
+        message:
+          type: string
+          example: Resource Successfully Updated!
+        data:
+          $ref: '#/components/schemas/CriterionPayload'
         generatedAt:
           type: integer
           example: 1738335123028

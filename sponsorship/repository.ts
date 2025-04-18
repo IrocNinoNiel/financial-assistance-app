@@ -486,7 +486,7 @@ export const getAllRequiredColumnRepo = async (
   sponCritId: string, prisma: PrismaClient
 ): Promise<criterionRequiredColumn[]> => {
   return await prisma.criterionRequiredColumn.findMany({
-    where: {sponsorship_criterion_id: uuidToBinary( sponCritId )}
+    where: {sponsorship_criterion_id: uuidToBinary( sponCritId ), record_status: RecordStatus.ACTIVE}
   })
 }
 
@@ -522,4 +522,34 @@ export const deleteManySponsorshipPairwiseCriterion = async(
   prisma: PrismaClient
 ): Promise<void> => {
   await prisma.sponsorshipCriteriaPairwise.updateMany({ where: {id: { in: ids.map(uuidToBinary) },}, data: {record_status: RecordStatus.DELETED}});
+}
+
+export const getSponsorshipCriterionRepo = async ( sponsorshipId: string, prisma: PrismaClient ): Promise<any[]> => {
+  return await prisma.sponsorshipCriterion.findMany({
+    where: {
+      sponsorship_id: uuidToBinary(sponsorshipId),
+      record_status: RecordStatus.ACTIVE
+    },
+    select: {
+      id: true,
+      sponsorship_id: true,
+      criterion_category_id: true,
+      name: true,
+      label: true,
+      data_source: true,
+      formula_type: true,
+      preference: true,
+      requiredColumn: {
+        select: {
+          id: true,
+          sponsorship_criterion_id: true,
+          table: true,
+          column: true,
+        },
+        where: {
+          record_status: RecordStatus.ACTIVE
+        }
+      }
+    }
+  })
 }

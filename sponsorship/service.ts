@@ -67,6 +67,7 @@ import {
   getAllCriterionPairwiseRepo,
   updatePairwiseCriteriaRepo,
   deleteManySponsorshipPairwiseCriterion,
+  getSponsorshipCriterionRepo,
 } from "./repository";
 import {
   Action,
@@ -468,6 +469,7 @@ export const updateSponsorshipCriterion = async (
     if (payload.criteria.length === 0) {
       return null;
     }
+    console.log("payload criterion is not equal to 0");
 
     // if the sponsorship still dont have criterion
     if (sponsorshipCriterionData.length == 0) {
@@ -516,11 +518,12 @@ export const updateSponsorshipCriterion = async (
         const criteria = sponsorshipCriterionData.find(
           (c) => c.name === data.name
         );
-        const convertedData = toSponsorshipCriterion(
+        const convertedData: Prisma.sponsorshipCriterionUncheckedCreateInput = toSponsorshipCriterion(
           data,
           categoryCriterionId,
           sponsorshipId
         );
+        console.log("data",convertedData);
 
         // Create or update the sponsorship criterion
         const sponsorshipCriterion = criteria
@@ -530,6 +533,7 @@ export const updateSponsorshipCriterion = async (
               prisma
             )
           : await createSponsorshipCriterionRepo(convertedData, prisma);
+        console.log("Created/Updated sponsorship criterion");
 
         const sponsorshipCriterionId = binaryToUuid(sponsorshipCriterion.id);
 
@@ -539,12 +543,15 @@ export const updateSponsorshipCriterion = async (
           sponsorshipCriterionId,
           prisma
         );
+        console.log("Sync required columns");
+
         sponsorshipCrit.push({
           id: binaryToUuid(sponsorshipCriterion.id),
           name: sponsorshipCriterion.name,
         });
       }
 
+      console.log("loop done");
       // sync pairwise data
       await syncPairwiseCriterion(
         payload.pairwise,
@@ -552,6 +559,7 @@ export const updateSponsorshipCriterion = async (
         sponsorshipId,
         prisma
       );
+      console.log("Sync pairwise done");
 
       await handleCriterion(
         null,
@@ -563,7 +571,11 @@ export const updateSponsorshipCriterion = async (
         "DELETE",
         prisma
       );
+      console.log("Delete criterion done");
     }
+
+    // get the details and pass it on front end
+    const response: any[] = await getSponsorshipCriterionRepo( sponsorshipId, prisma );
 
     return null;
   });
@@ -597,19 +609,23 @@ const handleCriterion = async (
   action: Action = "CREATE",
   prisma: PrismaClient
 ): Promise<sponsorshipCriterion | null> => {
-  const convertedData = toSponsorshipCriterion(
-    criterion,
-    categoryCriterionId,
-    sponsorshipId
-  );
+  let convertedData: Prisma.sponsorshipCriterionUncheckedCreateInput;
   const deleteIds: string[] = [];
+
+  if (['CREATE', 'UPDATE',].includes(action)) {
+    convertedData = toSponsorshipCriterion(
+      criterion,
+      categoryCriterionId,
+      sponsorshipId
+    );
+  }
 
   if (action == "CREATE") {
     return await createSponsorshipCriterionRepo(convertedData, prisma);
   } else if (action == "UPDATE") {
     return await updateSponsorshipCriterionRepo(convertedData, id, prisma);
   }
-
+  console.log(criterionArray);
   for (const data of sponsorshipCriterionData) {
     const criteria = criterionArray.find((c) => c.name === data.name);
     if (!criteria) {
@@ -687,7 +703,7 @@ const bulkCreatePairwiseCriterion = async (
         criterionA.id,
         criterionB.id,
         sponsorshipId,
-        pair.value
+        pair
       );
     bulk.push(pairwiseConverted);
   }
@@ -734,6 +750,7 @@ const syncRequiredColumns = async (
   }
 
   if (bulk.length > 0) {
+    console.log("bulk", bulk);
     await createManyRequiredColumnRepo(bulk, prisma);
   }
 
@@ -781,9 +798,7 @@ const syncPairwiseCriterion = async (
   // Create lookup maps
   const existingMap = new Map<string, sponsorshipCriteriaPairwise>();
   for (const d of existingData) {
-    const key = `${binaryToUuid(d.sponsorship_criterion_id_a)}-${binaryToUuid(
-      d.sponsorship_criterion_id_b
-    )}`;
+    const key = `${d.sponsorship_criterion_name_a}-${d.sponsorship_criterion_name_b}`;
     existingMap.set(key, d);
   }
 
@@ -805,7 +820,7 @@ const syncPairwiseCriterion = async (
       criterionA.id,
       criterionB.id,
       sponsorshipId,
-      pairwise.value
+      pairwise
     );
 
     if (!existing) {
