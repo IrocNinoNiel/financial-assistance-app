@@ -292,5 +292,6 @@ export const VALIDATION_MESSAGES = {
     PAIRWISE_ARRAY_EMPTY: 'Pairwise Array must not be empty',
     PAIRWISE_CRITERIA_A_INVALID: 'Please review Criteria A if its valid',
     PAIRWISE_CRITERIA_B_INVALID: 'Please review Criteria B if its valid',
-    PAIRWISE_VALUE_INVALID: 'Pairwise comparison value between A and b must be an integer from 1 to 9'
+    PAIRWISE_VALUE_INVALID: 'Pairwise comparison value between A and b must be an integer from 1 to 9',
+    CRITERION_DUPLICATE: 'Duplicate criterion names are not allowed in the criteria array.'
 };

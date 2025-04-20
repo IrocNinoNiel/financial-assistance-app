@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { validateApplyScholarship, validateChangeStudentStatus, validateQueryParams, validateSponsorship, validateSponsorshipId, validateStudentId, validateUpdateCriterionPayload } from "../middleware/validation";
 import { ResponseHandler } from "../response";
-import { ApplySponsorshipRequest, ApplySponsorshipResponse, criterionCategoryResponse, CriterionPayload, CriterionResponse, ERROR_MESSAGES, getQueryParams, QueryParams, SponsorshipRequest, SponsorshipResponse, SUCCESS_MESSAGES, UpdateStudentStatusRequest, VALIDATION_MESSAGES } from "../utils";
+import { ApplySponsorshipRequest, ApplySponsorshipResponse, criterionCategoryResponse, CriterionPayload, CriterionResponse, ERROR_MESSAGES, getQueryParams, QueryParams, SponsorshipRequest, SponsorshipResponse, SUCCESS_MESSAGES, ToSponsorshipCriteriResponse, UpdateStudentStatusRequest, VALIDATION_MESSAGES } from "../utils";
 import { adjustStudentEligibilityStatus, applyToSponsorship, createSponsorship, deleteOneSponsorship, getAllAvailableSponsorship, getAllSponsorship, getAllStudentSponsorship, getCategoryCriterion, getOneSponsorship, getOneStudentSponsorship, updateSponsorship, updateSponsorshipCriterion } from "./service";
 import { allowRoles } from "../middleware/authentication";
 
@@ -87,7 +87,7 @@ export default () => {
             const payload: CriterionPayload = req.body;
             const authHeader: string = req.headers.authorization;
             const { sponsorshipId } = req.params;
-            const result: CriterionResponse | null = await updateSponsorshipCriterion( payload, sponsorshipId, authHeader );
+            const result: ToSponsorshipCriteriResponse | null = await updateSponsorshipCriterion( payload, sponsorshipId, authHeader );
             ResponseHandler.updated( req, res, result);
         } catch (err) {
             ResponseHandler.invalidRequest(req,res , err.message);

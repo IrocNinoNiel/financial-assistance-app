@@ -1,7 +1,7 @@
 
 import { Prisma, student, user, academicYear, sponsorship, EvaluationStatus, announcement, schedule_type, criterionCategory, DataSource, FormulaType, Preference } from '@prisma/client';
 import { User } from "../authentication/model";
-import { AcademicYearRequest, AcademicYearResponse, AddressResponse, AnnouncementData, AnnouncementDataMinimal, AnnouncementPayloadString, ApplySponsorshipRequest, ApplySponsorshipResponse, Criteria, criterionCategoryResponse, CriterionCategoryWithCriterion, FileTypeResponse, FlattenedAnnouncementData, FlattenedAnnouncementDataMinimal, Pairwise, PartialStudentUser, RecordStatus, RegisterRequest, RequiredColumns, RoleResponse, ScheduleModified, ScheduleRequest, ScheduleResponse, SchoolPayload, SiblingRequest, SponsorshipRequest, SponsorshipResponse, SponsorshipStatus, StudentListResponse, StudentRequest, UpdateStudentStatus, UploadedAnnouncementFile, UserDetailsResponse, UserListResponse, UserResponse } from './types';
+import { AcademicYearRequest, AcademicYearResponse, AddressResponse, AnnouncementData, AnnouncementDataMinimal, AnnouncementPayloadString, ApplySponsorshipRequest, ApplySponsorshipResponse, Criteria, criterionCategoryResponse, CriterionCategoryWithCriterion, FileTypeResponse, FlattenedAnnouncementData, FlattenedAnnouncementDataMinimal, Pairwise, PartialStudentUser, RecordStatus, RegisterRequest, RequiredColumns, RoleResponse, ScheduleModified, ScheduleRequest, ScheduleResponse, SchoolPayload, SiblingRequest, SponsorshipCriteriaPairwise, SponsorshipCriterionModel, SponsorshipRequest, SponsorshipResponse, SponsorshipStatus, StudentListResponse, StudentRequest, ToSponsorshipCriteriResponse, UpdateStudentStatus, UploadedAnnouncementFile, UserDetailsResponse, UserListResponse, UserResponse } from './types';
 import { binaryToUuid, uuidToBinary } from "./utils";
 import { APPLICATION_STAGE, APPLICATION_STATUS } from './constant';
 
@@ -624,3 +624,40 @@ export const toCriteriaPairwise = ( criterionAId: string, criterionBId, sponsors
     value: data.value
   }
 }
+
+export const toSponsorshipCriteriResponse = (
+  criterionsMap: SponsorshipCriterionModel[],
+  pairwise: SponsorshipCriteriaPairwise[],
+  sponsorshipId: string,
+  criterionCategoryId: string
+): ToSponsorshipCriteriResponse => {
+  return {
+    sponsorshipId: sponsorshipId,
+    criterionCategoryId: criterionCategoryId,
+    criterions: criterionsMap.map(e => ({
+      id: binaryToUuid(e.id),
+      sponsorshipId: binaryToUuid(e.sponsorship_id),
+      criterionCategoryId: binaryToUuid(e.criterion_category_id),
+      name: e.name,
+      label: e.label,
+      dataSource: e.data_source,
+      formulaType: e.formula_type,
+      preference: e.preference,
+      requiredColumns: e.requiredColumn.map(col => ({
+        id: binaryToUuid(col.id),
+        sponsorshipCriterionId: binaryToUuid(col.sponsorship_criterion_id),
+        table: col.table,
+        column: col.column,
+      }))
+    })),
+    pairwise: pairwise.map(p => ({
+      id: binaryToUuid(p.id),
+      sponsorshipId: binaryToUuid(p.sponsorship_id),
+      criterionAId: binaryToUuid(p.sponsorship_criterion_id_a),
+      criterionAName: p.sponsorship_criterion_name_a,
+      criterionBId: binaryToUuid(p.sponsorship_criterion_id_b),
+      criterionBName: p.sponsorship_criterion_name_b,
+      value: p.value
+    }))
+  };
+};

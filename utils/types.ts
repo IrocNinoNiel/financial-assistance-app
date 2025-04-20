@@ -677,3 +677,66 @@ export type SponsorshipCriterion = {
 }
 
 export type Action = "CREATE" | "UPDATE" | "DELETE";
+
+type RequiredColumn = {
+  id: Uint8Array;
+  sponsorship_criterion_id: Uint8Array;
+  table: string;
+  column: string;
+};
+
+export type SponsorshipCriterionModel = {
+  id: Uint8Array;
+  sponsorship_id: Uint8Array;
+  criterion_category_id: Uint8Array;
+  name: string;
+  label: string;
+  data_source: string;
+  formula_type: string;
+  preference: string;
+  requiredColumn: RequiredColumn[];
+};
+
+export type SponsorshipCriteriaPairwise = {
+  id: Uint8Array;
+  sponsorship_id: Uint8Array;
+  sponsorship_criterion_id_a: Uint8Array;
+  sponsorship_criterion_name_a: string;
+  sponsorship_criterion_id_b: Uint8Array;
+  sponsorship_criterion_name_b: string;
+  value: number;
+};
+
+type SponsorshipCriterionResponse = {
+  id: string;
+  sponsorshipId: string;
+  criterionCategoryId: string;
+  name: string;
+  label: string;
+  dataSource: string;
+  formulaType: string;
+  preference: string;
+  requiredColumns: {
+    id: string;
+    sponsorshipCriterionId: string;
+    table: string;
+    column: string;
+  }[];
+};
+
+type SponsorshipCriterionPairwiseResponse = {
+  id: string;
+  sponsorshipId: string;
+  criterionAId: string;
+  criterionAName: string;
+  criterionBId: string;
+  criterionBName: string;
+  value: number;
+};
+
+export type ToSponsorshipCriteriResponse = {
+  sponsorshipId: string;
+  criterionCategoryId: string;
+  criterions: SponsorshipCriterionResponse[];
+  pairwise: SponsorshipCriterionPairwiseResponse[];
+};

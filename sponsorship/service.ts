@@ -25,6 +25,7 @@ import {
   toSponsorReqModel,
   toSponsorSchoolModel,
   toSponsorshipCriterion,
+  toSponsorshipCriteriResponse,
   toSponsorshipModel,
   toSponsorshipResponse,
   toUpdateStatusModel,
@@ -68,6 +69,7 @@ import {
   updatePairwiseCriteriaRepo,
   deleteManySponsorshipPairwiseCriterion,
   getSponsorshipCriterionRepo,
+  getAllSponsorshipCriterionPairwiseRepo,
 } from "./repository";
 import {
   Action,
@@ -84,8 +86,11 @@ import {
   QueryParams,
   RecordStatus,
   RequiredColumns,
+  SponsorshipCriteriaPairwise,
   SponsorshipCriterion,
+  SponsorshipCriterionModel,
   SponsorshipResponse,
+  ToSponsorshipCriteriResponse,
   UpdateStudentStatus,
   UpdateStudentStatusRequest,
 } from "../utils/types";
@@ -460,7 +465,7 @@ export const updateSponsorshipCriterion = async (
   payload: CriterionPayload,
   sponsorshipId: string,
   authHeader: string
-): Promise<CriterionResponse | null> => {
+): Promise<ToSponsorshipCriteriResponse | null> => {
   const categoryCriterionId: string = payload.criterionCategoryId;
   return await prisma.$transaction(async (prisma: PrismaClient) => {
     // get all sponsorhipCrierion data using sponsorshipId
@@ -575,9 +580,11 @@ export const updateSponsorshipCriterion = async (
     }
 
     // get the details and pass it on front end
-    const response: any[] = await getSponsorshipCriterionRepo( sponsorshipId, prisma );
+    const criterionResponse: SponsorshipCriterionModel[] = await getSponsorshipCriterionRepo( sponsorshipId, prisma );
+    const criterionPairwiseResponse: SponsorshipCriteriaPairwise[] = await getAllSponsorshipCriterionPairwiseRepo( sponsorshipId, prisma);
 
-    return null;
+    const convertedResponse: ToSponsorshipCriteriResponse = toSponsorshipCriteriResponse(criterionResponse, criterionPairwiseResponse, sponsorshipId, categoryCriterionId);
+    return convertedResponse;
   });
 };
 

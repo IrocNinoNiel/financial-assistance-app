@@ -946,6 +946,16 @@ export const validateUpdateCriterionPayload = [
   body('criteria')
     .isArray({ min: 1 })
     .withMessage(VALIDATION_MESSAGES.CRITERIA_ARRAY_EMPTY),
+  body('criteria').custom((criteria) => {
+      const names = criteria.map((c: any) => c.name);
+      const nameSet = new Set(names);
+  
+      if (nameSet.size !== names.length) {
+        return Promise.reject(VALIDATION_MESSAGES.CRITERION_DUPLICATE)
+      }
+  
+      return true;
+    }),
   body('criteria')
     .custom((criteria) => {
       if (!Array.isArray(criteria)) {

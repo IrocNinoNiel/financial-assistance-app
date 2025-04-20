@@ -8,7 +8,7 @@ import {
   sponsorshipCriterion,
   sponsorshipSchool,
 } from "@prisma/client";
-import { binaryToUuid, CriterionCategoryWithCriterion, GetAllSponsorshipType, QueryParams, RecordStatus, UpdateStudentStatus, UpdateStudentStatusRequest, uuidToBinary } from "../utils";
+import { binaryToUuid, CriterionCategoryWithCriterion, GetAllSponsorshipType, QueryParams, RecordStatus, SponsorshipCriteriaPairwise, SponsorshipCriterionModel, UpdateStudentStatus, UpdateStudentStatusRequest, uuidToBinary } from "../utils";
 
 export const createSponsorshipRepo = async (
   data: Prisma.sponsorshipUncheckedCreateInput,
@@ -524,7 +524,7 @@ export const deleteManySponsorshipPairwiseCriterion = async(
   await prisma.sponsorshipCriteriaPairwise.updateMany({ where: {id: { in: ids.map(uuidToBinary) },}, data: {record_status: RecordStatus.DELETED}});
 }
 
-export const getSponsorshipCriterionRepo = async ( sponsorshipId: string, prisma: PrismaClient ): Promise<any[]> => {
+export const getSponsorshipCriterionRepo = async ( sponsorshipId: string, prisma: PrismaClient ): Promise<SponsorshipCriterionModel[]> => {
   return await prisma.sponsorshipCriterion.findMany({
     where: {
       sponsorship_id: uuidToBinary(sponsorshipId),
@@ -551,5 +551,23 @@ export const getSponsorshipCriterionRepo = async ( sponsorshipId: string, prisma
         }
       }
     }
-  })
+  });
+}
+
+export const getAllSponsorshipCriterionPairwiseRepo = async( sponsorshipId: string, prisma: PrismaClient ): Promise<SponsorshipCriteriaPairwise[]> => {
+  return await prisma.sponsorshipCriteriaPairwise.findMany({
+    where: {
+      sponsorship_id: uuidToBinary(sponsorshipId),
+      record_status: RecordStatus.ACTIVE
+    },
+    select: {
+      id: true,
+      sponsorship_id: true,
+      sponsorship_criterion_id_a: true,
+      sponsorship_criterion_name_a: true,
+      sponsorship_criterion_id_b: true,
+      sponsorship_criterion_name_b: true, 
+      value: true
+    }
+  });
 }
