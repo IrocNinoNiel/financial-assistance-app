@@ -1,6 +1,7 @@
 import {
   criterionCategory,
   criterionRequiredColumn,
+  customInputCriterion,
   Prisma,
   PrismaClient,
   sponsorship,
@@ -570,4 +571,26 @@ export const getAllSponsorshipCriterionPairwiseRepo = async( sponsorshipId: stri
       value: true
     }
   });
+}
+
+export const createBulkCustomInput = async ( data: Prisma.customInputCriterionUncheckedCreateInput[],prisma: PrismaClient ): Promise<void> => {
+  await prisma.customInputCriterion.createMany({ data })
+}
+
+export const updateCustomInput = async ( 
+  data: Prisma.customInputCriterionUncheckedCreateInput,
+  studentId: string,
+  sponsorshipCriterionId: string,
+  sponsorshipId: string,
+  prisma: PrismaClient,
+): Promise<void> => {
+  await prisma.customInputCriterion.update({ data: data, 
+    where: {
+      student_id_sponsorship_criterion_id_sponsorship_id: {
+        student_id: uuidToBinary(studentId),
+        sponsorship_criterion_id: uuidToBinary(sponsorshipCriterionId),
+        sponsorship_id: uuidToBinary(sponsorshipId)
+      }
+    } 
+  })
 }

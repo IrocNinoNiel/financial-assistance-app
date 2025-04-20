@@ -460,6 +460,10 @@ export const getDataSources = async(): Promise<DataSourceTable[]> => {
   return structuredData;
 }
 
+export const upsertCustomInput = async(): Promise<void> => {
+  
+}
+
 /**
  * Updates the sponsorship criterion along with required columns and pairwise data.
  *
@@ -878,6 +882,7 @@ const syncPairwiseCriterion = async (
     await deleteManySponsorshipPairwiseCriterion(deleteIds, prisma);
   }
 };
+
 
 async function generateAppId(sponsorshipId: string) {
   const currentYear = new Date().getFullYear();

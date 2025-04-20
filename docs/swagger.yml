@@ -1862,8 +1862,175 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/InternalErrorResponse'
+  /sponsorships/bulk-upsert-custom-input:
+    post:
+      tags:
+        - Coordinator Sponsorship
+      requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkCustomInputPayload'
+      responses:
+        '201':
+          description: Resource successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkCustomInputSuccessResponse'
+  /sponsorships/upsert-custom-input:
+    post:
+      tags:
+        - Coordinator Sponsorship
+      requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomInputPayload'
+      responses:
+        '201':
+          description: Resource successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomInputSuccessResponse'
+  /sponsorships/custom-input:
+    get:
+      tags:
+        - Coordinator Sponsorship
+      parameters:
+        - name: studentId
+          in: query
+          required: false
+          description: The ID of the student
+          schema:
+            type: string
+            example: fa8d0ba7-3bd8-4a30-8127-82ca571d1bd0
+        - name: sponsorshipId
+          in: query
+          required: false
+          description: The ID of the sponsorship
+          schema:
+            type: string
+            example: fa8d0ba7-3bd8-4a30-8127-82ca571d1bd0
+        - name: sponsorshipCriterionId
+          in: query
+          required: false
+          description: The ID of the sponsorship criterion
+          schema:
+            type: string
+            example: fa8d0ba7-3bd8-4a30-8127-82ca571d1bd0
+      responses:
+        '201':
+          description: Resource successfully get
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetBulkCustomInputSuccessResponse'
+  /sponsorships/custom-input/{sponsorshipCriterionId}:
+    get:
+      tags:
+        - Coordinator Sponsorship
+      parameters:
+        - name: sponsorshipCriterionId
+          in: path
+          required: true
+          description: The ID of the sponsorship criterion
+          schema:
+            type: string
+            example: fa8d0ba7-3bd8-4a30-8127-82ca571d1bd0
+      responses:
+        '201':
+          description: Resource successfully get
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetCustomInputSuccessResponse'
 components:
   schemas:
+    CustomInputPayload:
+      type: object
+      properties:
+        sponsorshipCriterionId: 
+          type: string
+          example: fa8d0ba7-3bd8-4a30-8127-82ca571d1bd0
+        sponsorshipId: 
+          type: string
+          example: fa8d0ba7-3bd8-4a30-8127-82ca571d1bd0
+        studentId: 
+          type: string
+          example: fa8d0ba7-3bd8-4a30-8127-82ca571d1bd0
+        value:
+          type: number
+          example: 3
+    BulkCustomInputPayload:
+      type: array
+      items:
+        $ref: '#/components/schemas/CustomInputPayload'
+    BulkCustomInputSuccessResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          example: 201
+        message:
+          type: string
+          example: Resources Successfully Created!
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/BulkCustomInputPayload'
+        generatedAt:
+          type: integer
+          example: 1738335123028
+    GetBulkCustomInputSuccessResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          example: 201
+        message:
+          type: string
+          example: Resources Successfully Get!
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/BulkCustomInputPayload'
+        generatedAt:
+          type: integer
+          example: 1738335123028
+    GetCustomInputSuccessResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          example: 201
+        message:
+          type: string
+          example: Resources Successfully Get!
+        data:
+          $ref: '#/components/schemas/CustomInputPayload'
+        generatedAt:
+          type: integer
+          example: 1738335123028
+    CustomInputSuccessResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          example: 201
+        message:
+          type: string
+          example: Resource Successfully Created!
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomInputPayload'
+        generatedAt:
+          type: integer
+          example: 1738335123028
     ColumnPayload:
       type: object
       properties:

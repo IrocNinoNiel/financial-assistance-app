@@ -194,6 +194,7 @@ model student {
   g12_school     school? @relation("G12School", fields: [g12_school_id], references: [id])
   college_school school? @relation("CollegeSchool", fields: [college_school_id], references: [id])
   files          file[]
+  customInput    customInputCriterion[]
 
   @@index([user_id], map: "user_id")
   @@map("students")
@@ -552,15 +553,19 @@ model sponsorshipCriteriaPairwise {
 model customInputCriterion {
   id                                Bytes              @id @default(dbgenerated("(UUID_TO_BIN(UUID()))")) @db.Binary(16)
   sponsorship_criterion_id          Bytes              @db.Binary(16)
+  sponsorship_id                    Bytes              @db.Binary(16)
   student_id                        Bytes              @db.Binary(16)
-  value                             Int
+  value                             Float
   record_status                     Boolean            @default(true)
   created_at                        DateTime           @default(now())
   updated_at                        DateTime           @updatedAt
   created_by                        Bytes?             @db.Binary(16)
   updated_by                        Bytes?             @db.Binary(16)
 
-  criterion sponsorshipCriterion @relation(fields: [sponsorship_criterion_id], references: [id])    
+  criterion sponsorshipCriterion @relation(fields: [sponsorship_criterion_id], references: [id])  
+  student student @relation(fields: [student_id], references: [id])
+
+  @@unique([student_id, sponsorship_criterion_id, sponsorship_id])
 }
 
 enum schedule_type {
