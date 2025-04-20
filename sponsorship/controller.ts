@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { validateApplyScholarship, validateChangeStudentStatus, validateQueryParams, validateSponsorship, validateSponsorshipId, validateStudentId, validateUpdateCriterionPayload } from "../middleware/validation";
 import { ResponseHandler } from "../response";
-import { ApplySponsorshipRequest, ApplySponsorshipResponse, criterionCategoryResponse, CriterionPayload, CriterionResponse, ERROR_MESSAGES, getQueryParams, QueryParams, SponsorshipRequest, SponsorshipResponse, SUCCESS_MESSAGES, ToSponsorshipCriteriResponse, UpdateStudentStatusRequest, VALIDATION_MESSAGES } from "../utils";
-import { adjustStudentEligibilityStatus, applyToSponsorship, createSponsorship, deleteOneSponsorship, getAllAvailableSponsorship, getAllSponsorship, getAllStudentSponsorship, getCategoryCriterion, getOneSponsorship, getOneStudentSponsorship, updateSponsorship, updateSponsorshipCriterion } from "./service";
+import { ApplySponsorshipRequest, ApplySponsorshipResponse, criterionCategoryResponse, CriterionPayload, CriterionResponse, DataSourceTable, ERROR_MESSAGES, getQueryParams, QueryParams, SponsorshipRequest, SponsorshipResponse, SUCCESS_MESSAGES, ToSponsorshipCriteriResponse, UpdateStudentStatusRequest, VALIDATION_MESSAGES } from "../utils";
+import { adjustStudentEligibilityStatus, applyToSponsorship, createSponsorship, deleteOneSponsorship, getAllAvailableSponsorship, getAllSponsorship, getAllStudentSponsorship, getCategoryCriterion, getDataSources, getOneSponsorship, getOneStudentSponsorship, updateSponsorship, updateSponsorshipCriterion } from "./service";
 import { allowRoles } from "../middleware/authentication";
 
 export default () => {
@@ -92,7 +92,16 @@ export default () => {
         } catch (err) {
             ResponseHandler.invalidRequest(req,res , err.message);
         }
-    })
+    });
+
+    sponsorshipAPI.get('/criterion-category/data-sources', allowRoles('system admin', 'financial assistance coordinator' ), async (req, res) => {
+        try {
+            const result: DataSourceTable[] = await getDataSources();
+            ResponseHandler.ok( req, res, result);
+        } catch (err) {
+            ResponseHandler.invalidRequest(req,res , err.message);
+        }
+    });
 
     sponsorshipAPI.put('/coordinator/students/:studentId/status', allowRoles('system admin', 'financial assistance coordinator' ), validateStudentId, validateChangeStudentStatus, async (req, res)  => {
         try {

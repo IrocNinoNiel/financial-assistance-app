@@ -740,3 +740,12 @@ export type ToSponsorshipCriteriResponse = {
   criterions: SponsorshipCriterionResponse[];
   pairwise: SponsorshipCriterionPairwiseResponse[];
 };
+
+type DataSourceColumn = {
+  name: string;
+};
+
+export type DataSourceTable = {
+  name: string;
+  columns: DataSourceColumn[];
+};

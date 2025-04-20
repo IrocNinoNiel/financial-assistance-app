@@ -14,6 +14,7 @@ import {
   binaryToUuid,
   extractUserFromToken,
   SponsorshipRequest,
+  TableColumnMap,
   uuidToBinary,
 } from "../utils";
 import {
@@ -81,6 +82,7 @@ import {
   CriterionCategoryWithCriterion,
   CriterionPayload,
   CriterionResponse,
+  DataSourceTable,
   GetAllSponsorshipType,
   Pairwise,
   QueryParams,
@@ -449,6 +451,15 @@ export const checkCriterionCategoryId = async (
   return checkCriterionCategoryIdRepo(criterionCategoryId, prisma);
 };
 
+export const getDataSources = async(): Promise<DataSourceTable[]> => {
+
+  const structuredData = Object.entries(TableColumnMap).map(([tableName, columns]) => ({
+    name: tableName,
+    columns: columns.map(column => ({ name: column }))
+  }));
+  return structuredData;
+}
+
 /**
  * Updates the sponsorship criterion along with required columns and pairwise data.
  *
@@ -540,15 +551,16 @@ export const updateSponsorshipCriterion = async (
           : await createSponsorshipCriterionRepo(convertedData, prisma);
         console.log("Created/Updated sponsorship criterion");
 
-        const sponsorshipCriterionId = binaryToUuid(sponsorshipCriterion.id);
-
         // Sync required columns
-        await syncRequiredColumns(
-          data.requiredColumns,
-          sponsorshipCriterionId,
-          prisma
-        );
-        console.log("Sync required columns");
+        if(data.dataSource !== 'CUSTOM_INPUT') {
+          const sponsorshipCriterionId = binaryToUuid(sponsorshipCriterion.id);
+          await syncRequiredColumns(
+            data.requiredColumns,
+            sponsorshipCriterionId,
+            prisma
+          );
+          console.log("Sync required columns");
+        }
 
         sponsorshipCrit.push({
           id: binaryToUuid(sponsorshipCriterion.id),

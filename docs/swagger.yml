@@ -1789,30 +1789,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/InternalErrorResponse'
-  /sponsorships/criterion-category:
-    get:
-      tags:
-        - Coordinator Sponsorship
-      summary: Get all criterion category
-      responses:
-        '200':
-          description: A list of criterion category
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GetAllCriteriaCategorySuccessResponse'
-        '403':
-          description: Invalid request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ForbiddenErrorResponse'
-        '500':
-          description: Invalid request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/InternalErrorResponse'
   /sponsorships/update-criterion/{sponsorshipId}:
     put:
       tags:
@@ -1838,9 +1814,88 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetCriterionSuccessResponse'
-      
+  /sponsorships/criterion-category:
+    get:
+      tags:
+        - Coordinator Sponsorship
+      summary: Get all criterion category
+      responses:
+        '200':
+          description: A list of criterion category
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetAllCriteriaCategorySuccessResponse'
+        '403':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenErrorResponse'
+        '500':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
+  /sponsorships/criterion-category/data-sources:
+    get:
+      tags:
+        - Coordinator Sponsorship
+      summary: Get all criterion category
+      responses:
+        '200':
+          description: A list of criterion category
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetDataSourceSuccessResponse'
+        '403':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenErrorResponse'
+        '500':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalErrorResponse'
 components:
   schemas:
+    ColumnPayload:
+      type: object
+      properties:
+        name: 
+          type: string
+          example: "gwa"
+    DataSourcePayload:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "students"
+        columns:
+          type: array
+          items:
+            $ref: '#/components/schemas/ColumnPayload'
+    GetDataSourceSuccessResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          example: 201
+        message:
+          type: string
+          example: Resource Successfully Get!
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/DataSourcePayload'
+        generatedAt:
+          type: integer
+          example: 1738335123028
     CriterionPayload:
       type: object
       properties:
