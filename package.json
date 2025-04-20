@@ -5,7 +5,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon index.ts",
-    "prisma-seed": "ts-node prisma/seed.ts"
+    "prisma-seed": "ts-node prisma/seeders/seed.ts",
+    "prisma-sql": "ts-node prisma/seeders/sqlSeeder.ts",
+    "prisma-criterion": "ts-node prisma/seeders/criterionSeeder.ts"
   },
   "keywords": [],
   "author": "",
