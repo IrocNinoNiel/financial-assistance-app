@@ -594,3 +594,33 @@ export const updateCustomInput = async (
     } 
   })
 }
+
+export const getUniqueCustomInput = async ( 
+  studentId: string,
+  sponsorshipCriterionId: string,
+  sponsorshipId: string,
+  prisma: PrismaClient,
+): Promise<customInputCriterion> => {
+  return await prisma.customInputCriterion.findUnique({
+    where: {
+      student_id_sponsorship_criterion_id_sponsorship_id: {
+        student_id: uuidToBinary(studentId),
+        sponsorship_criterion_id: uuidToBinary(sponsorshipCriterionId),
+        sponsorship_id: uuidToBinary(sponsorshipId)
+      }
+    }
+  })
+}
+
+export const getCustomInputRepo = async ( 
+  sponsorshipCriterionId: string,
+  sponsorshipId: string,
+  prisma: PrismaClient,
+): Promise<customInputCriterion[]> => {
+  return await prisma.customInputCriterion.findMany({
+    where: {
+      sponsorship_criterion_id: uuidToBinary(sponsorshipCriterionId),
+      sponsorship_id: uuidToBinary(sponsorshipId)
+    }
+  })
+}

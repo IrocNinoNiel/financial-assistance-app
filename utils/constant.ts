@@ -293,5 +293,11 @@ export const VALIDATION_MESSAGES = {
     PAIRWISE_CRITERIA_A_INVALID: 'Please review Criteria A if its valid',
     PAIRWISE_CRITERIA_B_INVALID: 'Please review Criteria B if its valid',
     PAIRWISE_VALUE_INVALID: 'Pairwise comparison value between A and b must be an integer from 1 to 9',
-    CRITERION_DUPLICATE: 'Duplicate criterion names are not allowed in the criteria array.'
+    CRITERION_DUPLICATE: 'Duplicate criterion names are not allowed in the criteria array.',
+    CUSTOM_INPUT_ARRAY_INVALID: 'Payload must be an array',
+    CUSTOM_INPUT_SPON_ID_INVALID: 'sponsorshipId must be a valid UUID',
+    CUSTOM_INPUT_STUD_ID_INVALID: 'studentId must be a valid UUID',
+    CUSTOM_INPUT_SPON_CRIT_ID_INVALID: 'sponsorshipCriterionId must be a valid UUID',
+    CUSTOM_INPUT_VALUE_INVALID: 'value must be a number',
+    CUSTOM_INPUT_VALUE_EMPTY: 'value is required',
 };

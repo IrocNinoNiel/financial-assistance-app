@@ -1,7 +1,7 @@
 
-import { Prisma, student, user, academicYear, sponsorship, EvaluationStatus, announcement, schedule_type, criterionCategory, DataSource, FormulaType, Preference } from '@prisma/client';
+import { Prisma, student, user, academicYear, sponsorship, EvaluationStatus, announcement, schedule_type, criterionCategory, DataSource, FormulaType, Preference, customInputCriterion } from '@prisma/client';
 import { User } from "../authentication/model";
-import { AcademicYearRequest, AcademicYearResponse, AddressResponse, AnnouncementData, AnnouncementDataMinimal, AnnouncementPayloadString, ApplySponsorshipRequest, ApplySponsorshipResponse, Criteria, criterionCategoryResponse, CriterionCategoryWithCriterion, FileTypeResponse, FlattenedAnnouncementData, FlattenedAnnouncementDataMinimal, Pairwise, PartialStudentUser, RecordStatus, RegisterRequest, RequiredColumns, RoleResponse, ScheduleModified, ScheduleRequest, ScheduleResponse, SchoolPayload, SiblingRequest, SponsorshipCriteriaPairwise, SponsorshipCriterionModel, SponsorshipRequest, SponsorshipResponse, SponsorshipStatus, StudentListResponse, StudentRequest, ToSponsorshipCriteriResponse, UpdateStudentStatus, UploadedAnnouncementFile, UserDetailsResponse, UserListResponse, UserResponse } from './types';
+import { AcademicYearRequest, AcademicYearResponse, AddressResponse, AnnouncementData, AnnouncementDataMinimal, AnnouncementPayloadString, ApplySponsorshipRequest, ApplySponsorshipResponse, Criteria, criterionCategoryResponse, CriterionCategoryWithCriterion, CustomInput, CustomInputResponse, FileTypeResponse, FlattenedAnnouncementData, FlattenedAnnouncementDataMinimal, Pairwise, PartialStudentUser, RecordStatus, RegisterRequest, RequiredColumns, RoleResponse, ScheduleModified, ScheduleRequest, ScheduleResponse, SchoolPayload, SiblingRequest, SponsorshipCriteriaPairwise, SponsorshipCriterionModel, SponsorshipRequest, SponsorshipResponse, SponsorshipStatus, StudentListResponse, StudentRequest, ToSponsorshipCriteriResponse, UpdateStudentStatus, UploadedAnnouncementFile, UserDetailsResponse, UserListResponse, UserResponse } from './types';
 import { binaryToUuid, uuidToBinary } from "./utils";
 import { APPLICATION_STAGE, APPLICATION_STATUS } from './constant';
 
@@ -661,3 +661,24 @@ export const toSponsorshipCriteriResponse = (
     }))
   };
 };
+
+export const toCustomInputCriterion = ( item: CustomInput, userId: string ): Prisma.customInputCriterionUncheckedCreateInput => {
+  return {
+    student_id: uuidToBinary(item.studentId),
+    sponsorship_id: uuidToBinary(item.sponsorshipId),
+    sponsorship_criterion_id: uuidToBinary(item.sponsorshipCriterionId),
+    value: item.value,
+    created_by: uuidToBinary(userId),
+    updated_by: uuidToBinary(userId)
+  }
+}
+
+export const toCustomInputResponse = ( item: customInputCriterion ): CustomInputResponse => {
+  return {
+    id: binaryToUuid(item.id),
+    studentId: binaryToUuid(item.student_id),
+    sponsorshipId: binaryToUuid(item.sponsorship_id),
+    sponsorshipCriterionId: binaryToUuid(item.sponsorship_criterion_id),
+    value: item.value
+  }
+}

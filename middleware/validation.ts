@@ -1062,3 +1062,16 @@ export const validateUpdateCriterionPayload = [
     }),
   validateErrors
 ]
+
+export const validateCustomInputPayload = [
+  body().isArray().withMessage(VALIDATION_MESSAGES.CUSTOM_INPUT_ARRAY_INVALID),
+  body('*.sponsorshipCriterionId')
+    .isUUID().withMessage(VALIDATION_MESSAGES.CUSTOM_INPUT_SPON_CRIT_ID_INVALID),
+  body('*.sponsorshipId')
+    .isUUID().withMessage(VALIDATION_MESSAGES.CUSTOM_INPUT_SPON_ID_INVALID),
+  body('*.studentId')
+    .isUUID().withMessage(VALIDATION_MESSAGES.CUSTOM_INPUT_STUD_ID_INVALID),
+  body('*.value')
+    .isNumeric().withMessage(VALIDATION_MESSAGES.CUSTOM_INPUT_VALUE_INVALID)
+    .notEmpty().withMessage(VALIDATION_MESSAGES.CUSTOM_INPUT_VALUE_EMPTY),
+];

@@ -1,6 +1,7 @@
 import {
   criterionCategory,
   criterionRequiredColumn,
+  customInputCriterion,
   EvaluationStatus,
   Prisma,
   PrismaClient,
@@ -22,6 +23,8 @@ import {
   toApplyScholarshipResponse,
   toCriteriaPairwise,
   toCriterionCategory,
+  toCustomInputCriterion,
+  toCustomInputResponse,
   toRequiredColumn,
   toSponsorReqModel,
   toSponsorSchoolModel,
@@ -71,6 +74,10 @@ import {
   deleteManySponsorshipPairwiseCriterion,
   getSponsorshipCriterionRepo,
   getAllSponsorshipCriterionPairwiseRepo,
+  getUniqueCustomInput,
+  createBulkCustomInput,
+  updateCustomInput,
+  getCustomInputRepo,
 } from "./repository";
 import {
   Action,
@@ -82,6 +89,8 @@ import {
   CriterionCategoryWithCriterion,
   CriterionPayload,
   CriterionResponse,
+  CustomInput,
+  CustomInputResponse,
   DataSourceTable,
   GetAllSponsorshipType,
   Pairwise,
@@ -460,8 +469,44 @@ export const getDataSources = async(): Promise<DataSourceTable[]> => {
   return structuredData;
 }
 
-export const upsertCustomInput = async(): Promise<void> => {
-  
+export const upsertCustomInput = async(payload: CustomInput[], authHeader: string): Promise<CustomInputResponse[]> => {
+  return await prisma.$transaction(async (prisma: PrismaClient) => {
+    const bulkCreateData: Prisma.customInputCriterionUncheckedCreateInput[] = [];
+    const updatePromises: Promise<void>[] = [];
+    const userDetails = extractUserFromToken(authHeader);
+    const userId = userDetails.userId;
+
+    for (const item of payload) { 
+      const existing = await getUniqueCustomInput(item.studentId, item.sponsorshipCriterionId, item.sponsorshipId, prisma);
+      const converted: Prisma.customInputCriterionUncheckedCreateInput = toCustomInputCriterion( item, userId );
+
+      if(existing){
+        updatePromises.push(
+          updateCustomInput(
+            converted,
+            item.studentId,
+            item.sponsorshipId,
+            item.sponsorshipCriterionId,
+            prisma
+          )
+        );
+      } else {
+        bulkCreateData.push(converted);
+      }
+    }
+
+    if(bulkCreateData.length > 0) {
+      await createBulkCustomInput( bulkCreateData, prisma );
+    }
+
+    if (updatePromises.length > 0) {
+      await Promise.all(updatePromises);
+    }
+
+    const result: customInputCriterion[] = await getCustomInputRepo( payload[0].sponsorshipCriterionId, payload[0].sponsorshipId, prisma );
+
+    return result.map(e => toCustomInputResponse(e));
+  });
 }
 
 /**

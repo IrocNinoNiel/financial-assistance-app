@@ -749,3 +749,18 @@ export type DataSourceTable = {
   name: string;
   columns: DataSourceColumn[];
 };
+
+export type CustomInput = {
+  sponsorshipCriterionId: string,
+  sponsorshipId: string,
+  studentId: string,
+  value: number
+}
+
+export type CustomInputResponse = {
+  id: string,
+  sponsorshipCriterionId: string,
+  sponsorshipId: string,
+  studentId: string,
+  value: number
+}
