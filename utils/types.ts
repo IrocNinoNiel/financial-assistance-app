@@ -501,6 +501,8 @@ export type  QueryParams = {
   sort: string;
   mine?: boolean;
   cityMunId?: number;
+  sponsorshipCriterionId?: string;
+  sponsorshipId?: string;
 }
 
 

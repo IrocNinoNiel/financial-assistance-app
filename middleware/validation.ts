@@ -1127,3 +1127,21 @@ export const validateCustomInputPayload = [
     .notEmpty().withMessage(VALIDATION_MESSAGES.CUSTOM_INPUT_VALUE_EMPTY),
   validateErrors
 ];
+
+export const validateGetAllCustomInput = [
+  query('sponsorshipCriterionId')
+    .isUUID().withMessage(VALIDATION_MESSAGES.CUSTOM_INPUT_SPON_CRIT_ID_INVALID)
+    .custom( async (criterionId) => {
+      const dontExist = await checkSponsorshipCriterionCategoryId( criterionId );
+      if(dontExist) return Promise.reject(VALIDATION_MESSAGES.CUSTOM_INPUT_SPON_CRIT_ID_NOT_FOUND);
+    }),
+  query('sponsorshipId')
+    .isUUID().withMessage(VALIDATION_MESSAGES.CUSTOM_INPUT_SPON_ID_INVALID)
+    .custom(async (sponsorshipId) => {
+      const dontExist = await checkSponsorshipId( sponsorshipId );
+      if (dontExist) {
+        return Promise.reject(VALIDATION_MESSAGES.SPONSORSHIP_ID_NOT_FOUND);
+      }
+    }),
+  validateErrors
+];

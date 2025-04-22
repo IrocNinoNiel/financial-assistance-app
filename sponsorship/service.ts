@@ -515,6 +515,11 @@ export const checkSponsorshipCriterionCategoryId = async ( criterionId: string )
   return await checkSponsorshipCriterionCategoryIdRepo( criterionId, prisma );
 }
 
+export const getAllCriterionCustomInputValue = async(sponsorshipCriterionId: string, sponsorshipId: string): Promise<CustomInputResponse[]> => {
+  const result: customInputCriterion[] = await getCustomInputRepo( sponsorshipCriterionId, sponsorshipId, prisma );
+  return result.map(e => toCustomInputResponse(e));
+}
+
 /**
  * Updates the sponsorship criterion along with required columns and pairwise data.
  *
