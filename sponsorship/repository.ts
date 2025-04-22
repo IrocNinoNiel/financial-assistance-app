@@ -429,6 +429,7 @@ export const checkCriterionCategoryIdRepo = async (
   return data === null;
 };
 
+
 export const createSponsorshipCriterionRepo = async (
   convertedData: Prisma.sponsorshipCriterionUncheckedCreateInput,
   prisma: PrismaClient
@@ -624,3 +625,16 @@ export const getCustomInputRepo = async (
     }
   })
 }
+
+export const checkSponsorshipCriterionCategoryIdRepo = async (
+  criterionCategoryId: string,
+  prisma: PrismaClient
+): Promise<boolean> => {
+  const data = await prisma.sponsorshipCriterion.findFirst({
+    where: {
+      id: uuidToBinary(criterionCategoryId),
+      record_status: RecordStatus.ACTIVE,
+    },
+  });
+  return data === null;
+};

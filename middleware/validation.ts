@@ -9,10 +9,11 @@ import { checkBarangayExist, checkCityMunExist, checkProvinceExist, checkRegionE
 import { checkIfNotSponsor, doesUserExist } from "../user/service";
 import { checkIfInvalidSchoolId, checkSchoolExist, checkSchoolNameExist } from "../schools/service";
 import { checkAcademicYearId, checkExistingAcademicYear } from "../academicYear/service";
-import { checkBatch, checkCriterionCategoryId, checkIfSponsorshipExist, checkSponsorshipId, doesStudentAlreadyApplied } from "../sponsorship/service";
+import { checkBatch, checkCriterionCategoryId, checkIfSponsorshipExist, checkSponsorshipCriterionCategoryId, checkSponsorshipId, doesStudentAlreadyApplied } from "../sponsorship/service";
 import { checkIfInvalidFileTypeId } from "../file/service";
 import { doesAnnExist, doesAnnExistGet } from "../announcement/service";
 import { findIfExists } from "../schedule/service";
+import { checkCriterionCategoryIdRepo } from "../sponsorship/repository";
 
 const stageStatusMap: Record<APPLICATION_STAGE, APPLICATION_STATUS[]> = {
   [APPLICATION_STAGE.POOLING]: [
@@ -1063,15 +1064,66 @@ export const validateUpdateCriterionPayload = [
   validateErrors
 ]
 
-export const validateCustomInputPayload = [
-  body().isArray().withMessage(VALIDATION_MESSAGES.CUSTOM_INPUT_ARRAY_INVALID),
+export const validateBulkCustomInputPayload = [
+  body()
+    .isArray({ min: 1 })
+    .withMessage(VALIDATION_MESSAGES.CUSTOM_INPUT_ARRAY_INVALID),
   body('*.sponsorshipCriterionId')
-    .isUUID().withMessage(VALIDATION_MESSAGES.CUSTOM_INPUT_SPON_CRIT_ID_INVALID),
+    .isUUID().withMessage(VALIDATION_MESSAGES.CUSTOM_INPUT_SPON_CRIT_ID_INVALID)
+    .bail()
+    .custom( async (criterionId) => {
+      const dontExist = await checkSponsorshipCriterionCategoryId( criterionId );
+      if(dontExist) return Promise.reject(VALIDATION_MESSAGES.CUSTOM_INPUT_SPON_CRIT_ID_NOT_FOUND);
+    }),
   body('*.sponsorshipId')
-    .isUUID().withMessage(VALIDATION_MESSAGES.CUSTOM_INPUT_SPON_ID_INVALID),
+    .isUUID().withMessage(VALIDATION_MESSAGES.CUSTOM_INPUT_SPON_ID_INVALID)
+    .bail()
+    .custom(async (sponsorshipId) => {
+      const dontExist = await checkSponsorshipId( sponsorshipId );
+      if (dontExist) {
+        return Promise.reject(VALIDATION_MESSAGES.SPONSORSHIP_ID_NOT_FOUND);
+      }
+    }),
   body('*.studentId')
-    .isUUID().withMessage(VALIDATION_MESSAGES.CUSTOM_INPUT_STUD_ID_INVALID),
+    .isUUID().withMessage(VALIDATION_MESSAGES.CUSTOM_INPUT_STUD_ID_INVALID)
+    .bail()
+    .custom(async (studentId) => {
+      const studentExists = await doesStudentExist(studentId);
+      if (!studentExists) {
+        return Promise.reject(VALIDATION_MESSAGES.STUDENT_NOT_FOUND);
+      }
+    }),
   body('*.value')
     .isNumeric().withMessage(VALIDATION_MESSAGES.CUSTOM_INPUT_VALUE_INVALID)
     .notEmpty().withMessage(VALIDATION_MESSAGES.CUSTOM_INPUT_VALUE_EMPTY),
+  validateErrors
+];
+
+export const validateCustomInputPayload = [
+  body('sponsorshipCriterionId')
+    .isUUID().withMessage(VALIDATION_MESSAGES.CUSTOM_INPUT_SPON_CRIT_ID_INVALID)
+    .custom( async (criterionId) => {
+      const dontExist = await checkSponsorshipCriterionCategoryId( criterionId );
+      if(dontExist) return Promise.reject(VALIDATION_MESSAGES.CUSTOM_INPUT_SPON_CRIT_ID_NOT_FOUND);
+    }),
+  body('sponsorshipId')
+    .isUUID().withMessage(VALIDATION_MESSAGES.CUSTOM_INPUT_SPON_ID_INVALID)
+    .custom(async (sponsorshipId) => {
+      const dontExist = await checkSponsorshipId( sponsorshipId );
+      if (dontExist) {
+        return Promise.reject(VALIDATION_MESSAGES.SPONSORSHIP_ID_NOT_FOUND);
+      }
+    }),
+  body('studentId')
+    .isUUID().withMessage(VALIDATION_MESSAGES.CUSTOM_INPUT_STUD_ID_INVALID)
+    .custom(async (studentId) => {
+      const studentExists = await doesStudentExist(studentId);
+      if (!studentExists) {
+        return Promise.reject(VALIDATION_MESSAGES.STUDENT_NOT_FOUND);
+      }
+    }),
+  body('value')
+    .isNumeric().withMessage(VALIDATION_MESSAGES.CUSTOM_INPUT_VALUE_INVALID)
+    .notEmpty().withMessage(VALIDATION_MESSAGES.CUSTOM_INPUT_VALUE_EMPTY),
+  validateErrors
 ];

@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { validateApplyScholarship, validateChangeStudentStatus, validateCustomInputPayload, validateQueryParams, validateSponsorship, validateSponsorshipId, validateStudentId, validateUpdateCriterionPayload } from "../middleware/validation";
+import { validateApplyScholarship, validateBulkCustomInputPayload, validateChangeStudentStatus, validateCustomInputPayload, validateQueryParams, validateSponsorship, validateSponsorshipId, validateStudentId, validateUpdateCriterionPayload } from "../middleware/validation";
 import { ResponseHandler } from "../response";
 import { ApplySponsorshipRequest, ApplySponsorshipResponse, criterionCategoryResponse, CriterionPayload, CriterionResponse, CustomInput, CustomInputResponse, DataSourceTable, ERROR_MESSAGES, getQueryParams, QueryParams, SponsorshipRequest, SponsorshipResponse, SUCCESS_MESSAGES, ToSponsorshipCriteriResponse, UpdateStudentStatusRequest, VALIDATION_MESSAGES } from "../utils";
-import { adjustStudentEligibilityStatus, applyToSponsorship, createSponsorship, deleteOneSponsorship, getAllAvailableSponsorship, getAllSponsorship, getAllStudentSponsorship, getCategoryCriterion, getDataSources, getOneSponsorship, getOneStudentSponsorship, updateSponsorship, updateSponsorshipCriterion, upsertCustomInput } from "./service";
+import { adjustStudentEligibilityStatus, applyToSponsorship, bulkUpsertCustomInput, createSponsorship, deleteOneSponsorship, getAllAvailableSponsorship, getAllSponsorship, getAllStudentSponsorship, getCategoryCriterion, getDataSources, getOneSponsorship, getOneStudentSponsorship, updateSponsorship, updateSponsorshipCriterion } from "./service";
 import { allowRoles } from "../middleware/authentication";
 
 export default () => {
@@ -94,11 +94,11 @@ export default () => {
         }
     });
 
-    sponsorshipAPI.put('/bulk-upsert-custom-input', allowRoles('system admin', 'financial assistance coordinator' ), validateCustomInputPayload, async (req, res) => {
+    sponsorshipAPI.post('/bulk-upsert-custom-input', allowRoles('system admin', 'financial assistance coordinator' ), validateBulkCustomInputPayload, async (req, res) => {
         try {
             const payload: CustomInput[] = req.body;
             const authHeader: string = req.headers.authorization;
-            const result: CustomInputResponse[] = await upsertCustomInput( payload, authHeader );
+            const result: CustomInputResponse[] = await bulkUpsertCustomInput( payload, authHeader );
             ResponseHandler.created( req, res, result);
         } catch (err) {
             ResponseHandler.invalidRequest(req,res , err.message);

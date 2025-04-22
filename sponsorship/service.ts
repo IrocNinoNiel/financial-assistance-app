@@ -78,6 +78,7 @@ import {
   createBulkCustomInput,
   updateCustomInput,
   getCustomInputRepo,
+  checkSponsorshipCriterionCategoryIdRepo,
 } from "./repository";
 import {
   Action,
@@ -469,7 +470,7 @@ export const getDataSources = async(): Promise<DataSourceTable[]> => {
   return structuredData;
 }
 
-export const upsertCustomInput = async(payload: CustomInput[], authHeader: string): Promise<CustomInputResponse[]> => {
+export const bulkUpsertCustomInput = async(payload: CustomInput[], authHeader: string): Promise<CustomInputResponse[]> => {
   return await prisma.$transaction(async (prisma: PrismaClient) => {
     const bulkCreateData: Prisma.customInputCriterionUncheckedCreateInput[] = [];
     const updatePromises: Promise<void>[] = [];
@@ -485,8 +486,8 @@ export const upsertCustomInput = async(payload: CustomInput[], authHeader: strin
           updateCustomInput(
             converted,
             item.studentId,
-            item.sponsorshipId,
             item.sponsorshipCriterionId,
+            item.sponsorshipId,
             prisma
           )
         );
@@ -507,6 +508,11 @@ export const upsertCustomInput = async(payload: CustomInput[], authHeader: strin
 
     return result.map(e => toCustomInputResponse(e));
   });
+}
+
+
+export const checkSponsorshipCriterionCategoryId = async ( criterionId: string ): Promise<boolean> => {
+  return await checkSponsorshipCriterionCategoryIdRepo( criterionId, prisma );
 }
 
 /**
