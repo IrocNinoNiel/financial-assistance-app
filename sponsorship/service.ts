@@ -504,7 +504,8 @@ export const bulkUpsertCustomInput = async(payload: CustomInput[], authHeader: s
       await Promise.all(updatePromises);
     }
 
-    const result: customInputCriterion[] = await getCustomInputRepo( payload[0].sponsorshipCriterionId, payload[0].sponsorshipId, prisma );
+    const result: customInputCriterion[] = await getCustomInputRepo( payload[0].sponsorshipCriterionId, payload[0].sponsorshipId, "",
+      null, prisma );
 
     return result.map(e => toCustomInputResponse(e));
   });
@@ -515,8 +516,9 @@ export const checkSponsorshipCriterionCategoryId = async ( criterionId: string )
   return await checkSponsorshipCriterionCategoryIdRepo( criterionId, prisma );
 }
 
-export const getAllCriterionCustomInputValue = async(sponsorshipCriterionId: string, sponsorshipId: string): Promise<CustomInputResponse[]> => {
-  const result: customInputCriterion[] = await getCustomInputRepo( sponsorshipCriterionId, sponsorshipId, prisma );
+export const getAllCriterionCustomInputValue = async( params: QueryParams ): Promise<CustomInputResponse[]> => {
+  const studentId: string = params.studentId ? params.studentId : "";
+  const result: customInputCriterion[] = await getCustomInputRepo( params.sponsorshipCriterionId, params.sponsorshipId, studentId,  params, prisma );
   return result.map(e => toCustomInputResponse(e));
 }
 

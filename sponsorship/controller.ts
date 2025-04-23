@@ -108,7 +108,7 @@ export default () => {
     sponsorshipAPI.get('/custom-input', allowRoles('system admin', 'financial assistance coordinator' ), validateGetAllCustomInput, async (req, res) => {
         try {
             const params: QueryParams = getQueryParams(req);
-            const result: CustomInputResponse[] = await getAllCriterionCustomInputValue( params.sponsorshipCriterionId, params.sponsorshipId );
+            const result: CustomInputResponse[] = await getAllCriterionCustomInputValue( params );
             ResponseHandler.created( req, res, result);
         } catch (err) {
             ResponseHandler.invalidRequest(req,res , err.message);

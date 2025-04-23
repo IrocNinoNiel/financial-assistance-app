@@ -614,15 +614,43 @@ export const getUniqueCustomInput = async (
 }
 
 export const getCustomInputRepo = async ( 
-  sponsorshipCriterionId: string,
-  sponsorshipId: string,
+  sponsorshipCriterionId: string = "",
+  sponsorshipId: string = "",
+  studentId: string = "",
+  params: QueryParams = null,
   prisma: PrismaClient,
 ): Promise<customInputCriterion[]> => {
-  return await prisma.customInputCriterion.findMany({
-    where: {
-      sponsorship_criterion_id: uuidToBinary(sponsorshipCriterionId),
-      sponsorship_id: uuidToBinary(sponsorshipId)
+
+  let whereCondition: any = { record_status: RecordStatus.ACTIVE };
+  let orderBy: { created_at?: 'asc' | 'desc' } = { created_at: 'desc' };;
+  let skip: number = 0;
+  let limit: number = 50;
+
+  if(params !== null) {
+    if (params.sort) {
+      orderBy['created_at'] = params.sort === 'desc' ? 'desc' : 'asc';
     }
+    skip = params.offset;
+    limit = params.limit;
+  }
+
+  if(sponsorshipCriterionId !== "") {
+    whereCondition.sponsorship_criterion_id = uuidToBinary(sponsorshipCriterionId);
+  }
+
+  if(sponsorshipId !== "") {
+    whereCondition.sponsorship_id = uuidToBinary(sponsorshipId);
+  }
+
+  if(studentId !== "") {
+    whereCondition.student_id = uuidToBinary(studentId);
+  }
+
+  return await prisma.customInputCriterion.findMany({
+    where: whereCondition,
+    skip: params.offset,
+    take: params.limit,
+    orderBy,
   })
 }
 

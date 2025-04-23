@@ -503,6 +503,7 @@ export type  QueryParams = {
   cityMunId?: number;
   sponsorshipCriterionId?: string;
   sponsorshipId?: string;
+  studentId?: string;
 }
 
 

@@ -1130,17 +1130,28 @@ export const validateCustomInputPayload = [
 
 export const validateGetAllCustomInput = [
   query('sponsorshipCriterionId')
+    .optional({ nullable: true, checkFalsy: true })
     .isUUID().withMessage(VALIDATION_MESSAGES.CUSTOM_INPUT_SPON_CRIT_ID_INVALID)
     .custom( async (criterionId) => {
       const dontExist = await checkSponsorshipCriterionCategoryId( criterionId );
       if(dontExist) return Promise.reject(VALIDATION_MESSAGES.CUSTOM_INPUT_SPON_CRIT_ID_NOT_FOUND);
     }),
   query('sponsorshipId')
+    .optional({ nullable: true, checkFalsy: true })
     .isUUID().withMessage(VALIDATION_MESSAGES.CUSTOM_INPUT_SPON_ID_INVALID)
     .custom(async (sponsorshipId) => {
       const dontExist = await checkSponsorshipId( sponsorshipId );
       if (dontExist) {
         return Promise.reject(VALIDATION_MESSAGES.SPONSORSHIP_ID_NOT_FOUND);
+      }
+    }),
+  query('studentId')
+    .optional({ nullable: true, checkFalsy: true })
+    .isUUID().withMessage(VALIDATION_MESSAGES.CUSTOM_INPUT_STUD_ID_INVALID)
+    .custom(async (studentId) => {
+      const studentExists = await doesStudentExist(studentId);
+      if (!studentExists) {
+        return Promise.reject(VALIDATION_MESSAGES.STUDENT_NOT_FOUND);
       }
     }),
   validateErrors
