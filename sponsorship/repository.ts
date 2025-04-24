@@ -666,3 +666,14 @@ export const checkSponsorshipCriterionCategoryIdRepo = async (
   });
   return data === null;
 };
+
+export const getPairwiseMatrixRepo = async (
+  sponsorshipId: string,
+  prisma: PrismaClient
+): Promise<sponsorshipCriteriaPairwise[]> => {
+  return prisma.sponsorshipCriteriaPairwise.findMany(
+    { 
+      where: { sponsorship_id: uuidToBinary(sponsorshipId), record_status: RecordStatus.ACTIVE}
+    }
+  );
+}

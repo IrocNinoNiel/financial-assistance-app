@@ -767,3 +767,18 @@ export type CustomInputResponse = {
   studentId: string,
   value: number
 }
+
+export type CriteriaPairwiseConverted = {
+  criterionAId: string;
+  criterionAName: string;
+  criterionBId: string;
+  criterionBName: string;
+  value: number;
+}
+
+export type PairwiseMatrix = number[][];
+
+export type PairwiseMatrixResult = {
+  criteriaOrder: string[];
+  matrix: PairwiseMatrix;
+}

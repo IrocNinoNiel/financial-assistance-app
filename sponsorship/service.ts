@@ -22,6 +22,7 @@ import {
   toApplyScholarship,
   toApplyScholarshipResponse,
   toCriteriaPairwise,
+  toCriteriaPairwiseConverted,
   toCriterionCategory,
   toCustomInputCriterion,
   toCustomInputResponse,
@@ -79,13 +80,16 @@ import {
   updateCustomInput,
   getCustomInputRepo,
   checkSponsorshipCriterionCategoryIdRepo,
+  getPairwiseMatrixRepo,
 } from "./repository";
 import {
   Action,
+  Applicants,
   ApplySponsorshipRequest,
   ApplySponsorshipResponse,
   AuthPayload,
   Criteria,
+  CriteriaPairwiseConverted,
   criterionCategoryResponse,
   CriterionCategoryWithCriterion,
   CriterionPayload,
@@ -95,6 +99,7 @@ import {
   DataSourceTable,
   GetAllSponsorshipType,
   Pairwise,
+  PairwiseMatrixResult,
   QueryParams,
   RecordStatus,
   RequiredColumns,
@@ -520,6 +525,43 @@ export const getAllCriterionCustomInputValue = async( params: QueryParams ): Pro
   const studentId: string = params.studentId ? params.studentId : "";
   const result: customInputCriterion[] = await getCustomInputRepo( params.sponsorshipCriterionId, params.sponsorshipId, studentId,  params, prisma );
   return result.map(e => toCustomInputResponse(e));
+}
+
+export const rankStudent = async( sponsorshipId: string, ): Promise<PairwiseMatrixResult> => {
+  // pairwise
+  const pairwiseMatrix: sponsorshipCriteriaPairwise[] = await getPairwiseMatrixRepo( sponsorshipId, prisma );
+  const pairwiseMatrixConverted: CriteriaPairwiseConverted[] = pairwiseMatrix.map( e => toCriteriaPairwiseConverted( e ));
+  const pairwise: PairwiseMatrixResult = generatePairwiseMatrix(pairwiseMatrixConverted);
+
+  const weights: number[] = calculateAHPWeights(pairwise.matrix);
+  console.debug("AHP Criteria Weights:", weights);
+
+  const isBenefit: boolean[] = [ true, true, false ];
+  const applicants: Applicants[] = [
+    { id: "Alternative 1", gwa: 91.000, siblings: 1, income: 10000, involvement: 1 },
+    { id: "Alternative 2", gwa: 88.000, siblings: 5, income: 20000, involvement: 0 },
+    { id: "Alternative 3", gwa: 91.000, siblings: 3, income: 15000, involvement: 0 },
+    { id: "Alternative 4", gwa: 92.000, siblings: 4, income: 20000, involvement: 0 },
+    { id: "Alternative 5", gwa: 93.000, siblings: 2, income: 5000, involvement: 0 },
+    { id: "Alternative 6", gwa: 86.000, siblings: 7, income: 10000, involvement: 1 },
+    { id: "Alternative 7", gwa: 82.000, siblings: 5, income: 3000, involvement: 0 },
+    { id: "Alternative 8", gwa: 90.000, siblings: 4, income: 8000, involvement: 1 },
+    { id: "Alternative 9", gwa: 90.000, siblings: 1, income: 5000, involvement: 1 },
+    { id: "Alternative 10", gwa: 85.000, siblings: 4, income: 18000, involvement: 1 },
+    { id: "Alternative 11", gwa: 80.000, siblings: 0, income: 3000, involvement: 1 },
+    { id: "Alternative 12", gwa: 88.000, siblings: 2, income: 7000, involvement: 0 },
+    { id: "Alternative 13", gwa: 87.000, siblings: 6, income: 8000, involvement: 0 },
+    { id: "Alternative 14", gwa: 95.000, siblings: 4, income: 3000, involvement: 0 },
+    { id: "Alternative 15", gwa: 84.000, siblings: 5, income: 12000, involvement: 1 },
+    { id: "Alternative 16", gwa: 89.000, siblings: 9, income: 2500, involvement: 1 },
+    { id: "Alternative 17", gwa: 90.000, siblings: 1, income: 5500, involvement: 0 },
+    { id: "Alternative 18", gwa: 80.000, siblings: 10, income: 3500, involvement: 1 },
+    { id: "Alternative 19", gwa: 85.000, siblings: 3, income: 6000, involvement: 0 },
+    { id: "Alternative 20", gwa: 90.000, siblings: 1, income: 1500, involvement: 1 }
+  ];
+
+  // const normalizedMatrix: number[][] = normalizeSAW(applicants, pairwise.criteriaOrder, isBenefit);
+  return pairwise;
 }
 
 /**
@@ -954,4 +996,66 @@ async function generateAppId(sponsorshipId: string) {
   const appId = `${currentYear}-${paddedNumber}`;
 
   return appId;
+}
+
+
+function generatePairwiseMatrix(data: CriteriaPairwiseConverted[]): PairwiseMatrixResult {
+  // Step 1: Extract unique criteria names in a consistent order
+  const criteriaSet = new Set<string>();
+  data.forEach(item => {
+    criteriaSet.add(item.criterionAName);
+    criteriaSet.add(item.criterionBName);
+  });
+  const criteriaOrder = Array.from(criteriaSet);
+  const indexMap = Object.fromEntries(criteriaOrder.map((name, index) => [name, index]));
+
+  // Step 2: Initialize matrix with 1s on diagonal
+  const size = criteriaOrder.length;
+  const matrix: number[][] = Array.from({ length: size }, (_, i) =>
+    Array.from({ length: size }, (_, j) => (i === j ? 1 : 0))
+  );
+
+  // Step 3: Fill matrix based on data
+  for (const item of data) {
+    const i = indexMap[item.criterionAName];
+    const j = indexMap[item.criterionBName];
+
+    if (i === j) {
+      matrix[i][j] = 1;
+    } else {
+      matrix[i][j] = item.value;
+      matrix[j][i] = 1 / item.value;
+    }
+  }
+
+  return { criteriaOrder, matrix };
+}
+
+function calculateAHPWeights(matrix: number[][]): number[] {
+  const n = matrix.length;
+  
+  const columnSums: number[] = matrix[0].map((_, colIndex) => matrix.reduce((sum, row) => sum + row[colIndex], 0));
+  const normalizedMatrix: number[][] = matrix.map(row => row.map((val, j) => val / columnSums[j]));
+  
+  const weights: number[] = normalizedMatrix.map(row => row.reduce((sum, val) => sum + val, 0) / n);
+  return weights;
+}
+
+function normalizeSAW(data: Applicants[], criteria: string[], isBenefit: boolean[]): number[][] {
+    return criteria.map((criterion, index) => {
+        const values: number[] = data.map(applicant => {
+            if (typeof applicant[criterion] !== 'number') {
+                throw new Error(`Invalid value for criterion ${criterion} in applicant ${applicant.id}`);
+            }
+            return applicant[criterion];
+        });
+        const max: number = Math.max(...values);
+        const min: number = Math.min(...values);
+
+        if (max === min) {
+            return data.map(() => 1);
+        }
+        
+        return data.map(applicant => isBenefit[index] ? applicant[criterion] / max : min / applicant[criterion]);
+    });
 }
