@@ -9,7 +9,7 @@ import {
   sponsorshipCriterion,
   sponsorshipSchool,
 } from "@prisma/client";
-import { binaryToUuid, CriterionCategoryWithCriterion, GetAllSponsorshipType, QueryParams, RecordStatus, SponsorshipCriteriaPairwise, SponsorshipCriterionModel, UpdateStudentStatus, UpdateStudentStatusRequest, uuidToBinary } from "../utils";
+import { APPLICATION_STAGE, APPLICATION_STATUS, binaryToUuid, CriterionCategoryWithCriterion, GetAllSponsorshipType, PairwiseMatrixEntry, QualifiedApplicants, QueryParams, RecordStatus, SponsorshipCriteriaPairwise, SponsorshipCriterionModel, UpdateStudentStatus, UpdateStudentStatusRequest, uuidToBinary } from "../utils";
 
 export const createSponsorshipRepo = async (
   data: Prisma.sponsorshipUncheckedCreateInput,
@@ -670,10 +670,87 @@ export const checkSponsorshipCriterionCategoryIdRepo = async (
 export const getPairwiseMatrixRepo = async (
   sponsorshipId: string,
   prisma: PrismaClient
-): Promise<sponsorshipCriteriaPairwise[]> => {
+): Promise<PairwiseMatrixEntry[]> => {
   return prisma.sponsorshipCriteriaPairwise.findMany(
     { 
-      where: { sponsorship_id: uuidToBinary(sponsorshipId), record_status: RecordStatus.ACTIVE}
+      where: { sponsorship_id: uuidToBinary(sponsorshipId), record_status: RecordStatus.ACTIVE},
+      select: {
+        sponsorship_criterion_id_a: true,
+        sponsorship_criterion_id_b: true,
+        sponsorship_criterion_name_a: true,
+        sponsorship_criterion_name_b: true,
+        value: true,
+        criterion_a: {select: {
+          id: true,
+          name: true,
+          label: true,
+          data_source: true,
+          formula_type: true,
+          preference: true
+        }},
+        criterion_b: {select: {
+          id: true,
+          name: true,
+          label: true,
+          data_source: true,
+          formula_type: true,
+          preference: true
+        }}
+      }
     }
   );
+}
+
+export const getQualifiedApplicants = async (
+  sponsorshipId: string,
+  prisma: PrismaClient
+): Promise<QualifiedApplicants[]> => {
+  return prisma.sponsorshipApplication.findMany(
+    {
+      where: {
+        sponsorship_id: uuidToBinary(sponsorshipId),
+        application_stage: APPLICATION_STAGE.FINAL_SELECTION,
+        application_status: APPLICATION_STATUS.APPROVED,
+        record_status: RecordStatus.ACTIVE
+      },
+      select: {
+        app_id: true,
+        student_id: true,
+        interview_status: true,
+        exam_status: true
+      }
+    }
+  )
+}
+
+export const getRequiredColumn = async (
+  criterionId: string,
+  prisma: PrismaClient
+): Promise<criterionRequiredColumn[]> => {
+  return prisma.criterionRequiredColumn.findMany({
+    where: {
+      sponsorship_criterion_id: uuidToBinary(criterionId),
+      record_status: RecordStatus.ACTIVE
+    },
+  })
+}
+
+
+export const getColumnData = async (
+  tableName: string,
+  columnName: string,
+  studentId: string,
+  prisma: PrismaClient
+): Promise<number> => {
+  const tableClient = (prisma as any)[tableName] as {
+    findUnique: (opts: any) => Promise<Record<string, any> | null>;
+  };
+
+  const record = await tableClient.findUnique({
+    where: { id: uuidToBinary(studentId) },  
+    select: { [columnName]: true },
+  });
+
+  if (!record) return 0;
+  return record[columnName]
 }

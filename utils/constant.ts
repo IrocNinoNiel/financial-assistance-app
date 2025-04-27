@@ -55,7 +55,7 @@ export enum EvaluationStatus {
 }
 
 export enum TableEnum {
-    STUDENT = 'students',
+    STUDENT = 'student',
     SPONSORSHIP_APPLICATION = 'sponsorshipApplications',
 }
 

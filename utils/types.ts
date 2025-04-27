@@ -1,5 +1,6 @@
-import { EvaluationStatus, Prisma, schedule } from '@prisma/client';
+import { DataSource, EvaluationStatus, FormulaType, Preference, Prisma, schedule } from '@prisma/client';
 import { APPLICATION_STAGE, APPLICATION_STATUS } from "./constant";
+import { uuidToBinary } from './utils';
 
 export interface LoginRequest {
     username: string;
@@ -774,11 +775,57 @@ export type CriteriaPairwiseConverted = {
   criterionBId: string;
   criterionBName: string;
   value: number;
+  dataSource?: DataSource;
+  formulaType?: FormulaType; 
+  preference: Preference;
 }
 
 export type PairwiseMatrix = number[][];
 
 export type PairwiseMatrixResult = {
-  criteriaOrder: string[];
+  criteriaOrder: CriteriaPairwiseConverted[];
   matrix: PairwiseMatrix;
 }
+
+export type PairwiseMatrixEntry = {
+  sponsorship_criterion_id_a: Uint8Array;
+  sponsorship_criterion_id_b: Uint8Array;
+  sponsorship_criterion_name_a: string;
+  sponsorship_criterion_name_b: string;
+  value: number;
+  criterion_a: {
+    id: Uint8Array;
+    name: string;
+    label: string;
+    data_source?: DataSource;
+    formula_type?: FormulaType; 
+    preference: Preference;
+  };
+  criterion_b: {
+    id: Uint8Array;
+    name: string;
+    label: string;
+    data_source?: DataSource;
+    formula_type?: FormulaType; 
+    preference: Preference;
+  };
+}
+
+export type QualifiedApplicants = {
+  app_id: string,
+  student_id: Uint8Array,
+  interview_status?: EvaluationStatus,
+  exam_status?: EvaluationStatus
+}
+
+export type QualifiedApplicantsConverted = {
+  appId: string,
+  studentId: string,
+  interviewStatus?: EvaluationStatus,
+  examStatus?: EvaluationStatus
+}
+
+export type CriterionRequiredColumn = {
+  tableName: string;    
+  columnName: string;
+};

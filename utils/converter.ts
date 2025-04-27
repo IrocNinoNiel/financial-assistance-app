@@ -1,7 +1,7 @@
 
 import { Prisma, student, user, academicYear, sponsorship, EvaluationStatus, announcement, schedule_type, criterionCategory, DataSource, FormulaType, Preference, customInputCriterion, sponsorshipCriteriaPairwise } from '@prisma/client';
 import { User } from "../authentication/model";
-import { AcademicYearRequest, AcademicYearResponse, AddressResponse, AnnouncementData, AnnouncementDataMinimal, AnnouncementPayloadString, ApplySponsorshipRequest, ApplySponsorshipResponse, Criteria, CriteriaPairwiseConverted, criterionCategoryResponse, CriterionCategoryWithCriterion, CustomInput, CustomInputResponse, FileTypeResponse, FlattenedAnnouncementData, FlattenedAnnouncementDataMinimal, Pairwise, PartialStudentUser, RecordStatus, RegisterRequest, RequiredColumns, RoleResponse, ScheduleModified, ScheduleRequest, ScheduleResponse, SchoolPayload, SiblingRequest, SponsorshipCriteriaPairwise, SponsorshipCriterionModel, SponsorshipRequest, SponsorshipResponse, SponsorshipStatus, StudentListResponse, StudentRequest, ToSponsorshipCriteriResponse, UpdateStudentStatus, UploadedAnnouncementFile, UserDetailsResponse, UserListResponse, UserResponse } from './types';
+import { AcademicYearRequest, AcademicYearResponse, AddressResponse, AnnouncementData, AnnouncementDataMinimal, AnnouncementPayloadString, ApplySponsorshipRequest, ApplySponsorshipResponse, Criteria, CriteriaPairwiseConverted, criterionCategoryResponse, CriterionCategoryWithCriterion, CustomInput, CustomInputResponse, FileTypeResponse, FlattenedAnnouncementData, FlattenedAnnouncementDataMinimal, Pairwise, PairwiseMatrixEntry, PartialStudentUser, QualifiedApplicants, QualifiedApplicantsConverted, RecordStatus, RegisterRequest, RequiredColumns, RoleResponse, ScheduleModified, ScheduleRequest, ScheduleResponse, SchoolPayload, SiblingRequest, SponsorshipCriteriaPairwise, SponsorshipCriterionModel, SponsorshipRequest, SponsorshipResponse, SponsorshipStatus, StudentListResponse, StudentRequest, ToSponsorshipCriteriResponse, UpdateStudentStatus, UploadedAnnouncementFile, UserDetailsResponse, UserListResponse, UserResponse } from './types';
 import { binaryToUuid, uuidToBinary } from "./utils";
 import { APPLICATION_STAGE, APPLICATION_STATUS } from './constant';
 
@@ -683,12 +683,24 @@ export const toCustomInputResponse = ( item: customInputCriterion ): CustomInput
   }
 }
 
-export const toCriteriaPairwiseConverted = ( pairwiseMatrix: sponsorshipCriteriaPairwise ): CriteriaPairwiseConverted => {
+export const toCriteriaPairwiseConverted = ( pairwiseMatrix: PairwiseMatrixEntry ): CriteriaPairwiseConverted => {
   return {
     criterionAId: binaryToUuid(pairwiseMatrix.sponsorship_criterion_id_a),
     criterionAName: pairwiseMatrix.sponsorship_criterion_name_a,
     criterionBId: binaryToUuid(pairwiseMatrix.sponsorship_criterion_id_b),
     criterionBName: pairwiseMatrix.sponsorship_criterion_name_b,
-    value: pairwiseMatrix.value
+    value: pairwiseMatrix.value,
+    dataSource: pairwiseMatrix.criterion_a.data_source,
+    formulaType: pairwiseMatrix.criterion_a.formula_type,
+    preference: pairwiseMatrix.criterion_a.preference
+  }
+}
+
+export const toConvertedQualifiedApplicants = ( payload: QualifiedApplicants): QualifiedApplicantsConverted => {
+  return {
+    appId: payload.app_id,
+    studentId: binaryToUuid(payload.student_id),
+    interviewStatus: payload.interview_status,
+    examStatus: payload.exam_status
   }
 }
