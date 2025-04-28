@@ -754,3 +754,20 @@ export const getColumnData = async (
   if (!record) return 0;
   return record[columnName]
 }
+
+export const getCriterionCustomInputValue = async ( 
+  criterionId: string, 
+  studentId: string, 
+  prisma: PrismaClient): Promise<number> => {
+  
+    const result = await prisma.customInputCriterion.findFirst({
+      where: {
+        sponsorship_criterion_id: uuidToBinary(criterionId),
+        student_id: uuidToBinary(studentId)
+      },
+      select: {
+        value: true
+      }
+    })
+    return result?.value != null ? Number(result.value) : 0;
+}

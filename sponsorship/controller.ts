@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { validateApplyScholarship, validateBulkCustomInputPayload, validateChangeStudentStatus, validateCustomInputPayload, validateGetAllCustomInput, validateQueryParams, validateSponsorship, validateSponsorshipId, validateStudentId, validateUpdateCriterionPayload } from "../middleware/validation";
 import { ResponseHandler } from "../response";
-import { ApplySponsorshipRequest, ApplySponsorshipResponse, criterionCategoryResponse, CriterionPayload, CriterionResponse, CustomInput, CustomInputResponse, DataSourceTable, ERROR_MESSAGES, getQueryParams, PairwiseMatrixResult, QueryParams, SponsorshipRequest, SponsorshipResponse, SUCCESS_MESSAGES, ToSponsorshipCriteriResponse, UpdateStudentStatusRequest, VALIDATION_MESSAGES } from "../utils";
+import { ApplySponsorshipRequest, ApplySponsorshipResponse, criterionCategoryResponse, CriterionPayload, CriterionResponse, CustomInput, CustomInputResponse, DataSourceTable, ERROR_MESSAGES, getQueryParams, PairwiseMatrixResult, QueryParams, SawScoreType, SponsorshipRequest, SponsorshipResponse, SUCCESS_MESSAGES, ToSponsorshipCriteriResponse, UpdateStudentStatusRequest, VALIDATION_MESSAGES } from "../utils";
 import { adjustStudentEligibilityStatus, applyToSponsorship, bulkUpsertCustomInput, createSponsorship, deleteOneSponsorship, getAllAvailableSponsorship, getAllCriterionCustomInputValue, getAllSponsorship, getAllStudentSponsorship, getCategoryCriterion, getDataSources, getOneSponsorship, getOneStudentSponsorship, rankStudent, updateSponsorship, updateSponsorshipCriterion } from "./service";
 import { allowRoles } from "../middleware/authentication";
 
@@ -142,7 +142,7 @@ export default () => {
     sponsorshipAPI.get('/rank-student/:sponsorshipId', allowRoles('system admin', 'financial assistance coordinator' ), validateSponsorshipId, async (req, res) => {
         try {
             const { sponsorshipId } = req.params;
-            const result: PairwiseMatrixResult = await rankStudent( sponsorshipId );
+            const result: SawScoreType[] = await rankStudent( sponsorshipId );
             ResponseHandler.ok( req, res, result);
         } catch (err) {
             ResponseHandler.invalidRequest(req,res , err.message);
