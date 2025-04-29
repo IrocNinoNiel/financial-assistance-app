@@ -381,7 +381,7 @@ export function toApplyScholarshipResponse( payload: any, studentFiles: any[] = 
     yearLevel: payload.student.college_year_level,
     sponsorshipId: binaryToUuid(payload.sponsorship_id),
     sponsorshipName: payload.sponsorship.name,
-    cityMun: payload.current_citynum.citymun_desc,
+    // cityMun: payload.current_citynum.citymun_desc,
     sponsorshipRemarks: payload.remarks,
     sponsorshipStatus: payload.application_status,
     sponsorshipStage: payload.application_stage,

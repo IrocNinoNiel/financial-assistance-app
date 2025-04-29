@@ -648,8 +648,8 @@ export const getCustomInputRepo = async (
 
   return await prisma.customInputCriterion.findMany({
     where: whereCondition,
-    skip: params.offset,
-    take: params.limit,
+    skip: skip,
+    take: limit,
     orderBy,
   })
 }

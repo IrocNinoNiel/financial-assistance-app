@@ -112,7 +112,7 @@ export interface ApplySponsorshipResponse {
   studentName: string,
   applicationDate: string,
   studentSex: string,
-  cityMun: string,
+  cityMun?: string,
   programName: string,
   yearLevel: string,
   sponsorshipStatus: string,
