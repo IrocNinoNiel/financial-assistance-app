@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { validateApplyScholarship, validateBulkCustomInputPayload, validateChangeStudentStatus, validateCustomInputPayload, validateGetAllCustomInput, validateQueryParams, validateSponsorship, validateSponsorshipId, validateStudentId, validateUpdateCriterionPayload } from "../middleware/validation";
+import { validateApplyScholarship, validateBulkCustomInputPayload, validateChangeStudentStatus, validateCustomInputPayload, validatedAppStageParams, validateGetAllCustomInput, validateQueryParams, validateSponsorship, validateSponsorshipId, validateStudentId, validateUpdateCriterionPayload } from "../middleware/validation";
 import { ResponseHandler } from "../response";
-import { ApplySponsorshipRequest, ApplySponsorshipResponse, criterionCategoryResponse, CriterionPayload, CriterionResponse, CustomInput, CustomInputResponse, DataSourceTable, ERROR_MESSAGES, getQueryParams, PairwiseMatrixResult, QueryParams, SawScoreType, SponsorshipRequest, SponsorshipResponse, SUCCESS_MESSAGES, ToSponsorshipCriteriResponse, UpdateStudentStatusRequest, VALIDATION_MESSAGES } from "../utils";
-import { adjustStudentEligibilityStatus, applyToSponsorship, bulkUpsertCustomInput, createSponsorship, deleteOneSponsorship, getAllAvailableSponsorship, getAllCriterionCustomInputValue, getAllSponsorship, getAllStudentSponsorship, getCategoryCriterion, getDataSources, getOneSponsorship, getOneStudentSponsorship, rankStudent, updateSponsorship, updateSponsorshipCriterion } from "./service";
+import { ApplySponsorshipRequest, ApplySponsorshipResponse, ConvertedGetAllApplicantsByStageResult, criterionCategoryResponse, CriterionPayload, CriterionResponse, CustomInput, CustomInputResponse, DataSourceTable, ERROR_MESSAGES, getQueryParams, PairwiseMatrixResult, QueryParams, SawScoreType, SponsorshipRequest, SponsorshipResponse, SUCCESS_MESSAGES, ToSponsorshipCriteriResponse, UpdateStudentStatusRequest, VALIDATION_MESSAGES } from "../utils";
+import { adjustStudentEligibilityStatus, applyToSponsorship, bulkUpsertCustomInput, createSponsorship, deleteOneSponsorship, getAllApplicantsByStage, getAllAvailableSponsorship, getAllCriterionCustomInputValue, getAllSponsorship, getAllStudentSponsorship, getCategoryCriterion, getDataSources, getOneSponsorship, getOneStudentSponsorship, rankStudent, updateSponsorship, updateSponsorshipCriterion } from "./service";
 import { allowRoles } from "../middleware/authentication";
 
 export default () => {
@@ -81,6 +81,17 @@ export default () => {
             ResponseHandler.invalidRequest(req,res , err.message);
         }
     }); 
+
+    sponsorshipAPI.get('/applicants/by-stage', allowRoles('system admin', 'financial assistance coordinator' ), validateQueryParams, validatedAppStageParams, async (req, res) => {
+        try {
+            const params: QueryParams = getQueryParams(req);
+            console.log("parameter", params);
+            const data: ConvertedGetAllApplicantsByStageResult = await getAllApplicantsByStage( params );
+            ResponseHandler.ok(req, res, data);
+        } catch (err) {
+            ResponseHandler.invalidRequest(req,res , err.message);
+        }
+    })
 
     sponsorshipAPI.put('/update-criterion/:sponsorshipId', allowRoles('system admin', 'financial assistance coordinator' ), validateSponsorshipId,validateUpdateCriterionPayload, async (req, res) => {
         try {

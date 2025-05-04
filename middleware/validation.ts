@@ -784,6 +784,21 @@ export const validateQueryParams = [
 ];
 
 
+export const validatedAppStageParams = [
+
+  query('applicationStage')
+    .notEmpty()
+    .withMessage(VALIDATION_MESSAGES.APP_STAGE_PARAM_REQUIRED)
+    .custom( async data => {
+      // check if appStage is in the ENUM
+      const validStages = Object.values(APPLICATION_STAGE);
+      if (!validStages.includes(data)) {
+        return Promise.reject(VALIDATION_MESSAGES.APP_STAGE_PARAM_INVALID);
+      } 
+    }),
+  validateErrors
+]
+
 export const createAnnouncementValidation = [
   body("title")
     .customSanitizer(value => String(value)) // Ensure it's a string

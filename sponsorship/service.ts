@@ -24,6 +24,7 @@ import {
 import {
   toApplyScholarship,
   toApplyScholarshipResponse,
+  toConvertedApplicants,
   toConvertedQualifiedApplicants,
   toCriteriaPairwise,
   toCriteriaPairwiseConverted,
@@ -89,13 +90,16 @@ import {
   getRequiredColumn,
   getColumnData,
   getCriterionCustomInputValue,
+  getAllApplicantsByStageRepo,
 } from "./repository";
 import {
   Action,
+  applicants,
   Applicants,
   ApplySponsorshipRequest,
   ApplySponsorshipResponse,
   AuthPayload,
+  ConvertedGetAllApplicantsByStageResult,
   Criteria,
   CriteriaPairwiseConverted,
   criterionCategoryResponse,
@@ -105,6 +109,7 @@ import {
   CustomInput,
   CustomInputResponse,
   DataSourceTable,
+  GetAllApplicantsByStageResult,
   GetAllSponsorshipType,
   Pairwise,
   PairwiseMatrixEntry,
@@ -115,6 +120,7 @@ import {
   RecordStatus,
   RequiredColumns,
   SawScoreType,
+  SponsorshipApplicantsWithDetails,
   SponsorshipCriteriaPairwise,
   SponsorshipCriterion,
   SponsorshipCriterionModel,
@@ -1173,3 +1179,21 @@ function calculateSAWScores(normalizedMatrix: number[][], weights: number[], app
       return { id: applicant.id, score };
   });
 }
+
+export const getAllApplicantsByStage = async (
+  params: QueryParams
+): Promise<ConvertedGetAllApplicantsByStageResult> => {
+
+  const data: GetAllApplicantsByStageResult = await getAllApplicantsByStageRepo(
+    params, prisma
+  );
+
+  const converted: applicants[] = data.data.map( e => toConvertedApplicants(e));
+
+  const response: ConvertedGetAllApplicantsByStageResult = {
+    data: converted,
+    totalCount: data.totalCount
+  }
+
+  return response;
+};

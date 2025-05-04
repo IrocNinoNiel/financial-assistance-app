@@ -505,6 +505,8 @@ export type  QueryParams = {
   sponsorshipCriterionId?: string;
   sponsorshipId?: string;
   studentId?: string;
+  applicationStage?: string;
+  applicationStatus?: string;
 }
 
 
@@ -828,4 +830,53 @@ export type QualifiedApplicantsConverted = {
 export type CriterionRequiredColumn = {
   tableName: string;    
   columnName: string;
+};
+
+export type SponsorshipApplicantsWithDetails = {
+  id: Uint8Array;
+  app_id: string;
+  student_id: Uint8Array;
+  sponsorship_id: Uint8Array;
+  application_stage: string;
+  application_status: string;
+  application_date: Date;
+  student: {
+    first_name: string;
+    middle_name: string | null;
+    last_name: string;
+    sex: string;
+    college_year_level: number;
+    college_program_name: string;
+    permanent_citynum: {
+      citymun_desc: string;
+    };
+  };
+  sponsorship: {
+    name: string;
+  };
+};
+
+export type GetAllApplicantsByStageResult = {
+  data: SponsorshipApplicantsWithDetails[];
+  totalCount: number;
+};
+
+export type applicants = {
+  appNumber: string,
+  studentId: string,
+  sponsorshipId: string,
+  appStage: string,
+  appStatus: string,
+  applicantName: string,
+  sex: string,
+  program: string,
+  yearLevel: number,
+  municipality: string,
+  finAssname: string,
+  dateOfApp: string
+}
+
+export type ConvertedGetAllApplicantsByStageResult = {
+  data: applicants[];
+  totalCount: number;
 };
