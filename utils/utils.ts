@@ -43,7 +43,7 @@ export const extractUserFromToken = (authHeader: any): { email: string, userId: 
 };
 
 export const getQueryParams = (req: any): QueryParams => {
-  const { offset, limit, search, sort, mine, cityMunId, sponsorshipCriterionId, sponsorshipId, studentId } = req.query;
+  const { offset, limit, search, sort, mine, cityMunId, sponsorshipCriterionId, sponsorshipId, studentId, applicationStage, applicationStatus } = req.query;
   return {
     offset: offset && !isNaN(Number(offset)) ? Number(offset) : 0,
     limit: limit && !isNaN(Number(limit)) ? Number(limit) : 50,
@@ -53,6 +53,8 @@ export const getQueryParams = (req: any): QueryParams => {
     cityMunId: cityMunId && !isNaN(Number(cityMunId)) ? Number(cityMunId) : null,
     sponsorshipCriterionId: sponsorshipCriterionId,
     sponsorshipId: sponsorshipId,
-    studentId: studentId
+    studentId: studentId,
+    applicationStage: applicationStage,
+    applicationStatus: applicationStatus
   };
 };

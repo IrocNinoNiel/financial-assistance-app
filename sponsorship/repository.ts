@@ -9,7 +9,7 @@ import {
   sponsorshipCriterion,
   sponsorshipSchool,
 } from "@prisma/client";
-import { APPLICATION_STAGE, APPLICATION_STATUS, binaryToUuid, CriterionCategoryWithCriterion, GetAllSponsorshipType, PairwiseMatrixEntry, QualifiedApplicants, QueryParams, RecordStatus, SponsorshipCriteriaPairwise, SponsorshipCriterionModel, UpdateStudentStatus, UpdateStudentStatusRequest, uuidToBinary } from "../utils";
+import { APPLICATION_STAGE, APPLICATION_STATUS, binaryToUuid, CriterionCategoryWithCriterion, GetAllApplicantsByStageResult, GetAllSponsorshipType, PairwiseMatrixEntry, QualifiedApplicants, QueryParams, RecordStatus, SponsorshipApplicantsWithDetails, SponsorshipCriteriaPairwise, SponsorshipCriterionModel, UpdateStudentStatus, UpdateStudentStatusRequest, uuidToBinary } from "../utils";
 
 export const createSponsorshipRepo = async (
   data: Prisma.sponsorshipUncheckedCreateInput,
@@ -622,7 +622,7 @@ export const getCustomInputRepo = async (
 ): Promise<customInputCriterion[]> => {
 
   let whereCondition: any = { record_status: RecordStatus.ACTIVE };
-  let orderBy: { created_at?: 'asc' | 'desc' } = { created_at: 'desc' };;
+  let orderBy: { created_at?: 'asc' | 'desc' } = { created_at: 'desc' };
   let skip: number = 0;
   let limit: number = 50;
 
@@ -648,8 +648,8 @@ export const getCustomInputRepo = async (
 
   return await prisma.customInputCriterion.findMany({
     where: whereCondition,
-    skip: params.offset,
-    take: params.limit,
+    skip: skip,
+    take: limit,
     orderBy,
   })
 }
@@ -754,3 +754,89 @@ export const getColumnData = async (
   if (!record) return 0;
   return record[columnName]
 }
+
+export const getCriterionCustomInputValue = async ( 
+  criterionId: string, 
+  studentId: string, 
+  prisma: PrismaClient): Promise<number> => {
+  
+    const result = await prisma.customInputCriterion.findFirst({
+      where: {
+        sponsorship_criterion_id: uuidToBinary(criterionId),
+        student_id: uuidToBinary(studentId)
+      },
+      select: {
+        value: true
+      }
+    })
+    return result?.value != null ? Number(result.value) : 0;
+}
+
+export const getAllApplicantsByStageRepo = async (
+  params: QueryParams,
+  prisma: PrismaClient
+): Promise<GetAllApplicantsByStageResult> => {
+
+  const whereCondition: any = {
+    record_status: RecordStatus.ACTIVE,
+    application_stage: params.applicationStage,
+  };
+
+  if (params.applicationStatus) {
+    whereCondition.application_status = params.applicationStatus;
+  }
+
+  const orderBy: any = {};
+  if (params.sort) {
+    orderBy['created_at'] = params.sort === 'desc' ? 'desc' : 'asc';
+  }
+
+  const skip = params.offset ?? 0;
+  const limit = params.limit ?? 50;
+
+  const [data, totalCount] = await Promise.all([
+    prisma.sponsorshipApplication.findMany({
+      where: whereCondition,
+      select: {
+        id: true,
+        app_id: true,
+        student_id: true,
+        sponsorship_id: true,
+        application_stage: true,
+        application_status: true,
+        application_date: true,
+        student: {
+          select: {
+            first_name: true,
+            middle_name: true,
+            last_name: true,
+            sex: true,
+            college_year_level: true,
+            college_program_name: true,
+            permanent_citynum: {
+              select: {
+                citymun_desc: true
+              }
+            }
+          }
+        },
+        sponsorship: {
+          select: {
+            name: true
+          }
+        }
+      },
+      skip,
+      take: limit,
+      orderBy
+    }),
+    prisma.sponsorshipApplication.count({
+      where: whereCondition
+    })
+  ]);
+
+  return {
+    data,
+    totalCount
+  };
+};

@@ -4,6 +4,7 @@ import {
   customInputCriterion,
   DataSource,
   EvaluationStatus,
+  FormulaType,
   Preference,
   Prisma,
   PrismaClient,
@@ -23,6 +24,7 @@ import {
 import {
   toApplyScholarship,
   toApplyScholarshipResponse,
+  toConvertedApplicants,
   toConvertedQualifiedApplicants,
   toCriteriaPairwise,
   toCriteriaPairwiseConverted,
@@ -87,13 +89,17 @@ import {
   getQualifiedApplicants,
   getRequiredColumn,
   getColumnData,
+  getCriterionCustomInputValue,
+  getAllApplicantsByStageRepo,
 } from "./repository";
 import {
   Action,
+  applicants,
   Applicants,
   ApplySponsorshipRequest,
   ApplySponsorshipResponse,
   AuthPayload,
+  ConvertedGetAllApplicantsByStageResult,
   Criteria,
   CriteriaPairwiseConverted,
   criterionCategoryResponse,
@@ -103,6 +109,7 @@ import {
   CustomInput,
   CustomInputResponse,
   DataSourceTable,
+  GetAllApplicantsByStageResult,
   GetAllSponsorshipType,
   Pairwise,
   PairwiseMatrixEntry,
@@ -112,6 +119,8 @@ import {
   QueryParams,
   RecordStatus,
   RequiredColumns,
+  SawScoreType,
+  SponsorshipApplicantsWithDetails,
   SponsorshipCriteriaPairwise,
   SponsorshipCriterion,
   SponsorshipCriterionModel,
@@ -200,6 +209,7 @@ export const applyToSponsorship = async (
     const apply: Prisma.sponsorshipApplicationUncheckedCreateInput =
       toApplyScholarship(payload, appId, userId);
     const data: any = await applyToSponsorshipRepo(apply, prisma);
+    console.log("data apply", data);
     return toApplyScholarshipResponse(data);
   });
 };
@@ -518,8 +528,10 @@ export const bulkUpsertCustomInput = async(payload: CustomInput[], authHeader: s
       await Promise.all(updatePromises);
     }
 
+    console.log("before");
     const result: customInputCriterion[] = await getCustomInputRepo( payload[0].sponsorshipCriterionId, payload[0].sponsorshipId, "",
       null, prisma );
+    console.log("after");
 
     return result.map(e => toCustomInputResponse(e));
   });
@@ -536,35 +548,50 @@ export const getAllCriterionCustomInputValue = async( params: QueryParams ): Pro
   return result.map(e => toCustomInputResponse(e));
 }
 
-export const rankStudent = async( sponsorshipId: string, ): Promise<PairwiseMatrixResult> => {
+export const rankStudent = async( sponsorshipId: string, ): Promise<SawScoreType[]> => {
   // pairwise
   const pairwiseMatrix: PairwiseMatrixEntry[] = await getPairwiseMatrixRepo( sponsorshipId, prisma );
   const pairwiseMatrixConverted: CriteriaPairwiseConverted[] = pairwiseMatrix.map( e => toCriteriaPairwiseConverted( e ));
   const pairwise: PairwiseMatrixResult = generatePairwiseMatrix(pairwiseMatrixConverted);
 
   const weights: number[] = calculateAHPWeights(pairwise.matrix);
-  console.debug("AHP Criteria Weights:", weights);
 
   // 2) extract the ordered list of criterion-A names
   const criterionNameInOrder: string[] = pairwise.criteriaOrder.map(
     entry => entry.criterionAName
   );
-  console.log("Criterion to be used", criterionNameInOrder);
   
   const isBenefit: boolean[] = pairwise.criteriaOrder.map(
     entry => entry.preference === Preference.MAX
   );
-  console.log("Min/Max value", isBenefit);
   
   // get student applicants
   const applicants: QualifiedApplicants[] = await getQualifiedApplicants( sponsorshipId, prisma );
   const applicantsConverted: QualifiedApplicantsConverted[] = applicants.map( e => toConvertedQualifiedApplicants( e ));
-  console.log("Applicants: ", applicantsConverted);
+  
+  const applicantsData: Record<string, any>[] = await processApplicantsData( applicantsConverted, pairwise.criteriaOrder);
+  const normalizedMatrix: number[][] = normalizeSAW(applicantsData, criterionNameInOrder, isBenefit);
+  
+  console.debug("Applicants: ", applicantsConverted);
+  console.debug("Pairwise matrix", pairwise.matrix);
+  console.debug("Normalize matrix", normalizedMatrix);
+  console.debug("Criterion to be used", criterionNameInOrder);
+  console.debug("AHP Criteria Weights:", weights);
+  console.debug("Criteria Order", pairwise.criteriaOrder);
+  console.debug("Min/Max value", isBenefit);
 
-  // get necesarry details in applicants
-  const applicantsData: any[] = await processApplicantsData( applicantsConverted, pairwise.criteriaOrder);
-  // const normalizedMatrix: number[][] = normalizeSAW(applicants, pairwise.criteriaOrder, isBenefit);
-  return pairwise;
+  const scores: SawScoreType[] = calculateSAWScores(normalizedMatrix, weights, applicantsData, criterionNameInOrder);
+
+  // final rankings
+  const rankedApplicants: SawScoreType[] = scores.sort((a, b) => {
+    if (b.score === a.score) {
+        return a.id.localeCompare(b.id);
+    }
+    return b.score - a.score;
+  });
+  console.debug("Final Rankings:", rankedApplicants);
+
+  return rankedApplicants;
 }
 
 /**
@@ -592,7 +619,6 @@ export const updateSponsorshipCriterion = async (
     if (payload.criteria.length === 0) {
       return null;
     }
-    console.log("payload criterion is not equal to 0");
 
     // if the sponsorship still dont have criterion
     if (sponsorshipCriterionData.length == 0) {
@@ -609,14 +635,16 @@ export const updateSponsorshipCriterion = async (
             "CREATE",
             prisma
           );
-
+        
         // save required column
-        if (data.requiredColumns.length > 0) {
-          await bulkCreateRequiredColumn(
-            data.requiredColumns,
-            binaryToUuid(sponsorshipCriterionData.id),
-            prisma
-          );
+        if(data.dataSource !== 'CUSTOM_INPUT') { 
+          if (data.requiredColumns.length > 0) {
+            await bulkCreateRequiredColumn(
+              data.requiredColumns,
+              binaryToUuid(sponsorshipCriterionData.id),
+              prisma
+            );
+          }
         }
 
         sponsorshipCriterion.push({
@@ -1001,41 +1029,67 @@ async function generateAppId(sponsorshipId: string) {
   return appId;
 }
 
-const processApplicantsData = async ( applicantsConverted: QualifiedApplicantsConverted[], criteriaOrder: CriteriaPairwiseConverted[]) : Promise<any[]> => {
+const processApplicantsData = async ( 
+  applicantsConverted: QualifiedApplicantsConverted[], 
+  criteriaOrder: CriteriaPairwiseConverted[],
+) : Promise<Record<string, any>[]> => {
 
+  const applicantsDetails: Record<string, any>[] = [];
+  console.log("applicants lenght",applicantsConverted.length);
   //loop through the applicants
   for(const applicant of applicantsConverted) {
+    const dynamicObject: Record<string, any> = {};
+    dynamicObject['id'] = applicant.studentId;
     //loop through each criteria to get the value
     for(const criteria of criteriaOrder) {
-
+      console.log("criteria 123", criteria);
       switch (criteria.dataSource) {
         case DataSource.COLUMN:
           const requiredColumn: criterionRequiredColumn[] = await getRequiredColumn( criteria.criterionAId, prisma );
-          console.log("required column", requiredColumn);
+          let total = 0;
 
           if(requiredColumn.length > 0) {
             for( const cfg of requiredColumn ) {
               const tableName: string  = cfg.table;  
               const columnName: string = cfg.column; 
               const record: number = await getColumnData( tableName, columnName, applicant.studentId, prisma );
-              console.log("after");
               console.log(`${criteria.criterionAName} value :`, record);
+              total = record;
             }
           }
+          dynamicObject[criteria.criterionAName] = total;
           break;
         case DataSource.COMPUTED:
-          
+          const requiredColumnComputed: criterionRequiredColumn[] = await getRequiredColumn( criteria.criterionAId, prisma );
+          let totalComputed = 0;
+
+          if(requiredColumnComputed.length > 0) {
+            for( const cfg of requiredColumnComputed ) {
+              const tableName: string  = cfg.table;  
+              const columnName: string = cfg.column; 
+              const record: number = await getColumnData( tableName, columnName, applicant.studentId, prisma );
+              console.log(`${criteria.criterionAName} value :`, record);
+              totalComputed += record;
+            }
+
+            totalComputed = criteria.formulaType == FormulaType.AVG ? totalComputed / requiredColumnComputed.length : totalComputed;
+          }
+
+          dynamicObject[criteria.criterionAName] = totalComputed;
           break;
       
         default:
-          
+          console.log("custom input", criteria);
+          const value: number = await getCriterionCustomInputValue( criteria.criterionAId, applicant.studentId, prisma);
+          dynamicObject[criteria.criterionAName] = value;
           break;
       }
     }
+    applicantsDetails.push(dynamicObject);
   }
 
-
-  return []
+  console.log("applicants details", applicantsDetails);
+  return applicantsDetails;
 }
 
 function generatePairwiseMatrix(
@@ -1054,17 +1108,17 @@ function generatePairwiseMatrix(
       formulaType: item.formulaType,
       preference: item.preference,
     });
-    if (!map.has(item.criterionBName)) map.set(item.criterionBName, { 
-      /* similar for B */ 
-      criterionAId: item.criterionBId,
-      criterionAName: item.criterionBName,
-      criterionBId: item.criterionAId,
-      criterionBName: item.criterionAName,
-      value: 1 / item.value,
-      dataSource: item.dataSource,
-      formulaType: item.formulaType,
-      preference: item.preference,
-    });
+    // if (!map.has(item.criterionBName)) map.set(item.criterionBName, { 
+    //   /* similar for B */ 
+    //   criterionAId: item.criterionBId,
+    //   criterionAName: item.criterionBName,
+    //   criterionBId: item.criterionAId,
+    //   criterionBName: item.criterionAName,
+    //   value: 1 / item.value,
+    //   dataSource: item.dataSource,
+    //   formulaType: item.formulaType,
+    //   preference: item.preference,
+    // });
   });
   const criteriaOrder = Array.from(map.values());
 
@@ -1100,7 +1154,7 @@ function calculateAHPWeights(matrix: number[][]): number[] {
   return weights;
 }
 
-function normalizeSAW(data: Applicants[], criteria: string[], isBenefit: boolean[]): number[][] {
+function normalizeSAW(data: Record<string, any>[], criteria: string[], isBenefit: boolean[]): number[][] {
     return criteria.map((criterion, index) => {
         const values: number[] = data.map(applicant => {
             if (typeof applicant[criterion] !== 'number') {
@@ -1118,3 +1172,28 @@ function normalizeSAW(data: Applicants[], criteria: string[], isBenefit: boolean
         return data.map(applicant => isBenefit[index] ? applicant[criterion] / max : min / applicant[criterion]);
     });
 }
+
+function calculateSAWScores(normalizedMatrix: number[][], weights: number[], applicants: Record<string, any>[], criteriaNames: string[]): SawScoreType[] {
+  return applicants.map((applicant, i) => {
+      const score: number = criteriaNames.reduce((sum, _, j) => sum + (normalizedMatrix[j][i] * weights[j]), 0);
+      return { id: applicant.id, score };
+  });
+}
+
+export const getAllApplicantsByStage = async (
+  params: QueryParams
+): Promise<ConvertedGetAllApplicantsByStageResult> => {
+
+  const data: GetAllApplicantsByStageResult = await getAllApplicantsByStageRepo(
+    params, prisma
+  );
+
+  const converted: applicants[] = data.data.map( e => toConvertedApplicants(e));
+
+  const response: ConvertedGetAllApplicantsByStageResult = {
+    data: converted,
+    totalCount: data.totalCount
+  }
+
+  return response;
+};

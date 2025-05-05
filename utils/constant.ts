@@ -238,6 +238,8 @@ export const VALIDATION_MESSAGES = {
     SPONSORSHIP_FUND_ALLOCATION_INVALID: "fundAllocation must be greater than 0",
     REMARKS_REQUIRED: 'remarks is required',
     STUDENT_NOT_APPLIED: "Student don't have any application on this sponsorship",
+    APP_STAGE_PARAM_REQUIRED: "applicationStage is required",
+    APP_STAGE_PARAM_INVALID: "Invalid applicationStage. Allowed values are: POOLING | INTERVIEW_EXAM | RANKING_SELECTION | FINAL_SELECTION",
     APP_STAGE_REQUIRED: "appStage is required",
     APP_STATUS_REQUIRED: "appStatus is required",
     APP_STAGE_INVALID: "Invalid appStage. Allowed values are: POOLING | INTERVIEW_EXAM | RANKING_SELECTION | FINAL_SELECTION",
