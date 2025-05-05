@@ -524,6 +524,13 @@ export type UploadedAnnouncementFile = {
   mime_type: string;
 };
 
+export type GetStudentFile = {
+  filename: string;
+  path: string;
+  mime_type: string;
+  filetype: string;
+};
+
 export type AnnouncementData = {
   id: Uint8Array;
   title: string;

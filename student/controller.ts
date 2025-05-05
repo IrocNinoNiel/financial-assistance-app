@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { ResponseHandler } from "../response";
-import { getQueryParams, QueryParams, StudentRequest } from "../utils";
-import { getAllStudent, getOneStudent, updateStudentService } from "./service";
+import { getQueryParams, GetStudentFile, QueryParams, StudentRequest } from "../utils";
+import { getAllStudent, getOneStudent, getStudentFiles, updateStudentService } from "./service";
 import { validateStudentRegistration, validateUpdateStudent, validateGetOneStudent, validateStudentId, validateQueryParams } from "../middleware/validation";
 
 
@@ -42,6 +42,18 @@ export default () => {
 
             const { studentId } = req.params;
             const result = await getOneStudent( studentId );
+            ResponseHandler.ok(req, res, result);
+
+        } catch (err) {
+            ResponseHandler.internalServerError(req, res , err.message);
+        }
+    })
+
+    studentAPI.get('/files/:studentId', validateStudentId, async (req, res) => { 
+        try {
+
+            const { studentId } = req.params;
+            const result: GetStudentFile[] = await getStudentFiles( studentId );
             ResponseHandler.ok(req, res, result);
 
         } catch (err) {

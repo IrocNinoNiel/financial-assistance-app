@@ -1,9 +1,10 @@
-import { binaryToUuid, extractUserFromToken, PartialStudentUser, QueryParams, StudentListResponse, StudentRequest, uuidToBinary } from "../utils";
+import { binaryToUuid, extractUserFromToken, GetStudentFile, PartialStudentUser, QueryParams, StudentListResponse, StudentRequest, UploadedAnnouncementFile, uuidToBinary } from "../utils";
 import { v4 as uuidv4 } from 'uuid';
-import { convertStudentResponseToStudent, convertToSiblingData, convertToStudentUser, toStudentResponse } from "../utils/converter";
+import { convertStudentResponseToStudent, convertToSiblingData, convertToStudentUser, toStudentFileResponse, toStudentResponse } from "../utils/converter";
 import { checkIfStudentRepo, doesStudentExistRepo, getAllStudentRepo, getOneStudentRepo, isEmailTakenByAnotherStudentRepo, registerSiblingsRepo, registerStudentRepo, updateSiblingsRepo, updateStudentRepo, getOneStudentUsingUserIdRepo } from './repository';
 import { Prisma, student } from "@prisma/client";
 import { partialUpdateUserRepo } from "../user/repository";
+import { getAllFileOfStudent } from "../file/service";
 
 
 export const registerStudentService = async ( data: StudentRequest, authHeader: any ) => {
@@ -85,4 +86,10 @@ export const isEmailTakenByAnotherStudent = async ( email: string, studentId: st
 
 export const doesStudentExist = async ( studentId: string ): Promise<boolean> => {
     return await doesStudentExistRepo(studentId);
+}
+
+export const getStudentFiles = async ( studentId: string ): Promise<GetStudentFile[]> => { 
+    const studentFiles: any[] = await getAllFileOfStudent( studentId);
+    const converted: GetStudentFile[] = studentFiles.map( item => toStudentFileResponse(item));
+    return converted;
 }
