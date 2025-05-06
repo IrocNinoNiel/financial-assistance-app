@@ -528,10 +528,8 @@ export const bulkUpsertCustomInput = async(payload: CustomInput[], authHeader: s
       await Promise.all(updatePromises);
     }
 
-    console.log("before");
     const result: customInputCriterion[] = await getCustomInputRepo( payload[0].sponsorshipCriterionId, payload[0].sponsorshipId, "",
       null, prisma );
-    console.log("after");
 
     return result.map(e => toCustomInputResponse(e));
   });

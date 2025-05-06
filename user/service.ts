@@ -1,8 +1,8 @@
 import { user } from "@prisma/client";
-import { UpdateUserRequest, UserDetailsResponse, UserParameter, UserResponse, uuidToBinary } from "../utils";
+import { binaryToUuid, UpdateUserRequest, UserDetailsResponse, UserParameter, UserResponse, uuidToBinary } from "../utils";
 import { toUserResponse } from "../utils/converter";
 import { checkIfNotSponsorRepo, deleteUserRepo, doesUserExistRepo, getAllUsersRepo, getOneUserRepo, isAdminRepo, updateUserRepo } from "./repository"
-import { checkIfStudentRepo, getOneStudentUsingUserIdRepo, partialUpdateStudentRepo, updateStudentRepo } from "../student/repository";
+import { checkIfStudentRepo, deleteStudentRepo, getOneStudentUsingUserIdRepo, partialUpdateStudentRepo, updateStudentRepo } from "../student/repository";
 import { getOneStudentUsingUserId } from "../student/service";
 
 export const isAdmin = async (userId: string) : Promise<boolean> => { 
@@ -69,7 +69,19 @@ export const updateUserService = async ( data: UpdateUserRequest, userId: string
 }
 
 export const deleteUserService = async ( userId: string) => {
+
+    const student = await checkIfStudentRepo(userId);
     await deleteUserRepo(userId);
+    if(student) {
+        const studentDetails: any = await getOneStudentUsingUserId(userId);
+        console.log("deleting student", studentDetails);
+
+        // another if to ensure that it is a student not a admin
+        if( studentDetails ) {
+            const studentId = binaryToUuid(studentDetails.id);
+            await deleteStudentRepo( studentId );
+        }
+    }
 }
 
 export const checkIfNotSponsor = async ( userId: string): Promise<boolean> => {

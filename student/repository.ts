@@ -300,3 +300,14 @@ export const doesStudentExistRepo = async (
   });
   return !!student;
 };
+
+export const deleteStudentRepo = async ( studentId: string ) => {
+  try {
+    await prisma.student.update({
+      where: { id: uuidToBinary(studentId) },
+      data: {record_status: RecordStatus.DELETED},
+    });
+  } catch (error) {
+    console.error('Error updating user:', error);
+  }
+}
