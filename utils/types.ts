@@ -527,6 +527,7 @@ export type UploadedAnnouncementFile = {
 };
 
 export type GetStudentFile = {
+  id: string;
   filename: string;
   path: string;
   mime_type: string;

@@ -3,8 +3,8 @@ import multer from "multer";
 import { ResponseHandler } from "../response";
 import { extractUserFromToken, FileTypeResponse, SUCCESS_MESSAGES, VALIDATION_MESSAGES } from "../utils";
 import path from "path";
-import { fileUpload, findFileTypeId, getAllFileType, imageUpload } from "./service";
-import { validateStudentId } from "../middleware/validation";
+import { fileDelete, fileUpload, findFileTypeId, getAllFileType, imageUpload } from "./service";
+import { validateFileId, validateStudentId } from "../middleware/validation";
 
 
 
@@ -125,6 +125,12 @@ export default () => {
         } catch (err) {
             ResponseHandler.invalidRequest(req,res , err.message);
         }
+    })
+
+    fileAPI.delete('/:fileId', validateFileId, async (req, res) => {
+      const { fileId } = req.params;
+      await fileDelete( fileId );
+      ResponseHandler.deleted(req, res, SUCCESS_MESSAGES.FILE_DELETED);
     })
 
     return fileAPI;

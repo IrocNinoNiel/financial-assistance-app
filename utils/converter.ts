@@ -404,6 +404,7 @@ export function toApplyScholarshipResponse( payload: any, studentFiles: any[] = 
 
 export const toStudentFileResponse = ( data: any ): GetStudentFile => { 
   return {
+    id: binaryToUuid(data.id),
     filename: data.file_name,
     mime_type: data.mime_type,
     path: data.path,

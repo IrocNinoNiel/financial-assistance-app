@@ -69,7 +69,7 @@ export const getAllFileOfStudentRepo = async (
 ): Promise<any[]> => {
   return await prisma.file.findMany({
     where: { student_id: uuidToBinary(studentId) },
-    select: { student_id: true, file_name: true, fileType: { select: { name: true } } },
+    select: { id:true, student_id: true, file_name: true, fileType: { select: { name: true } } },
   });
 };
 
@@ -79,9 +79,28 @@ export const getBulkFileOfStudentsRepo = async (
   return await prisma.file.findMany({
     where: { student_id: { in: studentIds } },
     select: {
+      id: true,
       student_id: true,
       file_name: true,
       fileType: { select: { name: true } },
     },
   });
 };
+
+export const fileDeleteRepo = async (fileId: string) => { 
+  try {
+    await prisma.file.delete({
+      where: { id: uuidToBinary(fileId) },
+    });
+  } catch (error) {
+    console.error("Error deleting file:", error);
+    throw error;
+  }
+}
+
+export const doesFileExistRepo = async (fileId: string): Promise<boolean> => { 
+  const file = await prisma.file.findUnique({
+      where: { id: uuidToBinary(fileId) },
+    });
+    return !!file;
+}

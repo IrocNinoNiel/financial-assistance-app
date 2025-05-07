@@ -13,6 +13,7 @@ export const ERROR_MESSAGES = {
 
 export const SUCCESS_MESSAGES = {
     FILE_SAVED: "File successfully saved",
+    FILE_DELETED: "File successfully deleted",
     IMAGE_SAVED: "Image Saved Successfully",
     USER_DELETED: "User Successfully deleted",
     SCHOOL_DELETED: "School Successfully deleted",
@@ -191,6 +192,8 @@ export const VALIDATION_MESSAGES = {
     INVALID_CITYMUN: "City/Municipality code must be a string",
     MISSING_CITYMUN: "City/Municipality code is required",
     NOT_FOUND_CITYMUN: "City/Municipality does not exist in the system",
+    FILE_ID_REQUIRED: "File Id is Required",
+    FILE_ID_NOT_FOUND: "File not found",
     STUDENT_ID_REQUIRED: "Student Id is Required",
     STUDENT_NOT_FOUND: "Student not found",
     USER_ID_REQUIRED: "userId is required",

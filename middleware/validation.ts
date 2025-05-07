@@ -10,7 +10,7 @@ import { checkIfNotSponsor, doesUserExist } from "../user/service";
 import { checkIfInvalidSchoolId, checkSchoolExist, checkSchoolNameExist } from "../schools/service";
 import { checkAcademicYearId, checkExistingAcademicYear } from "../academicYear/service";
 import { checkBatch, checkCriterionCategoryId, checkIfSponsorshipExist, checkSponsorshipCriterionCategoryId, checkSponsorshipId, doesStudentAlreadyApplied } from "../sponsorship/service";
-import { checkIfInvalidFileTypeId } from "../file/service";
+import { checkIfInvalidFileTypeId, doesFileExist } from "../file/service";
 import { doesAnnExist, doesAnnExistGet } from "../announcement/service";
 import { findIfExists } from "../schedule/service";
 import { checkCriterionCategoryIdRepo } from "../sponsorship/repository";
@@ -1171,3 +1171,15 @@ export const validateGetAllCustomInput = [
     }),
   validateErrors
 ];
+
+export const validateFileId = [
+  param("fileId")
+    .notEmpty().withMessage(VALIDATION_MESSAGES.FILE_ID_REQUIRED)
+    .custom(async (fileId) => {
+      const fileExists = await doesFileExist(fileId);
+      if (!fileExists) {
+        return Promise.reject(VALIDATION_MESSAGES.FILE_ID_NOT_FOUND);
+      }
+  }),
+  validateErrors
+]
