@@ -270,6 +270,7 @@ export function toUserPermissionResponse(permissions: any[]): any[] {
 
 export function toAddressResponse(data: any[]): AddressResponse[] {
   return data.map((item) => ({
+    id: item.id,
     psgcCode: item.psgc_code,
     regDesc: item.reg_desc,
     regCode: item.reg_code,
