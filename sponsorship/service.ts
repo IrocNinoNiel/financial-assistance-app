@@ -284,6 +284,8 @@ export const updateSponsorship = async (
 
     const sponsorshipData = await getOneSponsorshipRepo(sponsorshipId, prisma);
     return toSponsorshipResponse(sponsorshipData);
+  }, {
+    timeout: 30000 // in milliseconds
   });
 };
 
@@ -534,6 +536,8 @@ export const bulkUpsertCustomInput = async(payload: CustomInput[], authHeader: s
       null, prisma );
 
     return result.map(e => toCustomInputResponse(e));
+  }, {
+    timeout: 30000 // in milliseconds
   });
 }
 
@@ -732,6 +736,8 @@ export const updateSponsorshipCriterion = async (
 
     const convertedResponse: ToSponsorshipCriteriResponse = toSponsorshipCriteriResponse(criterionResponse, criterionPairwiseResponse, sponsorshipId, categoryCriterionId);
     return convertedResponse;
+  }, {
+    timeout: 30000 // in milliseconds
   });
 };
 
