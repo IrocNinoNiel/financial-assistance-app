@@ -194,6 +194,8 @@ export const createSponsorship = async (
 
     const sponsorshipData = await getOneSponsorshipRepo(sponsorshipId, prisma);
     return toSponsorshipResponse(sponsorshipData);
+  }, {
+    timeout: 30000 // in milliseconds
   });
 };
 
