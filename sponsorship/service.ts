@@ -213,6 +213,8 @@ export const applyToSponsorship = async (
     const data: any = await applyToSponsorshipRepo(apply, prisma);
     console.log("data apply", data);
     return toApplyScholarshipResponse(data);
+  }, {
+    timeout: 30000 // in milliseconds
   });
 };
 
@@ -435,6 +437,8 @@ export const adjustStudentEligibilityStatus = async (
 
     const response = toUpdateStatusResponse(converted);
     return response;
+  }, {
+    timeout: 30000 // in milliseconds
   });
 };
 
