@@ -216,6 +216,26 @@ export const applyToSponsorship = async (
   });
 };
 
+export const checkRemainingSlot = async (
+  payload: ApplySponsorshipRequest
+): Promise<boolean> => {
+
+  const sponsorshipId = uuidToBinary(payload.sponsorshipId);
+  const sponsorship = await prisma.sponsorship.findUnique({
+    where: { id: sponsorshipId },
+    select: { slot: true },
+  });
+
+  const currentApplicantsCount = await prisma.sponsorshipApplication.count({
+    where: { 
+      sponsorship_id: sponsorshipId,
+      application_stage: APPLICATION_STAGE.APPLICATION_LIST,
+    },
+  });
+  
+  return sponsorship.slot == currentApplicantsCount;
+};
+
 export const getAllStudentSponsorship = async (
   studentId: string,
   authHeader: any
