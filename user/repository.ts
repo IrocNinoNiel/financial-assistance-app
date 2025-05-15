@@ -1,5 +1,5 @@
-import { Prisma, PrismaClient, user } from '@prisma/client';
-import { binaryToUuid, GetAllUsersParams, PartialStudentUser, RecordStatus, UserParameter, uuidToBinary } from '../utils';
+import { Prisma, PrismaClient, sponsorship, user } from '@prisma/client';
+import { APPLICATION_STAGE, APPLICATION_STATUS, binaryToUuid, GetAllUsersParams, PartialStudentUser, RecordStatus, UserParameter, uuidToBinary } from '../utils';
 
 const prisma = new PrismaClient({
   log: ["query"],
@@ -141,6 +141,38 @@ export const deleteUserRepo = async ( userId: string ) => {
     console.error('Error updating user:', error);
   }
 }
+
+export const getSponsorshipLimit = async ( data: string ): Promise<any> => {
+  try {
+    const sponsorshipId = uuidToBinary(data);
+    const sponsorship = await prisma.sponsorship.findUnique({
+      where: { id: sponsorshipId },
+      select: { limit: true },
+    });
+
+    return sponsorship;
+  } catch (error) {
+    console.error('Error updating user:', error);
+  }
+}
+
+
+export const countApplicantsAlreadyApproved = async (
+  data: string
+): Promise<number> => {
+  try {
+    const sponsorshipId = uuidToBinary(data);
+    return await prisma.sponsorshipApplication.count({
+      where: {
+        sponsorship_id: sponsorshipId,
+        application_stage: APPLICATION_STAGE.FINAL_SELECTION,
+        application_status: APPLICATION_STATUS.APPROVED,
+      },
+    });
+  } catch (error) {
+    console.error("Error updating user:", error);
+  }
+};
 
 export const checkIfNotSponsorRepo = async ( userId: string ) => {
   try {
