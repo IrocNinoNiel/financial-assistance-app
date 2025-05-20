@@ -305,5 +305,7 @@ export const VALIDATION_MESSAGES = {
     CUSTOM_INPUT_SPON_CRIT_ID_INVALID: 'sponsorshipCriterionId must be a valid UUID',
     CUSTOM_INPUT_VALUE_INVALID: 'value must be a number',
     CUSTOM_INPUT_VALUE_EMPTY: 'value is required',
-    CUSTOM_INPUT_SPON_CRIT_ID_NOT_FOUND: 'sponsorship criterion id not found'
+    CUSTOM_INPUT_SPON_CRIT_ID_NOT_FOUND: 'sponsorship criterion id not found',
+    SLOT_FULL: "No slots available for this sponsorship.",
+    LIMIT_REACHED: "The number of accepted applicants has already reached its limit.",
 };

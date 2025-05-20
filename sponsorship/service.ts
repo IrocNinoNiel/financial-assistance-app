@@ -131,6 +131,7 @@ import {
 } from "../utils/types";
 import { getStudentCollegeSchoolRepo } from "../student/repository";
 import { getAllFileOfStudent, getBulkFileOfStudents } from "../file/service";
+import { countApplicantsAlreadyApproved, getSponsorshipLimit } from "../user/repository";
 const prisma = new PrismaClient({
   log: ["query", "info", "warn", "error"],
 });
@@ -216,6 +217,39 @@ export const applyToSponsorship = async (
   }, {
     timeout: 30000 // in milliseconds
   });
+};
+
+export const checkRemainingSlot = async (
+  payload: ApplySponsorshipRequest
+): Promise<boolean> => {
+
+  const sponsorshipId = uuidToBinary(payload.sponsorshipId);
+  const sponsorship = await prisma.sponsorship.findUnique({
+    where: { id: sponsorshipId },
+    select: { slot: true },
+  });
+
+  const currentApplicantsCount = await prisma.sponsorshipApplication.count({
+    where: { 
+      sponsorship_id: sponsorshipId,
+      application_stage: APPLICATION_STAGE.APPLICATION_LIST,
+    },
+  });
+  
+  return sponsorship.slot == currentApplicantsCount;
+};
+
+export const checkSponsorshipLimit = async (
+  payload: UpdateStudentStatusRequest
+): Promise<boolean> => {
+
+  if(payload.appStage == APPLICATION_STAGE.FINAL_SELECTION && APPLICATION_STATUS.APPROVED) {
+    const sponsorship = await getSponsorshipLimit( payload.sponsorshipId );
+    const currentApprovedApplicants = await countApplicantsAlreadyApproved( payload.sponsorshipId );
+    return sponsorship.limit <= currentApprovedApplicants;
+  }
+
+  return false;
 };
 
 export const getAllStudentSponsorship = async (
@@ -421,6 +455,8 @@ export const adjustStudentEligibilityStatus = async (
     details.appStage = next.nextStage;
     details.appStatus = next.nextStatus;
   }
+
+  console.log("details 123", details);
 
   return await prisma.$transaction(async (prisma) => {
     const app = await findAppId(prisma, studentId, details.sponsorshipId);

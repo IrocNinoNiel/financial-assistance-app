@@ -2,7 +2,7 @@ import { Router } from "express";
 import { validateApplyScholarship, validateBulkCustomInputPayload, validateChangeStudentStatus, validateCustomInputPayload, validatedAppStageParams, validateGetAllCustomInput, validateQueryParams, validateSponsorship, validateSponsorshipId, validateStudentId, validateUpdateCriterionPayload } from "../middleware/validation";
 import { ResponseHandler } from "../response";
 import { ApplySponsorshipRequest, ApplySponsorshipResponse, ConvertedGetAllApplicantsByStageResult, criterionCategoryResponse, CriterionPayload, CriterionResponse, CustomInput, CustomInputResponse, DataSourceTable, ERROR_MESSAGES, getQueryParams, PairwiseMatrixResult, QueryParams, SawScoreType, SponsorshipRequest, SponsorshipResponse, SUCCESS_MESSAGES, ToSponsorshipCriteriResponse, UpdateStudentStatusRequest, VALIDATION_MESSAGES } from "../utils";
-import { adjustStudentEligibilityStatus, applyToSponsorship, bulkUpsertCustomInput, createSponsorship, deleteOneSponsorship, getAllApplicantsByStage, getAllAvailableSponsorship, getAllCriterionCustomInputValue, getAllSponsorship, getAllStudentSponsorship, getCategoryCriterion, getDataSources, getOneSponsorship, getOneStudentSponsorship, rankStudent, updateSponsorship, updateSponsorshipCriterion } from "./service";
+import { adjustStudentEligibilityStatus, applyToSponsorship, bulkUpsertCustomInput, checkRemainingSlot, checkSponsorshipLimit, createSponsorship, deleteOneSponsorship, getAllApplicantsByStage, getAllAvailableSponsorship, getAllCriterionCustomInputValue, getAllSponsorship, getAllStudentSponsorship, getCategoryCriterion, getDataSources, getOneSponsorship, getOneStudentSponsorship, rankStudent, updateSponsorship, updateSponsorshipCriterion } from "./service";
 import { allowRoles } from "../middleware/authentication";
 
 export default () => {
@@ -140,11 +140,15 @@ export default () => {
             const authHeader: string = req.headers.authorization;
             const { studentId } = req.params;
             const payload: UpdateStudentStatusRequest = req.body;
-            
-            const response = await adjustStudentEligibilityStatus(studentId, payload, authHeader);
-            ResponseHandler.updated(req, res, response);
 
+            const noAvailableSlot: boolean = await checkSponsorshipLimit( payload );
 
+            if( noAvailableSlot ) {
+                ResponseHandler.invalidRequest(req, res, VALIDATION_MESSAGES.LIMIT_REACHED);
+            } else {
+                const response = await adjustStudentEligibilityStatus(studentId, payload, authHeader);
+                ResponseHandler.updated(req, res, response);
+            }
         } catch (err) {
             ResponseHandler.invalidRequest(req,res , err.message);
         }
@@ -198,8 +202,15 @@ export default () => {
         try {
             const authHeader = req.headers.authorization;
             const payload: ApplySponsorshipRequest = req.body;
-            const data: ApplySponsorshipResponse = await applyToSponsorship( payload, authHeader );
-            ResponseHandler.ok(req, res, data);
+
+            const noAvailableSlot: boolean = await checkRemainingSlot( payload);
+
+            if( noAvailableSlot ) {
+                ResponseHandler.invalidRequest(req, res, VALIDATION_MESSAGES.SLOT_FULL);
+            } else {
+                const data: ApplySponsorshipResponse = await applyToSponsorship( payload, authHeader );
+                ResponseHandler.ok(req, res, data);
+            }
         } catch (err) {
             ResponseHandler.invalidRequest(req,res , err.message);
         }
