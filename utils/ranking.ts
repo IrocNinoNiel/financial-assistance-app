@@ -24,31 +24,53 @@ function calculateAHPWeights(matrix: number[][]): number[] {
     return weights;
 }
 
-
-function normalizeSAW(data: Applicants[], criteria: string[], isBenefit: boolean[]): number[][] {
-    return criteria.map((criterion, index) => {
-        const values: number[] = data.map(applicant => {
-            if (typeof applicant[criterion] !== 'number') {
-                throw new Error(`Invalid value for criterion ${criterion} in applicant ${applicant.id}`);
-            }
-            return applicant[criterion];
-        });
-        const max: number = Math.max(...values);
-        const min: number = Math.min(...values);
-
-        if (max === min) {
-            return data.map(() => 1);
+/** TOPSIS NEW CALCULATION */
+function normalizeMatrix(matrix: number[][]): number[][] {
+    const n = matrix[0].length;
+    const m = matrix.length;
+    const colNorms = Array(n).fill(0);
+    for (let j = 0; j < n; j++) {
+        for (let i = 0; i < m; i++) {
+        colNorms[j] += matrix[i][j] ** 2;
         }
-        
-        return data.map(applicant => isBenefit[index] ? applicant[criterion] / max : min / applicant[criterion]);
-    });
+        colNorms[j] = Math.sqrt(colNorms[j]);
+    }
+    return matrix.map(row => row.map((val, j) => val / (colNorms[j] || 1)));
 }
 
-function calculateSAWScores(normalizedMatrix: number[][], weights: number[], applicants: Applicants[], criteriaNames: string[]): SawScoreType[] {
-    return applicants.map((applicant, i) => {
-        const score: number = criteriaNames.reduce((sum, _, j) => sum + (normalizedMatrix[j][i] * weights[j]), 0);
-        return { id: applicant.id, score };
+function topsis(applicants: Applicants[], criteriaNames: string[], isBenefit: boolean[], weights: number[]): SawScoreType[] {
+    const decisionMatrix = applicants.map(app => criteriaNames.map(c => app[c]));
+
+    // 1. Normalize
+    const normMatrix = normalizeMatrix(decisionMatrix);
+
+    // 2. Apply weights
+    const weighted = normMatrix.map(row => row.map((val, j) => val * weights[j]));
+
+    // 3. Ideal best/worst
+    const idealBest: number[] = [];
+    const idealWorst: number[] = [];
+    for (let j = 0; j < criteriaNames.length; j++) {
+        const col = weighted.map(r => r[j]);
+        if (isBenefit[j]) {
+        idealBest[j] = Math.max(...col);
+        idealWorst[j] = Math.min(...col);
+        } else {
+        idealBest[j] = Math.min(...col);
+        idealWorst[j] = Math.max(...col);
+        }
+    }
+
+    // 4. Distances
+    const scores: SawScoreType[] = applicants.map((app, i) => {
+        const SiPlus = Math.sqrt(weighted[i].reduce((sum, val, j) => sum + (val - idealBest[j]) ** 2, 0));
+        const SiMinus = Math.sqrt(weighted[i].reduce((sum, val, j) => sum + (val - idealWorst[j]) ** 2, 0));
+        const CC = SiMinus / (SiPlus + SiMinus);
+        return { id: app.id, score: CC };
     });
+
+    // 5. Sort
+    return scores.sort((a, b) => b.score - a.score);
 }
 
 
@@ -60,16 +82,7 @@ export const rankStudent = ( applicants: Applicants[] ): SawScoreType[] => {
     const criteriaNames: string[] = ['gwa', 'siblings', 'income', 'involvement'];
     const isBenefit: boolean[] = [true, true, false, true];
 
-    const normalizedMatrix: number[][] = normalizeSAW(applicants, criteriaNames, isBenefit);
-    console.debug("normalize matrix", normalizedMatrix);
-
-    const scores: SawScoreType[] = calculateSAWScores(normalizedMatrix, criteriaWeights, applicants, criteriaNames);
-    const rankedApplicants: SawScoreType[] = scores.sort((a, b) => {
-        if (b.score === a.score) {
-            return a.id.localeCompare(b.id);  // Example fallback for tie-breaking
-        }
-        return b.score - a.score;
-    });
+    const rankedApplicants: SawScoreType[] = topsis(applicants, criteriaNames, isBenefit, criteriaWeights);
     console.debug("Final Rankings:", rankedApplicants);
     return rankedApplicants;
 }

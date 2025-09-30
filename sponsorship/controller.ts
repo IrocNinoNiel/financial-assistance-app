@@ -164,9 +164,6 @@ export default () => {
         }
     });
 
-    
-
-
     // for students
 
     sponsorshipAPI.get('/student/available', (req, res) => {
