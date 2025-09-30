@@ -871,6 +871,7 @@ export type GetAllApplicantsByStageResult = {
 };
 
 export type applicants = {
+  id: string,
   appNumber: string,
   studentId: string,
   sponsorshipId: string,

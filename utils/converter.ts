@@ -722,6 +722,7 @@ export const toConvertedApplicants = ( payload: SponsorshipApplicantsWithDetails
   let name = payload.student.first_name + " " + middle + " " + payload.student.last_name;
   
   return {
+    id: binaryToUuid(payload.id),
     appNumber: payload.app_id,
     studentId: binaryToUuid(payload.student_id),
     sponsorshipId: binaryToUuid(payload.sponsorship_id),
