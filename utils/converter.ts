@@ -610,7 +610,7 @@ export const toSponsorshipCriterion = ( data: Criteria, categoryCriterionId: str
     sponsorship_id: uuidToBinary(sponsorshipId),
     criterion_category_id: uuidToBinary(categoryCriterionId),
     name: data.name,
-    label: data.label,
+    label: data.label ?? "",
     data_source: data.dataSource as DataSource,
     formula_type: data.formulaType as FormulaType,
     preference: data.preference as Preference

@@ -257,13 +257,15 @@ export const getAllStudentSponsorship = async (
   authHeader: any
 ): Promise<ApplySponsorshipResponse[]> => {
   const userDetails = extractUserFromToken(authHeader);
-  const userId = userDetails.userId;
   const data: any[] = await getAllStudentSponsorshipRepo(studentId, prisma);
+  
+  if (!data || data.length === 0) {
+    return [];
+  }
+
   const studentFiles: any[] = await getAllFileOfStudent(
     binaryToUuid(data[0].student.user_id)
   );
-
-  console.log("data", data);
 
   return data.map((e) => toApplyScholarshipResponse(e, studentFiles));
 };

@@ -817,8 +817,7 @@ export const createAnnouncementValidation = [
     .notEmpty().withMessage(VALIDATION_MESSAGES.ANN_CAPTION_REQUIRED),
   body("targetMunicipalitys")
     .customSanitizer((value) => {
-      console.log("data here", value);
-      if (typeof value === "string") {
+      if (typeof value === "string" || typeof value === "undefined") {
         try {
           return JSON.parse(value);
         } catch {
