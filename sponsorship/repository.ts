@@ -270,6 +270,29 @@ export const getOneSponsorshipRepo = async (
             }
           }
         }
+      },
+      criterion: {
+        select: {
+          id: true,
+          sponsorship_id: true,
+          criterion_category_id: true,
+          name: true,
+          label: true,
+          data_source: true,
+          formula_type: true,
+          preference: true,
+          requiredColumn: {
+            select: {
+              id: true,
+              sponsorship_criterion_id: true,
+              table: true,
+              column: true,
+            },
+            where: {
+              record_status: RecordStatus.ACTIVE
+            }
+          }
+        }
       }
     }
   });
@@ -784,6 +807,10 @@ export const getAllApplicantsByStageRepo = async (
 
   if (params.applicationStatus) {
     whereCondition.application_status = params.applicationStatus;
+  }
+
+  if (params.sponsorshipId) {
+    whereCondition.sponsorship_id = uuidToBinary(params.sponsorshipId);
   }
 
   const orderBy: any = {};

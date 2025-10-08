@@ -102,6 +102,7 @@ export interface SponsorshipResponse {
   sponsorshipSchool: any[],
   sponsorshipRequirements: any[],
   students: any[],
+  criterion: any[],
 }
 
 export interface ApplySponsorshipResponse {
@@ -887,6 +888,6 @@ export type applicants = {
 }
 
 export type ConvertedGetAllApplicantsByStageResult = {
-  data: applicants[];
+  applicants: applicants[];
   totalCount: number;
 };

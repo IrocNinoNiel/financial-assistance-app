@@ -1239,7 +1239,7 @@ export const getAllApplicantsByStage = async (
   const converted: applicants[] = data.data.map( e => toConvertedApplicants(e));
 
   const response: ConvertedGetAllApplicantsByStageResult = {
-    data: converted,
+    applicants: converted,
     totalCount: data.totalCount
   }
 

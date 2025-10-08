@@ -467,7 +467,20 @@ export function toSponsorshipResponse( payload: any ): SponsorshipResponse {
       studentName: `${item.student.first_name} ${item.student.middle_name ? item.student.middle_name + " " : ""}${item.student.last_name}`,
       files: item.student.files
     })),
-  }
+    criterion: (payload.criterion ?? []).map((item: any) => ({
+      name: item.name ?? null,
+      label: item.label ?? null,
+      dataSource: item.data_source ?? null,
+      formulaType: item.formula_type ?? null,
+      preference: item.preference ?? null,
+      requiredColumns: item.requiredColumn.map(col => ({
+        id: binaryToUuid(col.id),
+        sponsorshipCriterionId: binaryToUuid(col.sponsorship_criterion_id),
+        table: col.table,
+        column: col.column,
+      }))
+    })),
+  };
 }
 
 export function toUpdateStatusModel(details: any, studentId: string, userId: string): UpdateStudentStatus {
