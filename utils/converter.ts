@@ -468,6 +468,7 @@ export function toSponsorshipResponse( payload: any ): SponsorshipResponse {
       files: item.student.files
     })),
     criterion: (payload.criterion ?? []).map((item: any) => ({
+      id: binaryToUuid(item.id),
       name: item.name ?? null,
       label: item.label ?? null,
       dataSource: item.data_source ?? null,
@@ -723,6 +724,7 @@ export const toCriteriaPairwiseConverted = ( pairwiseMatrix: PairwiseMatrixEntry
 export const toConvertedQualifiedApplicants = ( payload: QualifiedApplicants): QualifiedApplicantsConverted => {
   return {
     appId: payload.app_id,
+    student: payload.student,
     studentId: binaryToUuid(payload.student_id),
     interviewStatus: payload.interview_status,
     examStatus: payload.exam_status

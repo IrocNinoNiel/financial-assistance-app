@@ -979,6 +979,11 @@ export const validateUpdateCriterionPayload = [
   
       for (let i = 0; i < criteria.length; i++) {
         const c = criteria[i];
+
+        if (typeof c.label !== 'string' || c.label.trim() === '') {
+          return Promise.reject(VALIDATION_MESSAGES.CRITERIA_LABEL_INVALID);
+        }
+
         if (typeof c.name !== 'string' || c.name.trim() === '') {
           return Promise.reject(VALIDATION_MESSAGES.CRITERIA_NAME_INVALID);
         }

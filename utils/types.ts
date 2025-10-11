@@ -593,6 +593,7 @@ export type Applicants = {
 
 export type SawScoreType = {
   id: string;
+  name: string;
   score: number;
 }
 
@@ -825,6 +826,11 @@ export type PairwiseMatrixEntry = {
 
 export type QualifiedApplicants = {
   app_id: string,
+  student: {
+    first_name: string,
+    middle_name: string,
+    last_name: string
+  },
   student_id: Uint8Array,
   interview_status?: EvaluationStatus,
   exam_status?: EvaluationStatus
@@ -833,6 +839,11 @@ export type QualifiedApplicants = {
 export type QualifiedApplicantsConverted = {
   appId: string,
   studentId: string,
+  student: {
+    first_name: string,
+    middle_name: string,
+    last_name: string
+  },
   interviewStatus?: EvaluationStatus,
   examStatus?: EvaluationStatus
 }

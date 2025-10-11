@@ -14,7 +14,7 @@ const pairwiseMatrix: number[][] = [
     [0.33, 0.50, 0.20, 1.00]
 ];
 
-function calculateAHPWeights(matrix: number[][]): number[] {
+export const calculateAHPWeights = (matrix: number[][]): number[] =>  {
     const n = matrix.length;
     
     const columnSums: number[] = matrix[0].map((_, colIndex) => matrix.reduce((sum, row) => sum + row[colIndex], 0));
@@ -26,6 +26,7 @@ function calculateAHPWeights(matrix: number[][]): number[] {
 
 /** TOPSIS NEW CALCULATION */
 function normalizeMatrix(matrix: number[][]): number[][] {
+
     const n = matrix[0].length;
     const m = matrix.length;
     const colNorms = Array(n).fill(0);
@@ -38,7 +39,7 @@ function normalizeMatrix(matrix: number[][]): number[][] {
     return matrix.map(row => row.map((val, j) => val / (colNorms[j] || 1)));
 }
 
-function topsis(applicants: Applicants[], criteriaNames: string[], isBenefit: boolean[], weights: number[]): SawScoreType[] {
+export const topsis = (applicants: Record<string, any>[], criteriaNames: string[], isBenefit: boolean[], weights: number[]): SawScoreType[] => {
     const decisionMatrix = applicants.map(app => criteriaNames.map(c => app[c]));
 
     // 1. Normalize
@@ -46,6 +47,8 @@ function topsis(applicants: Applicants[], criteriaNames: string[], isBenefit: bo
 
     // 2. Apply weights
     const weighted = normMatrix.map(row => row.map((val, j) => val * weights[j]));
+
+    
 
     // 3. Ideal best/worst
     const idealBest: number[] = [];
@@ -66,7 +69,7 @@ function topsis(applicants: Applicants[], criteriaNames: string[], isBenefit: bo
         const SiPlus = Math.sqrt(weighted[i].reduce((sum, val, j) => sum + (val - idealBest[j]) ** 2, 0));
         const SiMinus = Math.sqrt(weighted[i].reduce((sum, val, j) => sum + (val - idealWorst[j]) ** 2, 0));
         const CC = SiMinus / (SiPlus + SiMinus);
-        return { id: app.id, score: CC };
+        return { id: app.id, name: app.name, score: CC };
     });
 
     // 5. Sort

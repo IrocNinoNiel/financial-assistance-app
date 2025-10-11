@@ -738,6 +738,13 @@ export const getQualifiedApplicants = async (
       },
       select: {
         app_id: true,
+        student: {
+          select: {
+            first_name: true,
+            middle_name: true,
+            last_name: true
+          }
+        },
         student_id: true,
         interview_status: true,
         exam_status: true

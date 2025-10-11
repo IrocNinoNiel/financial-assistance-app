@@ -132,6 +132,7 @@ import {
 import { getStudentCollegeSchoolRepo } from "../student/repository";
 import { getAllFileOfStudent, getBulkFileOfStudents } from "../file/service";
 import { countApplicantsAlreadyApproved, getSponsorshipLimit } from "../user/repository";
+import { calculateAHPWeights, topsis } from "../utils/ranking";
 const prisma = new PrismaClient({
   log: ["query", "info", "warn", "error"],
 });
@@ -596,6 +597,7 @@ export const getAllCriterionCustomInputValue = async( params: QueryParams ): Pro
 
 export const rankStudent = async( sponsorshipId: string, ): Promise<SawScoreType[]> => {
   // pairwise
+
   const pairwiseMatrix: PairwiseMatrixEntry[] = await getPairwiseMatrixRepo( sponsorshipId, prisma );
   const pairwiseMatrixConverted: CriteriaPairwiseConverted[] = pairwiseMatrix.map( e => toCriteriaPairwiseConverted( e ));
   const pairwise: PairwiseMatrixResult = generatePairwiseMatrix(pairwiseMatrixConverted);
@@ -613,28 +615,25 @@ export const rankStudent = async( sponsorshipId: string, ): Promise<SawScoreType
   
   // get student applicants
   const applicants: QualifiedApplicants[] = await getQualifiedApplicants( sponsorshipId, prisma );
+
+  if(applicants.length == 0) {
+    return [];
+  }
+
   const applicantsConverted: QualifiedApplicantsConverted[] = applicants.map( e => toConvertedQualifiedApplicants( e ));
-  
-  const applicantsData: Record<string, any>[] = await processApplicantsData( applicantsConverted, pairwise.criteriaOrder);
-  const normalizedMatrix: number[][] = normalizeSAW(applicantsData, criterionNameInOrder, isBenefit);
-  
+
+  const processedApplicants: Record<string, any>[] = await processApplicantsData(applicantsConverted, pairwise.criteriaOrder);
+
+  console.log("Processed Applicants", processedApplicants);
   console.debug("Applicants: ", applicantsConverted);
   console.debug("Pairwise matrix", pairwise.matrix);
-  console.debug("Normalize matrix", normalizedMatrix);
   console.debug("Criterion to be used", criterionNameInOrder);
   console.debug("AHP Criteria Weights:", weights);
   console.debug("Criteria Order", pairwise.criteriaOrder);
   console.debug("Min/Max value", isBenefit);
 
-  const scores: SawScoreType[] = calculateSAWScores(normalizedMatrix, weights, applicantsData, criterionNameInOrder);
-
   // final rankings
-  const rankedApplicants: SawScoreType[] = scores.sort((a, b) => {
-    if (b.score === a.score) {
-        return a.id.localeCompare(b.id);
-    }
-    return b.score - a.score;
-  });
+  const rankedApplicants: SawScoreType[] = topsis(processedApplicants, criterionNameInOrder, isBenefit, weights);
   console.debug("Final Rankings:", rankedApplicants);
 
   return rankedApplicants;
@@ -1088,6 +1087,7 @@ const processApplicantsData = async (
   for(const applicant of applicantsConverted) {
     const dynamicObject: Record<string, any> = {};
     dynamicObject['id'] = applicant.studentId;
+    dynamicObject['name'] = applicant.student.first_name + ' ' + applicant.student.middle_name + ' ' + applicant.student.last_name;
     //loop through each criteria to get the value
     for(const criteria of criteriaOrder) {
       console.log("criteria 123", criteria);
@@ -1145,6 +1145,7 @@ function generatePairwiseMatrix(
 ): PairwiseMatrixResult {
   // 1. Extract unique names but *also* keep a reference to one object
   const map = new Map<string, CriteriaPairwiseConverted>();
+
   data.forEach(item => {
     if (!map.has(item.criterionAName)) map.set(item.criterionAName, { 
       criterionAId: item.criterionAId,
@@ -1156,18 +1157,9 @@ function generatePairwiseMatrix(
       formulaType: item.formulaType,
       preference: item.preference,
     });
-    // if (!map.has(item.criterionBName)) map.set(item.criterionBName, { 
-    //   /* similar for B */ 
-    //   criterionAId: item.criterionBId,
-    //   criterionAName: item.criterionBName,
-    //   criterionBId: item.criterionAId,
-    //   criterionBName: item.criterionAName,
-    //   value: 1 / item.value,
-    //   dataSource: item.dataSource,
-    //   formulaType: item.formulaType,
-    //   preference: item.preference,
-    // });
+
   });
+
   const criteriaOrder = Array.from(map.values());
 
   // 2. Build index map from names
@@ -1180,26 +1172,18 @@ function generatePairwiseMatrix(
   const matrix: number[][] = Array.from({ length: size }, (_, i) =>
     Array.from({ length: size }, (_, j) => (i === j ? 1 : 0))
   );
+
   for (const item of data) {
     const i = indexMap[item.criterionAName];
     const j = indexMap[item.criterionBName];
+
+    console.log(i, j);
     if (i === j) continue;
     matrix[i][j] = item.value;
     matrix[j][i] = 1 / item.value;
   }
 
   return { criteriaOrder, matrix };
-}
-
-
-function calculateAHPWeights(matrix: number[][]): number[] {
-  const n = matrix.length;
-  
-  const columnSums: number[] = matrix[0].map((_, colIndex) => matrix.reduce((sum, row) => sum + row[colIndex], 0));
-  const normalizedMatrix: number[][] = matrix.map(row => row.map((val, j) => val / columnSums[j]));
-  
-  const weights: number[] = normalizedMatrix.map(row => row.reduce((sum, val) => sum + val, 0) / n);
-  return weights;
 }
 
 function normalizeSAW(data: Record<string, any>[], criteria: string[], isBenefit: boolean[]): number[][] {
@@ -1224,7 +1208,7 @@ function normalizeSAW(data: Record<string, any>[], criteria: string[], isBenefit
 function calculateSAWScores(normalizedMatrix: number[][], weights: number[], applicants: Record<string, any>[], criteriaNames: string[]): SawScoreType[] {
   return applicants.map((applicant, i) => {
       const score: number = criteriaNames.reduce((sum, _, j) => sum + (normalizedMatrix[j][i] * weights[j]), 0);
-      return { id: applicant.id, score };
+      return { id: applicant.id, name: applicant.name, score };
   });
 }
 
