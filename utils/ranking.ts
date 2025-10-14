@@ -66,10 +66,12 @@ export const topsis = (applicants: Record<string, any>[], criteriaNames: string[
 
     // 4. Distances
     const scores: SawScoreType[] = applicants.map((app, i) => {
+
+        const { id, name, ...appWithoutId } = app;
         const SiPlus = Math.sqrt(weighted[i].reduce((sum, val, j) => sum + (val - idealBest[j]) ** 2, 0));
         const SiMinus = Math.sqrt(weighted[i].reduce((sum, val, j) => sum + (val - idealWorst[j]) ** 2, 0));
         const CC = SiMinus / (SiPlus + SiMinus);
-        return { id: app.id, name: app.name, score: CC };
+        return { id: id, name: name, score: CC, evaluation: appWithoutId };
     });
 
     // 5. Sort

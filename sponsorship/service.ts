@@ -1208,7 +1208,7 @@ function normalizeSAW(data: Record<string, any>[], criteria: string[], isBenefit
 function calculateSAWScores(normalizedMatrix: number[][], weights: number[], applicants: Record<string, any>[], criteriaNames: string[]): SawScoreType[] {
   return applicants.map((applicant, i) => {
       const score: number = criteriaNames.reduce((sum, _, j) => sum + (normalizedMatrix[j][i] * weights[j]), 0);
-      return { id: applicant.id, name: applicant.name, score };
+      return { id: applicant.id, name: applicant.name, score, evaluation: [] };
   });
 }
 

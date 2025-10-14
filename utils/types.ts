@@ -595,6 +595,7 @@ export type SawScoreType = {
   id: string;
   name: string;
   score: number;
+  evaluation: any;
 }
 
 export type ScheduleRequest = {
