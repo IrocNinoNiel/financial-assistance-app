@@ -165,8 +165,8 @@ export const countApplicantsAlreadyApproved = async (
     return await prisma.sponsorshipApplication.count({
       where: {
         sponsorship_id: sponsorshipId,
-        application_stage: APPLICATION_STAGE.FINAL_SELECTION,
-        application_status: APPLICATION_STATUS.APPROVED,
+        application_stage: APPLICATION_STAGE.FINAS_PROPER,
+        application_status: APPLICATION_STATUS.AWARDED,
       },
     });
   } catch (error) {

@@ -152,8 +152,8 @@ const progressionMap = {
   },
   [APPLICATION_STAGE.RANKING_SELECTION]: {
     RANKED: {
-      nextStage: APPLICATION_STAGE.FINAL_SELECTION,
-      nextStatus: APPLICATION_STATUS.PENDING_FINAL_SELECTION,
+      nextStage: APPLICATION_STAGE.FINAS_PROPER,
+      nextStatus: APPLICATION_STATUS.AWARDED,
     },
   },
 };
@@ -244,7 +244,7 @@ export const checkSponsorshipLimit = async (
   payload: UpdateStudentStatusRequest
 ): Promise<boolean> => {
 
-  if(payload.appStage == APPLICATION_STAGE.FINAL_SELECTION && APPLICATION_STATUS.APPROVED) {
+  if(payload.appStage == APPLICATION_STAGE.FINAS_PROPER && APPLICATION_STATUS.AWARDED) {
     const sponsorship = await getSponsorshipLimit( payload.sponsorshipId );
     const currentApprovedApplicants = await countApplicantsAlreadyApproved( payload.sponsorshipId );
     return sponsorship.limit <= currentApprovedApplicants;
@@ -458,8 +458,6 @@ export const adjustStudentEligibilityStatus = async (
     details.appStage = next.nextStage;
     details.appStatus = next.nextStatus;
   }
-
-  console.log("details 123", details);
 
   return await prisma.$transaction(async (prisma) => {
     const app = await findAppId(prisma, studentId, details.sponsorshipId);

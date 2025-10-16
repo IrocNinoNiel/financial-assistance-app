@@ -26,7 +26,7 @@ export enum APPLICATION_STAGE {
     POOLING = "POOLING", 
     APPLICATION_LIST = "APPLICATION_LIST",
     RANKING_SELECTION = "RANKING_SELECTION",
-    FINAL_SELECTION = "FINAL_SELECTION"
+    FINAS_PROPER = "FINAS_PROPER"
 }
 
 export enum APPLICATION_STATUS {
@@ -38,15 +38,15 @@ export enum APPLICATION_STATUS {
 
     // Application List Stage Statuses
     PENDING_APPLICATION_LIST = "PENDING_APPLICATION_LIST",
+    APPROVED = "APPROVED",
 
     // Ranking Selection Stage Statuses
     PENDING_RANKING_SELECTION = "PENDING_RANKING_SELECTION",
     RANKED = "RANKED",
+    NOT_QUALIFIED = "NOT_QUALIFIED",
 
     // Final Selection Stage Statuses
-    PENDING_FINAL_SELECTION = "PENDING_FINAL_SELECTION",
-    NOT_SELECTED = "NOT_SELECTED",
-    APPROVED = "APPROVED",
+    AWARDED = "AWARDED",
 }
 
 export enum EvaluationStatus {
@@ -242,10 +242,10 @@ export const VALIDATION_MESSAGES = {
     REMARKS_REQUIRED: 'remarks is required',
     STUDENT_NOT_APPLIED: "Student don't have any application on this sponsorship",
     APP_STAGE_PARAM_REQUIRED: "applicationStage is required",
-    APP_STAGE_PARAM_INVALID: "Invalid applicationStage. Allowed values are: POOLING | INTERVIEW_EXAM | RANKING_SELECTION | FINAL_SELECTION",
+    APP_STAGE_PARAM_INVALID: "Invalid applicationStage. Allowed values are: POOLING | INTERVIEW_EXAM | RANKING_SELECTION | FINAS_PROPER",
     APP_STAGE_REQUIRED: "appStage is required",
     APP_STATUS_REQUIRED: "appStatus is required",
-    APP_STAGE_INVALID: "Invalid appStage. Allowed values are: POOLING | INTERVIEW_EXAM | RANKING_SELECTION | FINAL_SELECTION",
+    APP_STAGE_INVALID: "Invalid appStage. Allowed values are: POOLING | INTERVIEW_EXAM | RANKING_SELECTION | FINAS_PROPER",
     APP_STATUS_INVALID: "Invalid appStatus",
     INVALID_STATUS_FOR_STAGE: "Invalid appStatus for",
     INTERVIEW_STATUS_INVALID: "Invalid interview status",

@@ -732,8 +732,8 @@ export const getQualifiedApplicants = async (
     {
       where: {
         sponsorship_id: uuidToBinary(sponsorshipId),
-        application_stage: APPLICATION_STAGE.FINAL_SELECTION,
-        application_status: APPLICATION_STATUS.APPROVED,
+        application_stage: APPLICATION_STAGE.RANKING_SELECTION,
+        application_status: APPLICATION_STATUS.PENDING_RANKING_SELECTION,
         record_status: RecordStatus.ACTIVE
       },
       select: {

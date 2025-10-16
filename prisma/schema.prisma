@@ -584,7 +584,7 @@ enum application_stage {
   POOLING
   APPLICATION_LIST
   RANKING_SELECTION
-  FINAL_SELECTION
+  FINAS_PROPER
 }
 
 enum application_status {
@@ -600,11 +600,10 @@ enum application_status {
   // Ranking Selection Stage Statuses
   PENDING_RANKING_SELECTION
   RANKED
+  NOT_QUALIFIED
 
   // Final Selection Stage Statuses
-  PENDING_FINAL_SELECTION
-  NOT_SELECTED
-  APPROVED
+  AWARDED
 }
 
 enum EvaluationStatus {
