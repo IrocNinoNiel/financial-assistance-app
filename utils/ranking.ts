@@ -65,17 +65,34 @@ export const topsis = (applicants: Record<string, any>[], criteriaNames: string[
     }
 
     // 4. Distances
-    const scores: SawScoreType[] = applicants.map((app, i) => {
+    if(applicants.length > 1) {
+        const scores: SawScoreType[] = applicants.map((app, i) => {
 
-        const { id, name, ...appWithoutId } = app;
-        const SiPlus = Math.sqrt(weighted[i].reduce((sum, val, j) => sum + (val - idealBest[j]) ** 2, 0));
-        const SiMinus = Math.sqrt(weighted[i].reduce((sum, val, j) => sum + (val - idealWorst[j]) ** 2, 0));
-        const CC = SiMinus / (SiPlus + SiMinus);
-        return { id: id, name: name, score: CC, evaluation: appWithoutId };
-    });
+            const { id, name, ...appWithoutId } = app;
+            const SiPlus = Math.sqrt(weighted[i].reduce((sum, val, j) => sum + (val - idealBest[j]) ** 2, 0));
+            const SiMinus = Math.sqrt(weighted[i].reduce((sum, val, j) => sum + (val - idealWorst[j]) ** 2, 0));
+            const CC = calculateCC(SiPlus, SiMinus);
+            console.log("score", SiMinus, SiPlus, )
+            return { id: id, name: name, score: CC, evaluation: appWithoutId };
+        });
 
-    // 5. Sort
-    return scores.sort((a, b) => b.score - a.score);
+        return scores.sort((a, b) => b.score - a.score);
+    } else {
+        const { id, name, ...appWithoutId } = applicants[0];
+        return [{ id: id, name: name, score: 1, evaluation: appWithoutId }];
+    }
+}
+
+function calculateCC(SiPlus: number | null | undefined, SiMinus: number | null | undefined): number {
+    if (
+        SiPlus == null || SiMinus == null ||         // check null/undefined
+        isNaN(SiPlus) || isNaN(SiMinus) ||           // check NaN
+        (SiPlus + SiMinus) === 0                     // avoid divide by zero
+    ) {
+        return 0; // or return null depending on how you want to handle it
+    }
+
+    return SiMinus / (SiPlus + SiMinus);
 }
 
 

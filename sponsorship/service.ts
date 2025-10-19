@@ -133,6 +133,7 @@ import { getStudentCollegeSchoolRepo } from "../student/repository";
 import { getAllFileOfStudent, getBulkFileOfStudents } from "../file/service";
 import { countApplicantsAlreadyApproved, getSponsorshipLimit } from "../user/repository";
 import { calculateAHPWeights, topsis } from "../utils/ranking";
+import { Console } from "console";
 const prisma = new PrismaClient({
   log: ["query", "info", "warn", "error"],
 });
@@ -145,7 +146,7 @@ const progressionMap = {
     },
   },
   [APPLICATION_STAGE.APPLICATION_LIST]: {
-    COMPLETE: {
+    APPROVED: {
       nextStage: APPLICATION_STAGE.RANKING_SELECTION,
       nextStatus: APPLICATION_STATUS.PENDING_RANKING_SELECTION,
     },
@@ -597,8 +598,16 @@ export const rankStudent = async( sponsorshipId: string, ): Promise<SawScoreType
   // pairwise
 
   const pairwiseMatrix: PairwiseMatrixEntry[] = await getPairwiseMatrixRepo( sponsorshipId, prisma );
+
+  console.log('Pariwise matrix', pairwiseMatrix);
+
   const pairwiseMatrixConverted: CriteriaPairwiseConverted[] = pairwiseMatrix.map( e => toCriteriaPairwiseConverted( e ));
+
+  console.log("pairwiseMatrixConverted 123", pairwiseMatrixConverted);
+
   const pairwise: PairwiseMatrixResult = generatePairwiseMatrix(pairwiseMatrixConverted);
+
+  console.log("pairwise 123", pairwise);
 
   const weights: number[] = calculateAHPWeights(pairwise.matrix);
 
@@ -606,6 +615,8 @@ export const rankStudent = async( sponsorshipId: string, ): Promise<SawScoreType
   const criterionNameInOrder: string[] = pairwise.criteriaOrder.map(
     entry => entry.criterionAName
   );
+
+  console.log("Criterion name in order", criterionNameInOrder);
   
   const isBenefit: boolean[] = pairwise.criteriaOrder.map(
     entry => entry.preference === Preference.MAX
@@ -1145,17 +1156,29 @@ function generatePairwiseMatrix(
   const map = new Map<string, CriteriaPairwiseConverted>();
 
   data.forEach(item => {
-    if (!map.has(item.criterionAName)) map.set(item.criterionAName, { 
-      criterionAId: item.criterionAId,
-      criterionAName: item.criterionAName,
-      criterionBId: item.criterionBId,        // you might need to pick which B-fields make sense here
-      criterionBName: item.criterionBName,    // or omit B-fields if irrelevant
-      value: item.value,
-      dataSource: item.dataSource,
-      formulaType: item.formulaType,
-      preference: item.preference,
-    });
+    if (!map.has(item.criterionAName)) 
+      map.set(item.criterionAName, { 
+        criterionAId: item.criterionAId,
+        criterionAName: item.criterionAName,
+        criterionBId: item.criterionBId,        // you might need to pick which B-fields make sense here
+        criterionBName: item.criterionBName,    // or omit B-fields if irrelevant
+        value: item.value,
+        dataSource: item.dataSource,
+        formulaType: item.formulaType,
+        preference: item.preference,
+      }
+    );
 
+    // Add criterion B if not yet added
+    if (!map.has(item.criterionBName)) {
+      map.set(item.criterionBName, {
+        criterionAId: item.criterionBId,
+        criterionAName: item.criterionBName,
+        dataSource: item.dataSource,
+        formulaType: item.formulaType,
+        preference: item.preference,
+      } as CriteriaPairwiseConverted);
+    }
   });
 
   const criteriaOrder = Array.from(map.values());
@@ -1165,17 +1188,23 @@ function generatePairwiseMatrix(
     criteriaOrder.map((c, i) => [c.criterionAName, i])
   );
 
+  console.log('criterioORder', criteriaOrder);
+  console.log('index map', indexMap);
   // 3. Initialize & fill your matrix exactly as before
   const size = criteriaOrder.length;
   const matrix: number[][] = Array.from({ length: size }, (_, i) =>
     Array.from({ length: size }, (_, j) => (i === j ? 1 : 0))
   );
 
+  console.log(data);
+  console.log(indexMap);
+
   for (const item of data) {
     const i = indexMap[item.criterionAName];
     const j = indexMap[item.criterionBName];
 
-    console.log(i, j);
+    console.log(i,j);
+
     if (i === j) continue;
     matrix[i][j] = item.value;
     matrix[j][i] = 1 / item.value;
