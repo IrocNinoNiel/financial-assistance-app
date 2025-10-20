@@ -91,6 +91,8 @@ import {
   getColumnData,
   getCriterionCustomInputValue,
   getAllApplicantsByStageRepo,
+  countNumberOfGrantee,
+  getSponsorshipBatchNumber,
 } from "./repository";
 import {
   Action,
@@ -453,6 +455,7 @@ export const adjustStudentEligibilityStatus = async (
 ) => {
   const userDetails = extractUserFromToken(authHeader);
   const userId = userDetails.userId;
+  let awardNumber: string = null;
 
   const next = progressionMap[details.appStage]?.[details.appStatus];
   if (next) {
@@ -460,12 +463,24 @@ export const adjustStudentEligibilityStatus = async (
     details.appStatus = next.nextStatus;
   }
 
+  if(next && details.appStage == APPLICATION_STAGE.FINAS_PROPER) {
+
+    // coung grantee
+    const sponsorship = await getSponsorshipBatchNumber(details.sponsorshipId, prisma);
+    const granteeCount = await countNumberOfGrantee( prisma, details.sponsorshipId);
+    const batchNumber = String(sponsorship.batch_number).padStart(3, "0");
+    const granteeNumber = String(granteeCount + 1).padStart(4, "0");
+
+    awardNumber = "AWD-" + batchNumber +"-"+ granteeNumber;
+  }
+
   return await prisma.$transaction(async (prisma) => {
     const app = await findAppId(prisma, studentId, details.sponsorshipId);
     const converted: UpdateStudentStatus = toUpdateStatusModel(
       details,
       studentId,
-      userId
+      userId,
+      awardNumber
     );
     await adjustStudentEligibilityStatusRepo(
       converted,

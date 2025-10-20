@@ -231,6 +231,18 @@ export const getAllSponsorshipRepo = async (
   });
 };
 
+export const getSponsorshipBatchNumber = async(
+  id: string,
+  prisma: any
+) => {
+  return await prisma.sponsorship.findUnique({
+    where: { id: uuidToBinary(id) },
+    select: {
+      batch_number: true
+    }
+  });
+}
+
 export const getOneSponsorshipRepo = async (
   id: string,
   prisma: any
@@ -333,6 +345,18 @@ export const findAppId = async ( prisma: any, studentId: string, sponsorshipId: 
 
   return app;
 }
+
+export const countNumberOfGrantee = async ( prisma: any, sponsorshipId: string ) => {
+  const app = await prisma.sponsorshipApplication.count({
+    where: {
+      sponsorship_id: uuidToBinary(sponsorshipId),
+      application_stage: APPLICATION_STAGE.FINAS_PROPER
+    },
+  });
+
+  return app;
+}
+
 export const deleteOneSponsorshipRepo = async (id: string, prisma: any) => {
   await prisma.sponsorship.update({
     where: { id: uuidToBinary(id) },

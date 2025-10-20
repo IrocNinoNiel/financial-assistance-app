@@ -484,13 +484,14 @@ export function toSponsorshipResponse( payload: any ): SponsorshipResponse {
   };
 }
 
-export function toUpdateStatusModel(details: any, studentId: string, userId: string): UpdateStudentStatus {
+export function toUpdateStatusModel(details: any, studentId: string, userId: string, awardNumber?: string): UpdateStudentStatus {
   const model: any = {
     student_id: uuidToBinary(studentId),
     sponsorship_id: uuidToBinary(details.sponsorshipId),
     application_stage: details.appStage,
     application_status: details.appStatus,
     remarks: details.remarks,
+    award_number: awardNumber,
     updated_at: new Date(),
     updated_by: uuidToBinary(userId)
   };

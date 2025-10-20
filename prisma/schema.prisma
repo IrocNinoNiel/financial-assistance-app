@@ -438,6 +438,7 @@ model sponsorshipApplication {
   interview_status   EvaluationStatus   @default(PENDING)
   exam_status        EvaluationStatus   @default(PENDING)
   record_status      Boolean            @default(true)
+  award_number       String?
   created_at         DateTime           @default(now())
   updated_at         DateTime           @updatedAt
   created_by         Bytes              @db.Binary(16)
