@@ -3,7 +3,7 @@ import { RecordStatus, uuidToBinary } from "../utils";
 
 const prisma = new PrismaClient({
    log: ["query"],
- });
+});
 
  export const getSchoolsRepo = async (): Promise<any> => {
    try {
