@@ -2,6 +2,7 @@ import { Router } from "express";
 import { ResponseHandler } from "../response";
 import { allowRoles } from "../middleware/authentication";
 import { getDashboardInformation } from "./service";
+import { DashboardStats } from "../utils";
 
 export default () => {
 
@@ -13,8 +14,7 @@ export default () => {
 
         try {
 
-            const authHeader: string = req.headers.authorization;
-            const data: any[] = await getDashboardInformation();
+            const data: DashboardStats = await getDashboardInformation();
             ResponseHandler.ok(req, res, data);
         } catch (err) {
             ResponseHandler.invalidRequest(req,res , err.message);

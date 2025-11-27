@@ -903,3 +903,10 @@ export type ConvertedGetAllApplicantsByStageResult = {
   applicants: applicants[];
   totalCount: number;
 };
+
+
+export type DashboardStats = {  
+  numberOfQualifiedStudents: number;
+  numberOfFinancialAssistance: number;
+  numberOfSchools: number;
+}
