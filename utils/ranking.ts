@@ -102,7 +102,7 @@ export const rankStudent = ( applicants: Applicants[] ): SawScoreType[] => {
     console.debug("AHP Criteria Weights:", criteriaWeights);
 
     const criteriaNames: string[] = ['gwa', 'siblings', 'income', 'involvement'];
-    const isBenefit: boolean[] = [true, true, false, true];
+    const isBenefit: boolean[] = [true, true, true, true];
 
     const rankedApplicants: SawScoreType[] = topsis(applicants, criteriaNames, isBenefit, criteriaWeights);
     console.debug("Final Rankings:", rankedApplicants);
