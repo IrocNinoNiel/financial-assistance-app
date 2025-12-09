@@ -6,20 +6,19 @@ import { DashboardStats } from "../utils";
 
 export default () => {
 
-    // for coordinator
+    const dashboardAPI = Router();
 
-    const sponsorshipAPI = Router();
-
-    sponsorshipAPI.get('/dashboard', allowRoles('system admin', 'financial assistance coordinator', 'student', 'sponsor' ), async (req, res) => {
+    dashboardAPI.get('/dashboard', allowRoles('system admin', 'financial assistance coordinator', 'student', 'sponsor'), async (req, res) => {
 
         try {
 
             const data: DashboardStats = await getDashboardInformation();
             ResponseHandler.ok(req, res, data);
         } catch (err) {
-            ResponseHandler.invalidRequest(req,res , err.message);
+            const errorMessage = err instanceof Error ? err.message : 'Failed to retrieve dashboard information';
+            ResponseHandler.invalidRequest(req, res, errorMessage);
         }
-    }); 
+    });
 
-    return sponsorshipAPI;
+    return dashboardAPI;
 }

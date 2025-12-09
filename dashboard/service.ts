@@ -1,13 +1,5 @@
-import {
-    Prisma,
-    PrismaClient,
-} from "@prisma/client";
 import { DashboardStats } from "../utils";
-import { getDashboardRepo } from "./respository";
-
-const prisma = new PrismaClient({
-    log: ["query", "info", "warn", "error"],
-});
+import { getDashboardRepo } from "./repository";
 
 export const getDashboardInformation = async (): Promise<DashboardStats> => {
 

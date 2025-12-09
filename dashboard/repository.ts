@@ -1,9 +1,4 @@
-import { Prisma, PrismaClient } from "@prisma/client";
-import { DashboardStats, RecordStatus, uuidToBinary } from "../utils";
-
-const prisma = new PrismaClient({
-    log: ["query"],
-});
+import { DashboardStats, RecordStatus, prisma } from "../utils";
 
 export const getDashboardRepo = async (): Promise<DashboardStats> => {
     try {
@@ -20,14 +15,14 @@ export const getDashboardRepo = async (): Promise<DashboardStats> => {
         ]);
 
         return {
-            numberOfQualifiedStudents: sponsorshipCount,
-            numberOfFinancialAssistance: schoolCount,
-            numberOfSchools: studentCount,
+            numberOfQualifiedStudents: studentCount,
+            numberOfFinancialAssistance: sponsorshipCount,
+            numberOfSchools: schoolCount,
         };
 
     } catch (error) {
         console.error('Error getDashboardRepo:', error);
-        throw new Error('Database error');
+        throw error;
     }
 };
 
