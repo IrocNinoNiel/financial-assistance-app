@@ -905,8 +905,58 @@ export type ConvertedGetAllApplicantsByStageResult = {
 };
 
 
-export type DashboardStats = {  
+export type DashboardStats = {
   numberOfQualifiedStudents: number;
   numberOfFinancialAssistance: number;
   numberOfSchools: number;
 }
+
+// Enhanced Dashboard Stats
+export type ApplicationsByStatus = {
+  pendingPooling: number;
+  followUp: number;
+  complete: number;
+  rejected: number;
+  awarded: number;
+  ranked: number;
+  notQualified: number;
+};
+
+export type ApplicationsByStage = {
+  pooling: number;
+  applicationList: number;
+  rankingSelection: number;
+  finasProper: number;
+};
+
+export type GranteesBySponsorship = {
+  sponsorshipId: string;
+  sponsorshipName: string;
+  granteeCount: number;
+};
+
+export type SchoolsByType = {
+  public: number;
+  private: number;
+};
+
+export type EnhancedDashboardStats = {
+  // Basic counts
+  numberOfQualifiedStudents: number;
+  numberOfFinancialAssistance: number;
+  numberOfSchools: number;
+
+  // Application breakdowns
+  applicationsByStatus: ApplicationsByStatus;
+  applicationsByStage: ApplicationsByStage;
+
+  // Grantees per sponsorship
+  granteesBySponsorship: GranteesBySponsorship[];
+
+  // Schools breakdown
+  schoolsByType: SchoolsByType;
+
+  // Recent activity
+  recentApplicationsCount: number; // Last 30 days
+  totalApplications: number;
+};

@@ -14,6 +14,8 @@ import sponsorshipController from "./sponsorship/controller";
 import announcementController from "./announcement/controller";
 import scheduleController from "./schedule/controller";
 import dashboardController from "./dashboard/controller";
+import resourceController from "./resources/controller";
+import notificationController from "./notification/controller";
 
 const routes = Router();
 
@@ -31,6 +33,8 @@ routes.use("/sponsorships", authentication, sponsorshipController())
 routes.use("/announcements", authentication, announcementController())
 routes.use("/schedules", authentication, scheduleController())
 routes.use("/dashboard", authentication, dashboardController());
+routes.use("/resources", resourceController()); // Public listing, auth required for CRUD
+routes.use("/notifications", authentication, notificationController());
 
 routes.get("/verify", authentication, (req, res) => {
     res.json({ valid: true, message: "you have access to this api" });

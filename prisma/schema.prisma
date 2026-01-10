@@ -28,7 +28,8 @@ model user {
   sponsors     sponsorship[] @relation(name: "sponsorship_sponsor") // Sponsorships where the user is a sponsor
   coordinators sponsorship[] @relation(name: "sponsorship_coordinator") // Sponsorships where the user is a coordinator
 
-  role role @relation(fields: [role_id], references: [id])
+  role          role           @relation(fields: [role_id], references: [id])
+  notifications notification[]
 
   @@map("users")
 }
@@ -627,4 +628,46 @@ enum FormulaType {
 enum Preference {
   MAX
   MIN
+}
+
+// ==========================================
+// Resources Module (Downloadable Forms/Templates)
+// ==========================================
+
+model resource {
+  id             Bytes    @id @default(dbgenerated("(UUID_TO_BIN(UUID()))")) @db.Binary(16)
+  title          String   @db.VarChar(255)
+  description    String?  @db.Text
+  file_name      String   @db.VarChar(255)
+  file_path      String   @db.VarChar(500)
+  file_type      String   @db.VarChar(50)
+  category       String?  @db.VarChar(100)
+  download_count Int      @default(0)
+  record_status  Boolean  @default(true)
+  created_at     DateTime @default(now())
+  created_by     Bytes?   @db.Binary(16)
+  updated_at     DateTime @updatedAt
+  updated_by     Bytes?   @db.Binary(16)
+
+  @@map("resources")
+}
+
+// ==========================================
+// Notification System
+// ==========================================
+
+model notification {
+  id           Bytes    @id @default(dbgenerated("(UUID_TO_BIN(UUID()))")) @db.Binary(16)
+  user_id      Bytes    @db.Binary(16)
+  title        String   @db.VarChar(255)
+  message      String   @db.Text
+  type         String   @db.VarChar(50) // announcement, application, schedule, system
+  reference_id Bytes?   @db.Binary(16)
+  is_read      Boolean  @default(false)
+  created_at   DateTime @default(now())
+
+  user user @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@map("notifications")
 }
