@@ -7,7 +7,7 @@ import { doesStudentExist, getOneStudent, getOneStudentUsingUserId, isEmailTaken
 import { query } from "express-validator";
 import { checkBarangayExist, checkCityMunExist, checkProvinceExist, checkRegionExist } from "../address/service";
 import { checkIfNotSponsor, doesUserExist } from "../user/service";
-import { checkIfInvalidSchoolId, checkSchoolExist, checkSchoolNameExist } from "../schools/service";
+import { checkIfInvalidSchoolId, checkSchoolExist, checkSchoolNameExist } from "../school/service";
 import { checkAcademicYearId, checkExistingAcademicYear } from "../academicYear/service";
 import { checkBatch, checkCriterionCategoryId, checkIfSponsorshipExist, checkSponsorshipCriterionCategoryId, checkSponsorshipId, doesStudentAlreadyApplied } from "../sponsorship/service";
 import { checkIfInvalidFileTypeId, doesFileExist } from "../file/service";

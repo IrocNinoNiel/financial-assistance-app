@@ -5,7 +5,7 @@ import fileController from './file/controller';
 import userController from './user/controller';
 import addressController from './address/controller';
 import roleController from './roles/controller';
-import schoolController from './schools/controller';
+import schoolController from './school/controller';
 import { allowRoles, authentication } from "./middleware/authentication";
 import studentController from "./student/controller";
 import parameters from "./middleware/parameters";
