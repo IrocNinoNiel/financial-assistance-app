@@ -1,11 +1,13 @@
 import { binaryToUuid, ChangePasswordRequest, extractUserFromToken, LoginRequest, RegisterRequest, AuthResponse, uuidToBinary } from "../utils";
 import bcrypt from 'bcryptjs';
-import { changePasswordRepo, checkEmailExistsRepo, checkRoleRepo, checkUserExists, checkUsernameExistsRepo, getPermission, getRoleRepo, getUserDetails, getUserRoleRepo, registerRepo } from "./repository";
+import crypto from 'crypto';
+import { changePasswordRepo, checkEmailExistsRepo, checkRoleRepo, checkUserExists, checkUsernameExistsRepo, getPermission, getRoleRepo, getUserDetails, getUserRoleRepo, registerRepo, getUserByEmailRepo, createPasswordResetTokenRepo, getPasswordResetTokenRepo, markTokenAsUsedRepo, resetPasswordRepo } from "./repository";
 import { convertToUser, toUserPermissionResponse } from "../utils/converter";
 import jwt from 'jsonwebtoken';
 import { Prisma, student, user } from "@prisma/client";
 import { checkIfStudentRepo, registerStudentRepo } from "../student/repository";
 import { getOneStudentUsingUserId } from "../student/service";
+import { sendPasswordResetEmail } from "../utils/email";
 
 export const registerService = async ( data: RegisterRequest, isStudent: boolean = false ) => {
 
@@ -154,4 +156,58 @@ export const checkUsernameExists  = async ( username: string, userId?: string ):
 
 export const getUserRole = async ( userId: string ) => {
     return getUserRoleRepo( userId );
+}
+
+// Password Reset Services
+export const forgotPasswordService = async (email: string): Promise<{ message: string }> => {
+    const user = await getUserByEmailRepo(email);
+
+    if (!user) {
+        // Return success message even if user not found (security best practice)
+        return { message: 'If an account with that email exists, a password reset link has been sent.' };
+    }
+
+    // Generate secure token
+    const resetToken = crypto.randomBytes(32).toString('hex');
+
+    // Token expires in 1 hour
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
+
+    // Save token to database
+    await createPasswordResetTokenRepo(user.id, resetToken, expiresAt);
+
+    // Send email
+    try {
+        await sendPasswordResetEmail(email, resetToken);
+    } catch (error) {
+        console.error('Failed to send password reset email:', error);
+        throw new Error('Failed to send password reset email. Please try again later.');
+    }
+
+    return { message: 'If an account with that email exists, a password reset link has been sent.' };
+};
+
+export const resetPasswordService = async (token: string, newPassword: string): Promise<{ message: string }> => {
+    // Find valid token
+    const resetToken = await getPasswordResetTokenRepo(token);
+
+    if (!resetToken) {
+        throw new Error('Invalid or expired reset token');
+    }
+
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update password
+    await resetPasswordRepo(resetToken.user_id, hashedPassword);
+
+    // Mark token as used
+    await markTokenAsUsedRepo(token);
+
+    return { message: 'Password has been reset successfully' };
+};
+
+export const validateResetToken = async (token: string): Promise<{ valid: boolean }> => {
+    const resetToken = await getPasswordResetTokenRepo(token);
+    return { valid: resetToken !== null };
 }

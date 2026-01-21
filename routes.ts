@@ -16,6 +16,8 @@ import scheduleController from "./schedule/controller";
 import dashboardController from "./dashboard/controller";
 import resourceController from "./resources/controller";
 import notificationController from "./notification/controller";
+import faqController from "./faq/controller";
+import staticContentController from "./staticContent/controller";
 
 const routes = Router();
 
@@ -35,6 +37,8 @@ routes.use("/schedules", authentication, scheduleController())
 routes.use("/dashboard", authentication, dashboardController());
 routes.use("/resources", resourceController()); // Public listing, auth required for CRUD
 routes.use("/notifications", authentication, notificationController());
+routes.use("/faqs", faqController()); // Public listing, auth required for CRUD
+routes.use("/static-content", staticContentController()); // Public listing, auth required for CRUD
 
 routes.get("/verify", authentication, (req, res) => {
     res.json({ valid: true, message: "you have access to this api" });

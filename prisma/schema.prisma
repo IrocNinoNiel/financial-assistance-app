@@ -631,6 +631,60 @@ enum Preference {
 }
 
 // ==========================================
+// Password Reset Token
+// ==========================================
+
+model passwordResetToken {
+  id         Bytes    @id @default(dbgenerated("(UUID_TO_BIN(UUID()))")) @db.Binary(16)
+  user_id    Bytes    @db.Binary(16)
+  token      String   @unique @db.VarChar(255)
+  expires_at DateTime
+  used       Boolean  @default(false)
+  created_at DateTime @default(now())
+
+  @@index([user_id])
+  @@index([token])
+  @@map("password_reset_tokens")
+}
+
+// ==========================================
+// FAQ Module
+// ==========================================
+
+model faq {
+  id            Bytes    @id @default(dbgenerated("(UUID_TO_BIN(UUID()))")) @db.Binary(16)
+  question      String   @db.Text
+  answer        String   @db.Text
+  category      String?  @db.VarChar(100)
+  sort_order    Int      @default(0)
+  record_status Boolean  @default(true)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+  created_by    Bytes?   @db.Binary(16)
+  updated_by    Bytes?   @db.Binary(16)
+
+  @@map("faqs")
+}
+
+// ==========================================
+// Static Content (About Us, Contact Us)
+// ==========================================
+
+model staticContent {
+  id            Bytes    @id @default(dbgenerated("(UUID_TO_BIN(UUID()))")) @db.Binary(16)
+  content_type  String   @unique @db.VarChar(50) // ABOUT_US, CONTACT_US
+  title         String   @db.VarChar(255)
+  content       String   @db.LongText
+  record_status Boolean  @default(true)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+  created_by    Bytes?   @db.Binary(16)
+  updated_by    Bytes?   @db.Binary(16)
+
+  @@map("static_contents")
+}
+
+// ==========================================
 // Resources Module (Downloadable Forms/Templates)
 // ==========================================
 

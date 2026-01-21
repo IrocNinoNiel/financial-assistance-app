@@ -1,7 +1,10 @@
 {
   "permissions": {
     "allow": [
-      "Bash(git mv:*)"
+      "Bash(git mv:*)",
+      "Bash(dir:*)",
+      "Bash(powershell -File - <<'PSCRIPT'\n$docPath = \"C:\\\\Users\\\\nielv\\\\Downloads\\\\Mockup_FINAS-TEASES \\(2\\).docx\"\nAdd-Type -AssemblyName System.IO.Compression.FileSystem\n$zip = [System.IO.Compression.ZipFile]::OpenRead\\($docPath\\)\n$entry = $zip.Entries | Where-Object { $_.FullName -eq \"word/document.xml\" }\n$stream = $entry.Open\\(\\)\n$reader = New-Object System.IO.StreamReader\\($stream\\)\n$content = $reader.ReadToEnd\\(\\)\n$reader.Close\\(\\)\n$stream.Close\\(\\)\n$zip.Dispose\\(\\)\n$text = $content -replace '<[^>]+>', \"`n\" -replace '^\\\\s*$\\\\n', '' -replace '\\\\n+', \"`n\"\nWrite-Output $text\nPSCRIPT)",
+      "Bash(npx tsc:*)"
     ]
   }
 }

@@ -1,4 +1,5 @@
-import { Prisma, PrismaClient, user } from '@prisma/client';
+import { Prisma, PrismaClient, user, Prisma as PrismaTypes } from '@prisma/client';
+type Bytes = Buffer;
 import { binaryToUuid, RecordStatus, uuidToBinary } from '../utils';
 import { User, UserRole } from './model';
 import { notEqual } from 'assert';
@@ -193,5 +194,93 @@ export const getUserRoleRepo = async ( userId: string ): Promise<string> => {
   } catch (error) {
     console.error('Error in change password:', error);
     throw new Error('Database error in getUserRoleRepo');
+  }
+}
+
+// Password Reset Functions
+export const getUserByEmailRepo = async (email: string): Promise<user | null> => {
+  try {
+    const user = await prisma.user.findFirst({
+      where: {
+        email: email,
+        record_status: RecordStatus.ACTIVE
+      }
+    });
+    return user;
+  } catch (error) {
+    console.error('Error finding user by email:', error);
+    throw new Error('Database error');
+  }
+};
+
+export const createPasswordResetTokenRepo = async (userId: Bytes | Uint8Array, token: string, expiresAt: Date) => {
+  try {
+    const userIdBuffer = Buffer.from(userId);
+
+    // Invalidate any existing tokens for this user
+    await prisma.passwordResetToken.updateMany({
+      where: {
+        user_id: userIdBuffer,
+        used: false
+      },
+      data: {
+        used: true
+      }
+    });
+
+    // Create new token
+    const resetToken = await prisma.passwordResetToken.create({
+      data: {
+        user_id: userIdBuffer,
+        token: token,
+        expires_at: expiresAt
+      }
+    });
+    return resetToken;
+  } catch (error) {
+    console.error('Error creating password reset token:', error);
+    throw new Error('Database error');
+  }
+};
+
+export const getPasswordResetTokenRepo = async (token: string) => {
+  try {
+    const resetToken = await prisma.passwordResetToken.findFirst({
+      where: {
+        token: token,
+        used: false,
+        expires_at: {
+          gt: new Date()
+        }
+      }
+    });
+    return resetToken;
+  } catch (error) {
+    console.error('Error fetching password reset token:', error);
+    throw new Error('Database error');
+  }
+};
+
+export const markTokenAsUsedRepo = async (token: string) => {
+  try {
+    await prisma.passwordResetToken.updateMany({
+      where: { token: token },
+      data: { used: true }
+    });
+  } catch (error) {
+    console.error('Error marking token as used:', error);
+    throw new Error('Database error');
+  }
+};
+
+export const resetPasswordRepo = async (userId: Bytes | Uint8Array, hashedPassword: string) => {
+  try {
+    await prisma.user.update({
+      where: { id: Buffer.from(userId) },
+      data: { password: hashedPassword }
+    });
+  } catch (error) {
+    console.error('Error resetting password:', error);
+    throw new Error('Database error');
   }
 }
