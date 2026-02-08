@@ -17,6 +17,7 @@
     "@types/multer": "^1.4.12",
     "@types/node": "^22.12.0",
     "@types/nodemailer": "^7.0.5",
+    "@types/pdfkit": "^0.17.4",
     "nodemon": "^3.1.9",
     "prisma": "^6.3.0",
     "typescript": "^5.7.3"
@@ -30,9 +31,11 @@
     "express": "^4.21.2",
     "express-validator": "^7.0.1",
     "http-status-codes": "^2.3.0",
+    "ical-generator": "^10.0.0",
     "jsonwebtoken": "^9.0.2",
     "multer": "^1.4.5-lts.1",
     "nodemailer": "^7.0.12",
+    "pdfkit": "^0.17.2",
     "ts-node": "^10.9.2",
     "uuid": "^11.0.5"
   }

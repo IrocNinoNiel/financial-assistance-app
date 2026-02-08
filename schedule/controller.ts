@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { ResponseHandler } from "../response";
-import { edit, fetch, list, remove, store } from "./service";
+import { edit, fetch, list, remove, store, generateSchedulePDFForStudent, notifyAllStudentsWithPDF, getScheduleWithStudents } from "./service";
 import { getQueryParams, QueryParams, ScheduleRequest, VALIDATION_MESSAGES } from "../utils";
-import { validateScheduleId, validateSchedulePayload } from "../middleware/validation";
+import { validateScheduleId, validateSchedulePayload, validateStudentId } from "../middleware/validation";
 import { allowRoles } from "../middleware/authentication";
 
 
@@ -62,6 +62,43 @@ export default () => {
             ResponseHandler.deleted(req, res, VALIDATION_MESSAGES.SCHEDULE_DELETED);
         } catch (err) {
             ResponseHandler.invalidRequest(req,res , err.message);
+        }
+    });
+
+    // Generate and download PDF for a specific student's schedule
+    scheduleAPI.get('/:scheduleId/pdf/:studentId', validateScheduleId, async (req, res) => {
+        try {
+            const { scheduleId, studentId } = req.params;
+            const pdfData = await generateSchedulePDFForStudent(scheduleId, studentId);
+
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', `attachment; filename="${pdfData.fileName}"`);
+            res.send(pdfData.buffer);
+        } catch (err) {
+            ResponseHandler.invalidRequest(req, res, err.message);
+        }
+    });
+
+    // Notify all students in a schedule with PDF attachment
+    scheduleAPI.post('/:scheduleId/notify-all', allowRoles('system admin', 'financial assistance coordinator'), validateScheduleId, async (req, res) => {
+        try {
+            const { scheduleId } = req.params;
+            const authHeader: string = req.headers.authorization;
+            const result = await notifyAllStudentsWithPDF(scheduleId, authHeader);
+            ResponseHandler.ok(req, res, result);
+        } catch (err) {
+            ResponseHandler.invalidRequest(req, res, err.message);
+        }
+    });
+
+    // Get schedule with associated students
+    scheduleAPI.get('/:scheduleId/students', validateScheduleId, async (req, res) => {
+        try {
+            const { scheduleId } = req.params;
+            const data = await getScheduleWithStudents(scheduleId);
+            ResponseHandler.ok(req, res, data);
+        } catch (err) {
+            ResponseHandler.invalidRequest(req, res, err.message);
         }
     });
 

@@ -308,4 +308,25 @@ export const VALIDATION_MESSAGES = {
     CUSTOM_INPUT_SPON_CRIT_ID_NOT_FOUND: 'sponsorship criterion id not found',
     SLOT_FULL: "No slots available for this sponsorship.",
     LIMIT_REACHED: "The number of accepted applicants has already reached its limit.",
+
+    // Document Tracking
+    SPONSORSHIP_APPLICATION_ID_REQUIRED: "sponsorshipApplicationId is required",
+    SPONSORSHIP_APPLICATION_ID_INVALID: "sponsorshipApplicationId must be a valid UUID",
+    SPONSORSHIP_APPLICATION_NOT_FOUND: "Sponsorship application not found",
+    DOCUMENT_DESTINATION_REQUIRED: "destination is required",
+    DOCUMENT_DESTINATION_INVALID: "destination must be a string",
+    DOCUMENT_DATE_SUBMITTED_INVALID: "dateSubmitted must be a valid ISO8601 date",
+    DOCUMENT_REMARKS_INVALID: "remarks must be a string",
+    DOCUMENT_ID_REQUIRED: "documentId is required",
+    DOCUMENT_ID_INVALID: "documentId must be a valid UUID",
+    DOCUMENT_NOT_FOUND: "Document not found",
+    DOCUMENT_STATUS_REQUIRED: "status is required",
+    DOCUMENT_STATUS_INVALID: "Invalid document status.",
+    DOCUMENT_DELETED: "Document tracking record deleted successfully",
+
+    // Calendar
+    CALENDAR_START_DATE_INVALID: "startDate must be a valid ISO8601 date",
+    CALENDAR_END_DATE_INVALID: "endDate must be a valid ISO8601 date",
+    CALENDAR_END_DATE_BEFORE_START: "endDate must be after startDate",
+    CALENDAR_EVENT_TYPE_INVALID: "Invalid event type.",
 };

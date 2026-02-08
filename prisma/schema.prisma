@@ -445,8 +445,9 @@ model sponsorshipApplication {
   created_by         Bytes              @db.Binary(16)
   updated_by         Bytes              @db.Binary(16)
 
-  student     student     @relation(fields: [student_id], references: [id])
-  sponsorship sponsorship @relation(fields: [sponsorship_id], references: [id])
+  student          student            @relation(fields: [student_id], references: [id])
+  sponsorship      sponsorship        @relation(fields: [sponsorship_id], references: [id])
+  documentTracking documentTracking[]
 
   @@map("sponsorshipapplications")
 }
@@ -573,6 +574,16 @@ model customInputCriterion {
 enum schedule_type {
   TEST
   INTERVIEW
+}
+
+enum document_status {
+  RECEIVED
+  IN_REVIEW
+  FORWARDED
+  PROCESSING
+  APPROVED
+  RETURNED
+  REJECTED
 }   
 
 enum siblings_sibling_status {
@@ -724,4 +735,44 @@ model notification {
 
   @@index([user_id])
   @@map("notifications")
+}
+
+// ==========================================
+// Document Tracking System
+// ==========================================
+
+model documentTracking {
+  id                         Bytes           @id @default(dbgenerated("(UUID_TO_BIN(UUID()))")) @db.Binary(16)
+  sponsorship_application_id Bytes           @db.Binary(16)
+  document_code              String          @unique @db.VarChar(50)
+  current_status             document_status @default(RECEIVED)
+  current_destination        String          @db.VarChar(255)
+  date_submitted             DateTime?
+  remarks                    String?         @db.Text
+  record_status              Boolean         @default(true)
+  created_at                 DateTime        @default(now())
+  updated_at                 DateTime        @updatedAt
+  created_by                 Bytes?          @db.Binary(16)
+  updated_by                 Bytes?          @db.Binary(16)
+
+  sponsorshipApplication sponsorshipApplication @relation(fields: [sponsorship_application_id], references: [id], onDelete: Cascade)
+  history                documentTrackingHistory[]
+
+  @@index([sponsorship_application_id])
+  @@map("document_trackings")
+}
+
+model documentTrackingHistory {
+  id                   Bytes           @id @default(dbgenerated("(UUID_TO_BIN(UUID()))")) @db.Binary(16)
+  document_tracking_id Bytes           @db.Binary(16)
+  status               document_status
+  destination          String          @db.VarChar(255)
+  remarks              String?         @db.Text
+  action_date          DateTime        @default(now())
+  action_by            Bytes?          @db.Binary(16)
+
+  documentTracking documentTracking @relation(fields: [document_tracking_id], references: [id], onDelete: Cascade)
+
+  @@index([document_tracking_id])
+  @@map("document_tracking_history")
 }

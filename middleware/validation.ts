@@ -1,4 +1,6 @@
 import { APPLICATION_STAGE, APPLICATION_STATUS, AuthPayload, ColumnEnum, error, EvaluationStatus, extractUserFromToken, LoginRequest, RegisterRequest, TableColumnMap, TableEnum, VALIDATION_MESSAGES } from "../utils";
+import { findIfExists as findDocumentIfExists, checkApplicationExists } from "../documentTracking/service";
+import { document_status } from "@prisma/client";
 import { NextFunction, Request, RequestHandler, Response } from "express";
 import ResponseHandler from "../response/response";
 import { validationResult, body, param } from "express-validator";
@@ -1185,3 +1187,99 @@ export const validateFileId = [
   }),
   validateErrors
 ]
+
+// ==========================================
+// Document Tracking Validations
+// ==========================================
+
+export const validateCreateDocumentTracking = [
+  body("sponsorshipApplicationId")
+    .notEmpty().withMessage(VALIDATION_MESSAGES.SPONSORSHIP_APPLICATION_ID_REQUIRED)
+    .isUUID().withMessage(VALIDATION_MESSAGES.SPONSORSHIP_APPLICATION_ID_INVALID)
+    .custom(async (applicationId) => {
+      const exists = await checkApplicationExists(applicationId);
+      if (!exists) {
+        return Promise.reject(VALIDATION_MESSAGES.SPONSORSHIP_APPLICATION_NOT_FOUND);
+      }
+    }),
+  body("destination")
+    .notEmpty().withMessage(VALIDATION_MESSAGES.DOCUMENT_DESTINATION_REQUIRED)
+    .isString().withMessage(VALIDATION_MESSAGES.DOCUMENT_DESTINATION_INVALID),
+  body("dateSubmitted")
+    .optional({ nullable: true, checkFalsy: true })
+    .isISO8601().withMessage(VALIDATION_MESSAGES.DOCUMENT_DATE_SUBMITTED_INVALID),
+  body("remarks")
+    .optional({ nullable: true, checkFalsy: true })
+    .isString().withMessage(VALIDATION_MESSAGES.DOCUMENT_REMARKS_INVALID),
+  validateErrors
+];
+
+export const validateDocumentTrackingId = [
+  param("documentId")
+    .notEmpty().withMessage(VALIDATION_MESSAGES.DOCUMENT_ID_REQUIRED)
+    .isUUID().withMessage(VALIDATION_MESSAGES.DOCUMENT_ID_INVALID)
+    .custom(async (documentId) => {
+      const exists = await findDocumentIfExists(documentId);
+      if (!exists) {
+        return Promise.reject(VALIDATION_MESSAGES.DOCUMENT_NOT_FOUND);
+      }
+    }),
+  validateErrors
+];
+
+export const validateUpdateDocumentStatus = [
+  body("status")
+    .notEmpty().withMessage(VALIDATION_MESSAGES.DOCUMENT_STATUS_REQUIRED)
+    .custom((value) => {
+      const validStatuses = Object.values(document_status);
+      if (!validStatuses.includes(value)) {
+        throw new Error(VALIDATION_MESSAGES.DOCUMENT_STATUS_INVALID + ` Allowed values: ${validStatuses.join(', ')}`);
+      }
+      return true;
+    }),
+  body("destination")
+    .notEmpty().withMessage(VALIDATION_MESSAGES.DOCUMENT_DESTINATION_REQUIRED)
+    .isString().withMessage(VALIDATION_MESSAGES.DOCUMENT_DESTINATION_INVALID),
+  body("remarks")
+    .optional({ nullable: true, checkFalsy: true })
+    .isString().withMessage(VALIDATION_MESSAGES.DOCUMENT_REMARKS_INVALID),
+  validateErrors
+];
+
+// ==========================================
+// Calendar Validations
+// ==========================================
+
+export const validateCalendarQuery = [
+  query('startDate')
+    .optional({ nullable: true, checkFalsy: true })
+    .isISO8601().withMessage(VALIDATION_MESSAGES.CALENDAR_START_DATE_INVALID),
+  query('endDate')
+    .optional({ nullable: true, checkFalsy: true })
+    .isISO8601().withMessage(VALIDATION_MESSAGES.CALENDAR_END_DATE_INVALID)
+    .custom((value, { req }) => {
+      if (value && req.query.startDate) {
+        const start = new Date(req.query.startDate);
+        const end = new Date(value);
+        if (end < start) {
+          throw new Error(VALIDATION_MESSAGES.CALENDAR_END_DATE_BEFORE_START);
+        }
+      }
+      return true;
+    }),
+  query('eventTypes')
+    .optional({ nullable: true, checkFalsy: true })
+    .custom((value) => {
+      if (value) {
+        const types = value.split(',');
+        const validTypes = ['SCHEDULE', 'DEADLINE', 'ANNOUNCEMENT'];
+        for (const type of types) {
+          if (!validTypes.includes(type.trim())) {
+            throw new Error(VALIDATION_MESSAGES.CALENDAR_EVENT_TYPE_INVALID + ` Allowed values: ${validTypes.join(', ')}`);
+          }
+        }
+      }
+      return true;
+    }),
+  validateErrors
+];

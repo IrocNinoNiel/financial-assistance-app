@@ -960,3 +960,129 @@ export type EnhancedDashboardStats = {
   recentApplicationsCount: number; // Last 30 days
   totalApplications: number;
 };
+
+// ==========================================
+// Document Tracking Types
+// ==========================================
+
+export type DocumentStatus =
+  | 'RECEIVED'
+  | 'IN_REVIEW'
+  | 'FORWARDED'
+  | 'PROCESSING'
+  | 'APPROVED'
+  | 'RETURNED'
+  | 'REJECTED';
+
+export type CreateDocumentTrackingRequest = {
+  sponsorshipApplicationId: string;
+  destination: string;
+  dateSubmitted?: string;
+  remarks?: string;
+};
+
+export type UpdateDocumentStatusRequest = {
+  status: DocumentStatus;
+  destination: string;
+  remarks?: string;
+};
+
+export type DocumentHistoryResponse = {
+  id: string;
+  status: string;
+  destination: string;
+  remarks: string | null;
+  actionDate: string;
+  actionBy: string | null;
+};
+
+export type DocumentTrackingResponse = {
+  id: string;
+  sponsorshipApplicationId: string;
+  applicationNumber: string;
+  studentName: string;
+  sponsorshipName: string;
+  documentCode: string;
+  currentStatus: string;
+  currentDestination: string;
+  dateSubmitted: string | null;
+  remarks: string | null;
+  createdAt: string;
+  updatedAt: string;
+  history: DocumentHistoryResponse[];
+};
+
+export type PublicDocumentTrackingResponse = {
+  documentCode: string;
+  currentStatus: string;
+  currentDestination: string;
+  dateSubmitted: string | null;
+  lastUpdated: string;
+  history: {
+    status: string;
+    destination: string;
+    actionDate: string;
+  }[];
+};
+
+// ==========================================
+// Calendar Types
+// ==========================================
+
+export type CalendarEventType = 'SCHEDULE' | 'DEADLINE' | 'ANNOUNCEMENT';
+
+export type CalendarEvent = {
+  id: string;
+  title: string;
+  description: string;
+  eventType: CalendarEventType;
+  startDate: string;
+  endDate: string;
+  location?: string;
+  metadata: {
+    sponsorshipName?: string;
+    scheduleType?: string;
+    batchNo?: number;
+    [key: string]: any;
+  };
+};
+
+export type CalendarSummary = {
+  schedules: number;
+  deadlines: number;
+  announcements: number;
+  total: number;
+};
+
+export type CalendarResponse = {
+  events: CalendarEvent[];
+  summary: CalendarSummary;
+};
+
+export type CalendarQueryParams = {
+  startDate?: string;
+  endDate?: string;
+  eventTypes?: CalendarEventType[];
+};
+
+// ==========================================
+// PDF Generation Types
+// ==========================================
+
+export type SchedulePDFData = {
+  scheduleType: 'TEST' | 'INTERVIEW';
+  studentName: string;
+  sponsorshipName: string;
+  location: string;
+  startDate: Date;
+  endDate: Date;
+  batchNo: number;
+  documentCode?: string;
+  instructions?: string[];
+};
+
+export type GeneratedPDF = {
+  filePath: string;
+  fileName: string;
+  buffer?: Buffer;
+};

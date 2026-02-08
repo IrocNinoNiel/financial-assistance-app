@@ -18,6 +18,8 @@ import resourceController from "./resources/controller";
 import notificationController from "./notification/controller";
 import faqController from "./faq/controller";
 import staticContentController from "./staticContent/controller";
+import documentTrackingController, { publicDocumentTrackingController } from "./documentTracking/controller";
+import calendarController from "./calendar/controller";
 
 const routes = Router();
 
@@ -39,6 +41,9 @@ routes.use("/resources", resourceController()); // Public listing, auth required
 routes.use("/notifications", authentication, notificationController());
 routes.use("/faqs", faqController()); // Public listing, auth required for CRUD
 routes.use("/static-content", staticContentController()); // Public listing, auth required for CRUD
+routes.use("/document-tracking", authentication, documentTrackingController());
+routes.use("/document-tracking", publicDocumentTrackingController()); // Public tracking by code
+routes.use("/calendar", authentication, calendarController());
 
 routes.get("/verify", authentication, (req, res) => {
     res.json({ valid: true, message: "you have access to this api" });
