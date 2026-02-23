@@ -305,6 +305,17 @@ export const getOneSponsorshipRepo = async (
             }
           }
         }
+      },
+      pairwise: {
+        where: { record_status: RecordStatus.ACTIVE },
+        select: {
+          id: true,
+          sponsorship_criterion_id_a: true,
+          sponsorship_criterion_name_a: true,
+          sponsorship_criterion_id_b: true,
+          sponsorship_criterion_name_b: true,
+          value: true,
+        }
       }
     }
   });

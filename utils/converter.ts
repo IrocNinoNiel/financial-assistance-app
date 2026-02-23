@@ -481,6 +481,14 @@ export function toSponsorshipResponse( payload: any ): SponsorshipResponse {
         column: col.column,
       }))
     })),
+    pairwise: (payload.pairwise ?? []).map((item: any) => ({
+      id: binaryToUuid(item.id),
+      criterionIdA: binaryToUuid(item.sponsorship_criterion_id_a),
+      criterionNameA: item.sponsorship_criterion_name_a,
+      criterionIdB: binaryToUuid(item.sponsorship_criterion_id_b),
+      criterionNameB: item.sponsorship_criterion_name_b,
+      value: item.value,
+    })),
   };
 }
 
