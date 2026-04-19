@@ -308,10 +308,11 @@ export interface UserListResponse {
   middleName?: string | null;
   lastName: string;
   mobileNumber: string;
-  userId: string; 
+  userId: string;
   email: string;
   userType: string;
   userTypeId: string;
+  profilePhoto?: string | null;
 }
 
 export interface GetAllUsersParams {
