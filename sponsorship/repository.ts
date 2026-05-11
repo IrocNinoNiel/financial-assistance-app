@@ -879,6 +879,12 @@ export const getAllApplicantsByStageRepo = async (
     whereCondition.sponsorship_id = uuidToBinary(params.sponsorshipId);
   }
 
+  if (params.search && params.search !== '') {
+    whereCondition.sponsorship = {
+      name: { contains: params.search }
+    };
+  }
+
   const orderBy: any = {};
   if (params.sort) {
     orderBy['created_at'] = params.sort === 'desc' ? 'desc' : 'asc';
