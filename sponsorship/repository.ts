@@ -188,6 +188,26 @@ export const getAllSponsorshipRepo = async (
     };
   }
 
+  if (params.status) {
+    whereCondition.status = params.status;
+  }
+
+  if (params.academic_year_id) {
+    whereCondition.academic_year_id = uuidToBinary(params.academic_year_id);
+  }
+
+  if (params.sponsor_id) {
+    whereCondition.sponsor_id = uuidToBinary(params.sponsor_id);
+  }
+
+  if (params.duration_from) {
+    whereCondition.duration_from = { gte: new Date(params.duration_from) };
+  }
+
+  if (params.duration_to) {
+    whereCondition.duration_to = { lte: new Date(params.duration_to) };
+  }
+
   return await prisma.sponsorship.findMany({
     where: whereCondition,
     skip: params.offset,

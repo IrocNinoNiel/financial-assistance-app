@@ -511,6 +511,11 @@ export type  QueryParams = {
   studentId?: string;
   applicationStage?: string;
   applicationStatus?: string;
+  status?: string;
+  academic_year_id?: string;
+  sponsor_id?: string;
+  duration_from?: string;
+  duration_to?: string;
 }
 
 
