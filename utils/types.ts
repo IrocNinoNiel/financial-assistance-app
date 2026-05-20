@@ -123,6 +123,11 @@ export interface ApplySponsorshipResponse {
   sponsorshipRequirement?: SponReq[],
   studentFiles?: StudentFile[]
 }
+export interface PaginatedStudentSponsorshipResponse {
+  data: ApplySponsorshipResponse[];
+  total: number;
+}
+
 export interface SponReq {
   fileId: string,
   fileName: string
