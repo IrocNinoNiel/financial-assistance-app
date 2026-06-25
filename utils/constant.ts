@@ -60,6 +60,15 @@ export enum APPLICATION_STATUS {
     AWARDED = "AWARDED",
 }
 
+// Remarks are only required when the coordinator gives a negative / needs-action
+// decision. Positive statuses (COMPLETE/accepted, APPROVED, RANKED, AWARDED,
+// PENDING_*) do not require a reason.
+export const STATUSES_REQUIRING_REMARKS: APPLICATION_STATUS[] = [
+    APPLICATION_STATUS.REJECTED,
+    APPLICATION_STATUS.FOLLOW_UP,
+    APPLICATION_STATUS.NOT_QUALIFIED,
+];
+
 export enum EvaluationStatus {
     PENDING = "PENDING",
     PASSED = "PASSED",

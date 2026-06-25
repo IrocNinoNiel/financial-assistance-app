@@ -3905,6 +3905,10 @@ components:
           example: 1
         sponsorshipSchool:
           type: array
+          description: >
+            List of school IDs this sponsorship is scoped to. Optional - an empty array or an
+            omitted field means the sponsorship applies to ALL schools (current and future) and
+            is visible to every student.
           items:
             type: string
             example: a2815764-f067-11ef-ae8c-f4b520508eb0

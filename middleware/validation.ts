@@ -1,4 +1,4 @@
-import { ACADEMIC_STRANDS, APPLICATION_STAGE, APPLICATION_STATUS, AuthPayload, AWARD_HONORS, ColumnEnum, error, EvaluationStatus, extractUserFromToken, LoginRequest, RegisterRequest, TableColumnMap, TableEnum, VALIDATION_MESSAGES } from "../utils";
+import { ACADEMIC_STRANDS, APPLICATION_STAGE, APPLICATION_STATUS, AuthPayload, AWARD_HONORS, ColumnEnum, error, EvaluationStatus, extractUserFromToken, LoginRequest, RegisterRequest, STATUSES_REQUIRING_REMARKS, TableColumnMap, TableEnum, VALIDATION_MESSAGES } from "../utils";
 import { NextFunction, Request, RequestHandler, Response } from "express";
 import ResponseHandler from "../response/response";
 import { validationResult, body, param } from "express-validator";
@@ -594,8 +594,10 @@ export const validateStudentId = [
 ]
 
 export const validateChangeStudentStatus = [
-  // remarks must exist
+  // remarks is required only for negative / needs-action statuses
+  // (REJECTED, FOLLOW_UP, NOT_QUALIFIED); accepted/positive statuses do not need one.
   body("remarks")
+    .if((value, { req }) => STATUSES_REQUIRING_REMARKS.includes(req.body.appStatus))
     .notEmpty().withMessage(VALIDATION_MESSAGES.REMARKS_REQUIRED),
   // check if sponsorship is on the system
   body("sponsorshipId")
@@ -742,15 +744,21 @@ export const validateSponsorship =  [
       }
       return true;
     }),
+  // An empty or omitted list means the sponsorship applies to ALL schools.
   body("sponsorshipSchool")
-    .isArray({ min: 1 })
-    .withMessage(VALIDATION_MESSAGES.SPONSORSHIP_SCHOOL_REQUIRED)
+    .optional({ nullable: true })
+    .isArray()
+    .withMessage(VALIDATION_MESSAGES.SPONSORSHIP_SCHOOL_INVALID)
     .custom( async (value) => {
+      if (value.length === 0) {
+        return true; // all schools
+      }
+
       if (!value.every((item) => typeof item === "string" && item.trim() !== "")) {
         throw new Error(VALIDATION_MESSAGES.SPONSORSHIP_SCHOOL_INVALID);
       }
-      
-      const invalidSchoolId: boolean = await checkIfInvalidSchoolId( value ); 
+
+      const invalidSchoolId: boolean = await checkIfInvalidSchoolId( value );
       if (invalidSchoolId) {
         console.log("Invalid school here");
         throw new Error(VALIDATION_MESSAGES.SPONSORSHIP_SCHOOL_INVALID);
