@@ -206,7 +206,7 @@ const commonValidationMiddleware = [
     .customSanitizer(value => (typeof value === 'string' ? value.trim().toUpperCase() : value))
     .isIn(ACADEMIC_STRANDS).withMessage(VALIDATION_MESSAGES.G12_ACADEMIC_STRAND_INVALID),
   body('g12ProgramName').optional({ nullable: true, checkFalsy: true }).isString().withMessage(VALIDATION_MESSAGES.G12_PROGRAM_NAME_REQUIRED),
-  body('g12YearOfGraduation').optional({ nullable: true, checkFalsy: true }).isInt().withMessage(VALIDATION_MESSAGES.G12_YEAR_OF_GRADUATION_INVALID),
+  body('g12YearOfGraduation').optional({ nullable: true, checkFalsy: true }).isInt().withMessage(VALIDATION_MESSAGES.G12_YEAR_OF_GRADUATION_INVALID).toInt(),
   body('g12AwardHonor')
     .optional({ nullable: true, checkFalsy: true })
     .customSanitizer(normalizeAwardHonor)
