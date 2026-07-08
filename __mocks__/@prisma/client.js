@@ -11,6 +11,13 @@ const mockPrisma = {
   sponsorship: { findMany: jest.fn(), count: jest.fn() },
   announcement: { findMany: jest.fn(), count: jest.fn() },
   student: { findFirst: jest.fn() },
+  schedule: {
+    findFirst: jest.fn(),
+    findUnique: jest.fn(),
+    findMany: jest.fn(),
+    create: jest.fn(),
+    update: jest.fn(),
+  },
 };
 
 module.exports = {
