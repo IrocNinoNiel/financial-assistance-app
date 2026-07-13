@@ -620,8 +620,13 @@ enum application_status {
   RANKED
   NOT_QUALIFIED
 
-  // Final Selection Stage Statuses
+  // Final Selection Stage Statuses. AWARDED doubles as the "Active" grantee
+  // state in the post-award Monitoring List (Awarded == Active).
   AWARDED
+
+  // Post-award Monitoring (grantee lifecycle) Statuses
+  DELISTED
+  GRADUATED
 }
 
 enum EvaluationStatus {
