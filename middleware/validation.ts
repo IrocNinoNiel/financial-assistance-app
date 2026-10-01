@@ -957,10 +957,16 @@ export const validateSchedulePayload = [
         return Promise.reject(VALIDATION_MESSAGES.SPONSORSHIP_ID_NOT_FOUND);
       }
     }),
+  // batchNo must equal the sponsorship's own batch_number (one sponsorship row
+  // is one batch). Coerced to an int and bailed on first failure so a string or
+  // missing value gets a validation message instead of a raw Prisma error.
   body("batchNo")
-    .notEmpty().withMessage(VALIDATION_MESSAGES.BATCH_NO_REQUIRED)
+    .notEmpty().withMessage(VALIDATION_MESSAGES.BATCH_NO_REQUIRED).bail()
+    .isInt({ min: 1 }).withMessage(VALIDATION_MESSAGES.BATCH_NO_NOT_EXIST).bail()
+    .toInt()
     .custom( async ( batchNo, { req } ) => {
       const sponsorshipId = req.body.sponsorshipId;
+      if (!sponsorshipId) return; // reported by the sponsorshipId validator
       const batchExist = await checkBatch( batchNo, sponsorshipId );
 
       if(!batchExist) {
